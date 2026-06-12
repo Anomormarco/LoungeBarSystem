@@ -1,261 +1,390 @@
-Төслийн нэр
+# Lounge / Restaurant Table Reservation Platform — Шинэчилсэн Тодорхойлолт (v2)
 
-Lounge Table Reservation Platform
+Анхны төслийн саналыг үндэс болгож, доорх шинэ шаардлагуудыг нэмж, бүрэн боловсруулсан тодорхойлолт.
 
-Хэрэглэгч real-time байдлаар lounge-уудын сул ширээ шалгаад, боломжтой lounge дээр захиалга өгөх систем.
+---
 
-1. User requirements
-Хэрэглэгч тал
-Register / Login
-Lounge жагсаалт харах
-Lounge filter хийх:
-Байршил
-Үнэ
-Rating
-Сул ширээтэй эсэх
-VIP / normal table
-Lounge detail харах:
-Зураг
-Хаяг
-Цагийн хуваарь
-Ширээний төрөл
-Үлдсэн сул ширээ
-Real-time сул ширээ харах
-Ширээ сонгох
-Захиалга өгөх
-Захиалгын төлөв харах:
-Pending
-Confirmed
-Cancelled
-Completed
-Захиалга цуцлах
-Захиалгын түүх харах
-2. Lounge owner / partner requirements
-Lounge dashboard
-Login хийх
-Өөрийн lounge profile удирдах
-Ширээ нэмэх / засах / устгах
-Ширээний төлөв өөрчлөх:
-Available
-Reserved
-Occupied
-Disabled
-Захиалга харах
-Захиалга батлах / цуцлах
-Real-time update хийх
-Өдрийн захиалгын жагсаалт харах
-Lounge ажиллах цаг тохируулах
-3. Admin requirements
-Platform admin
-Бүх хэрэглэгч харах
-Lounge owner approve хийх
-Lounge нэмэх / устгах / засах
-Бүх захиалга харах
-Complaint / report харах
-Dashboard statistics:
-Нийт хэрэглэгч
-Нийт lounge
-Өнөөдрийн захиалга
-Цуцлагдсан захиалга
-Идэвхтэй ширээ
-4. Real-time requirements
+## 1. Үзэл баримтлал (Concept)
 
-Энэ төслийн хамгийн чухал хэсэг.
+Хэрэглэгч бүртгэл (login/register) шаардлагагүйгээр шууд апп руу ороод:
 
-Хэрэглэгч lounge detail page дээр байх үед сул ширээ real-time шинэчлэгдэнэ
-Нэг хэрэглэгч ширээ захиалбал бусад хэрэглэгчид шууд “reserved” болж харагдана
-Lounge owner ширээний төлөв өөрчилбөл хэрэглэгч тал дээр шууд шинэчлэгдэнэ
-Давхар захиалга үүсэхээс server тал дээр хамгаална
+1. Байршлын зөвшөөрөл олгоно → хэрэглэгчийн location автоматаар татагдана.
+2. Ойролцоо ~50 орчим restaurant/lounge-ийг байршлаар эрэмбэлж жагсаалт болгон харуулна (distance-based sort).
+3. Аль нэг байгууллага дээр дарвал Lounge Detail Page нээгдэнэ:
+   - Exterior зураг
+   - Interior зураг
+   - Menu (хоол, ундааны жагсаалт, үнэ)
+   - Ширээний төлөв — Real-time: available / reserved / occupied / гэх мэт
+4. Хэрэглэгч сул ширээ харвал захиалга өгөх боломжтой.
+5. Захиалгыг баталгаажуулахын тулд Нэр, Утасны дугаар, Email оруулах form бөглүүлнэ.
+6. Email-рүү баталгаажуулах код (OTP) илгээгдэж, хэрэглэгч уг кодыг оруулснаар захиалга бүртгэгдэнэ.
+7. Захиалга бүртгэгдэх мөчид Owner Dashboard руу шууд очиж, notification үүснэ.
+8. Owner захиалгыг харж, confirm / cancel хийнэ.
 
-Ашиглаж болох технологи:
+> Энэ горимоор хэрэглэгчийн талд хүндрэлтэй login/register flow арилж, conversion rate сайжрах зорилготой.
 
-Socket.IO
-WebSocket
-Supabase Realtime
-Firebase Realtime Database
-5. Reservation flow
-Flow
-User lounge сонгоно
-Сул ширээ шалгана
-Ширээ сонгоно
-Огноо, цаг сонгоно
-Захиалга илгээнэ
-Server ширээ үнэхээр сул эсэхийг шалгана
-Захиалга үүсгэнэ
-Lounge owner-д notification очно
-Lounge owner confirm хийнэ
-User confirmed төлөв харна
-6. Database tables
-users
-id
-name
-email
-phone
-password
-role: user / lounge_owner / admin
-created_at
-lounges
-id
-owner_id
-name
-description
-address
-phone
-opening_time
-closing_time
-status
-created_at
+---
+
+## 2. Системийн 4 UI
+
+| № | UI | Зориулалт | Хэрэглэгч |
+|---|----|-----------|-----------|
+| 1 | User UI | Байршил-суурьтай lounge хайх, харах, захиалга өгөх | Зочин (login шаардлагагүй) |
+| 2 | Owner Dashboard UI | Захиалга, ажилтан, ширээ, menu, statistics удирдах | Lounge/Restaurant эзэмшигч (login шаардлагатай) |
+| 3 | Admin Dashboard UI | Бүх байгууллага, subscription, CRUD удирдлага | Platform admin (login шаардлагатай) |
+| 4 | Company Introduction UI | Платформын танилцуулга + Subscription/Payment (Stripe, QPay) | Lounge owner-д зориулсан single-page |
+
+---
+
+## 3. UI-уудын дэлгэрэнгүй тодорхойлолт
+
+### 3.1 User UI (Public — login шаардлагагүй)
+
+Pages:
+- Home / Discovery page
+  - Browser-аас location зөвшөөрөл асуух
+  - Ойролцоо lounge-уудыг distance-аар sort хийж жагсаах (~50 орчим)
+  - Filter: байршил (radius), үнэ, rating, сул ширээтэй эсэх, VIP/normal
+- Lounge Detail Page
+  - Exterior / Interior зургийн gallery
+  - Хаяг, ажиллах цаг, утас
+  - Menu жагсаалт (ангилал, нэр, үнэ, зураг)
+  - Ширээний бүдүүвч (table map) — real-time төлөв: available / reserved / occupied / тусгай нэртэй (Монгол нэршил боломжтой)
+- Reservation Modal/Page
+  - Огноо, цаг, зочдын тоо сонгох
+  - Сул ширээ сонгох
+  - Confirmation Form: Нэр, Утас, Email
+  - Email рүү илгээсэн 6 оронтой OTP код оруулах
+  - Код зөв бол → захиалга pending статустай үүснэ → owner-д notification
+
+### 3.2 Owner Dashboard UI
+
+- Login (email/password)
+- Захиалгын самбар
+  - Шинэ захиалга real-time ирэх (notification badge/sound)
+  - Confirm / Cancel / Complete товчнууд
+  - Өдрийн захиалгын жагсаалт
+- Ширээний удирдлага (Table CRUD)
+  - Ширээ нэмэх/засах/устгах
+  - Төлөв тохируулах — owner өөрийн дуртай нэршил (статус) тохируулах боломжтой (жишээ: "Бэлэн", "Захиалгатай", "Цэвэрлэгээ хийгдэж байна" гэх мэт), системийн дотор available / reserved / occupied / disabled / custom гэсэн enum-тэй mapping хийгдэнэ
+- Menu CRUD
+  - Хоол/ундааны зүйл нэмэх/засах/устгах, үнэ, зураг, ангилал
+- Ажилтны удирдлага (Staff management)
+  - Ажилтан нэмэх/засах/устгах
+  - Эрхийн түвшин (waiter, cashier, manager)
+- Statistics / Analytics
+  - 7 хоног / 1 сарын захиалгын тоо, орлого (хэрвээ payment холбосон бол), хамгийн их захиалгатай ширээ, хамгийн их захиалгатай цаг
+  - Chart (line/bar) — захиалгын тренд
+- Subscription статус харуулах (хэрэв хугацаа дуусч байгаа бол сануулга)
+
+### 3.3 Admin Dashboard UI
+
+- Байгууллагуудын жагсаалт (lounge/restaurant)
+  - CRUD (нэмэх, засах, устгах, approve/reject)
+  - Subscription статус харах (active / expired / disabled)
+  - Subscription дуусвал тухайн байгууллагыг автоматаар disable хийх logic
+- Хэрэглэгч/Owner удирдлага
+  - Owner-уудын жагсаалт, эрх олгох/хасах
+- Платформын нийт статистик
+  - Нийт байгууллага, идэвхтэй subscription, нийт захиалга,
+цуцлагдсан захиалга
+- Complaint/Report харах
+
+### 3.4 Company Introduction UI (Subscription Landing Page)
+
+Single page бүтэц:
+
+1. Hero хэсэг — платформын танилцуулга, давуу тал
+2. Feature highlights — real-time захиалга, dashboard, statistics гэх мэт
+3. Subscription Plans — сарын/жилийн төлбөрийн багц харьцуулсан хүснэгт
+4. Тулбурийн хэсэг (Payment Section) — нэг хуудасны дотор:
+   - Stripe — карт холбож төлбөр хийх (Stripe Elements/Checkout)
+   - QPay — QR код үүсгэж банкны апп-аар төлөх
+5. Төлбөр амжилттай бол → тухайн lounge-ийн subscription_status = active, subscription_expiry шинэчлэгдэнэ → Owner dashboard нээгдэнэ
+
+---
+
+## 4. Шинэчилсэн Database Schema
+
+copy
+
+
+organizations (lounges)
+  id
+  name
+  description
+  address
+  latitude
+  longitude
+  phone
+  exterior_images []
+  interior_images []
+  opening_time
+  closing_time
+  subscription_status: active / expired / disabled
+  subscription_expiry
+  created_at
+
+staff
+  id
+  organization_id
+  name
+  phone
+  email
+  role: manager / waiter / cashier
+  created_at
+
 tables
-id
-lounge_id
-table_number
-capacity
-type: normal / vip
-status: available / reserved / occupied / disabled
+  id
+  organization_id
+  table_number
+  capacity
+  type: normal / vip
+  status: available / reserved / occupied / disabled / custom
+  custom_status_label   (owner-ийн өөрөө тохируулсан нэр, монгол ч байж болно)
+
+menu_items
+  id
+  organization_id
+  category
+  name
+  description
+  price
+  image
+  is_available
+
 reservations
-id
-user_id
-lounge_id
-table_id
-reservation_date
-start_time
-end_time
-guest_count
-status: pending / confirmed / cancelled / completed
-created_at
-reviews
-id
-user_id
-lounge_id
-rating
-comment
-created_at
+  id
+  table_id
+  organization_id
+  guest_name
+  guest_phone
+  guest_email
+  reservation_date
+  start_time
+  end_time
+  guest_count
+  status: pending / confirmed / cancelled / completed
+  created_at
+
+verification_codes
+  id
+  email
+  code
+  reservation_id (nullable, OTP батлахаас өмнө)
+  expires_at
+  is_used
+
 notifications
-id
-user_id
-title
-message
-is_read
-created_at
-7. API requirements
-Auth API
-POST /register
-POST /login
-POST /logout
-GET /me
-Lounge API
-GET /lounges
-GET /lounges/:id
-POST /lounges
-PUT /lounges/:id
-DELETE /lounges/:id
-Table API
-GET /lounges/:id/tables
-POST /tables
-PUT /tables/:id
-DELETE /tables/:id
-Reservation API
-POST /reservations
-GET /my-reservations
-GET /owner/reservations
-PUT /reservations/:id/confirm
-PUT /reservations/:id/cancel
-PUT /reservations/:id/complete
-Admin API
-GET /admin/users
-GET /admin/lounges
-PUT /admin/lounges/:id/approve
-GET /admin/statistics
-8. Frontend pages
-Public pages
-Home page
-Lounge list page
-Lounge detail page
-Login page
-Register page
-User pages
-User dashboard
-Reservation page
-My reservations
-Profile page
-Lounge owner pages
-Owner dashboard
-Manage lounge
-Manage tables
-Reservation requests
-Real-time table status page
-Admin pages
-Admin dashboard
-Manage users
-Manage lounges
-Manage reservations
-9. 3 хүнээр хуваах
-Хүн 1 — User frontend
-Home page
-Lounge list
-Lounge detail
-Table availability UI
-Reservation form
-My reservations page
-Хүн 2 — Owner/Admin frontend
-Lounge owner dashboard
-Table management
-Reservation approval page
-Admin dashboard
-User/lounge management
-Хүн 3 — Backend + Database + Realtime
-DB schema
-Auth
-REST API
-Reservation logic
-Role permission
-WebSocket / realtime
-Double booking prevention
-10. MVP-д заавал орох feature
-Login/Register
-Role system
-Lounge list
-Lounge detail
-Table status
-Reservation create
-Lounge owner reservation confirm/cancel
-Real-time table update
-Admin lounge approve
-Database relation
-11. Нэмэлт feature
-Payment / deposit
-QR confirmation
-SMS notification
-Email notification
-Google Map integration
-Review/rating
-Favorite lounge
-Search by location
-Loyalty point
-Promo code
-Analytics
-dashboard
-12.
-Хамгийн чухал business rule
+  id
+  organization_id
+  title
+  message
+  is_read
+  created_at
 
-Нэг ширээг нэг цаг дээр 2 хүн зэрэг захиалж болохгүй.
+subscriptions / payments
+  id
+  organization_id
+  plan_type
+  amount
+  payment_method: stripe / qpay
+  payment_status: success / failed / pending
+  period_start
+  period_end
+  created_at
 
-Тиймээс backend дээр:
+admins
+  id
+  name
+  email
+  password
+  role: super_admin / staff_admin
 
-table_id
-reservation_date
-start_time
-end_time
-status
+> Анхаар: users хүснэгт нь зөвхөн Owner болон **Admin**-уудад зориулагдана (login шаардлагатай тал). Энгийн зочин хэрэглэгчийн мэдээлэл reservations дотор guest_* талбаруудаар хадгалагдана (login шаардлагагүй учраас).
 
-гэсэн нөхцлөөр давхцал шалгах logic заавал байх хэрэгтэй.
+---
 
-13. Санал болгох stack
-Frontend: React эсвэл Next.js
-Backend: Node.js + Express/NestJS
-Database: PostgreSQL
-Realtime: Socket.IO
-Auth: JWT
-File upload: Cloudinary
-Styling: Tailwind CSS
-Deploy: Vercel + Render/Railway
+## 5. Шинэчилсэн API жагсаалт
+
+### Public (User) API
+copy
+
+
+GET  /organizations/nearby?lat=&lng=&radius=
+GET  /organizations/:id
+GET  /organizations/:id/menu
+GET  /organizations/:id/tables          (real-time status)
+POST /reservations                      (pending үүсгэх)
+POST /reservations/send-otp             (email рүү код илгээх)
+POST /reservations/verify-otp           (баталгаажуулж confirmed/pending болгох)
+
+### Owner API (Auth шаардлагатай)
+copy
+
+
+POST /owner/login
+GET  /owner/reservations
+PUT  /owner/reservations/:id/confirm
+PUT  /owner/reservations/:id/cancel
+PUT  /owner/reservations/:id/complete
+
+GET/POST/PUT/DELETE /owner/tables
+GET/POST/PUT/DELETE /owner/menu-items
+GET/POST/PUT/DELETE /owner/staff
+
+GET  /owner/statistics?range=7d|30d
+GET  /owner/subscription
+
+### Admin API
+copy
+
+
+GET    /admin/organizations
+POST   /admin/organizations
+PUT    /admin/organizations/:id
+DELETE /admin/organizations/:id
+PUT    /admin/organizations/:id/disable
+PUT    /admin/organizations/:id/approve
+
+GET    /admin/subscriptions
+GET    /admin/statistics
+
+### Payment / Subscription API
+copy
+
+
+POST /payments/stripe/create-checkout-session
+POST /payments/qpay/create-invoice
+POST /payments/webhook/stripe
+POST /payments/webhook/qpay
+
+---
+
+## 6. Real-time шаардлага
+
+- Ширээний төлөв (`tables.status`) өөрчлөгдөх бүрд:
+  - User Lounge Detail page дээр шууд шинэчлэгдэнэ
+  - Owner Dashboard дээрх table map шууд шинэчлэгдэнэ
+- Захиалга үүсэх үед Owner Dashboard дээр notification шууд гарч ирнэ (sound/badge)
+- Давхар захиалга хамгаалах: server талд `table_id + reservation_date + start_time + end_time`-ийн давхцал шалгах transaction-based lock заавал хэрэгтэй (race condition-оос сэргийлэх)
+- Технологи: Socket.IO эсвэл Supabase Realtime ашиглаж болно
+
+---
+
+## 7. Захиалгын Flow
+(шинэчилсэн)
+
+copy
+
+
+1. User location зөвшөөрнө
+2. Ойролцоо lounge-уудыг харна (distance sort)
+3. Lounge сонгож detail page руу орно
+4. Менюгээ үзнэ, ширээний real-time төлвийг харна
+5. Сул ширээ сонгоно → огноо/цаг/хүний тоо сонгоно
+6. Нэр, утас, email бөглөнө
+7. Email-рүү OTP код илгээгдэнэ
+8. User кодыг оруулна → server шалгаж баталгаажуулна
+9. Server table availability-г дахин шалгана (double-booking prevention)
+10. Reservation үүснэ (status = pending/confirmed)
+11. Owner Dashboard руу real-time notification очно
+12. Owner confirm/cancel хийнэ
+13. Ширээний статус real-time шинэчлэгдэж бүх хэрэглэгчид харагдана
+
+---
+
+## 8. Subscription / Payment Flow
+
+copy
+
+
+1. Owner Company Introduction (single page) дээрх Subscription Plans-аас сонгоно
+2. Stripe эсвэл QPay сонгож төлбөр хийнэ
+   - Stripe: карт мэдээллээ оруулж шууд төлнө (Stripe Checkout/Elements)
+   - QPay: QR код scan хийж банкны апп-аар төлнө
+3. Webhook амжилттай payment баталгаажуулна
+4. organizations.subscription_status = "active"
+   organizations.subscription_expiry = now + 30 days (эсвэл сонгосон хугацаа)
+5. Owner Dashboard руу нэвтрэх боломжтой болно
+6. subscription_expiry хугацаа дуусахад:
+   - Cron job шалгаж subscription_status = "expired" болгоно
+   - organizations.status = "disabled" → User UI дээр энэ байгууллага харагдахгүй болно
+
+---
+
+## 9. Хамгийн чухал Business Rules
+
+1. Нэг ширээг нэг цаг дээр 2 хэрэглэгч зэрэг захиалж болохгүй — server дээр transaction/lock-той давхцал шалгах logic заавал байх.
+2. Subscription дуусвал тухайн байгууллага User UI дээр харагдахгүй, бүх захиалгын боломж disable болно.
+3. Email OTP баталгаажуулагдаагүй захиалга нь pending статусаас цаашаа явахгүй — тодорхой хугацаанд (жнь: 5 минут) баталгаажуулагдахгүй бол автоматаар цуцлагдана (expired).
+4. Ширээний custom status нь зөвхөн харагдах нэршил (label) — backend logic дотор системийн enum-руу mapping хийгдэх ёстой (real-time logic-д нөлөөлэхгүйн тулд).
+
+---
+
+## 10. MVP Feature жагсаалт (шинэчилсэн)
+
+| Feature | Тайлбар |
+|---|---|
+| Location-based discovery | Байршлаар lounge жагсаалт |
+| Lounge detail (exterior/interior/menu) | Дэлгэрэнгүй мэдээлэл |
+| Real-time table status | Сул ширээ шууд шинэчлэгдэх |
+| Reservation + Email OTP | Login-гүй захиалгын баталгаажуулалт |
+| Owner dashboard (reservation, table, menu, staff CRUD) | Эзэмшигчийн удирдлага |
+| Owner statistics (7 хоног/1 сар) | Бизнесийн үр дүн |
+| Admin dashboard (organization CRUD, subscription status) | Платформын удирдлага |
+| Subscription/Payment (Stripe + QPay) | Тогтмол төлбөрийн систем |
+| Double-booking prevention | Server-side lock |
+
+---
+
+## 11. Нэмэлт (Phase 2) Feature
+
+- Review/Rating систем
+- Favorite lounge
+- SMS notification (OTP-ийг SMS-ээр давхар явуулах)
+- Promo code / Loyalty point
+- Multi-language (Монгол/Англи)
+- Google Maps integration (чиглэл харах)
+- Owner-д зориулсан push notification (mobile app)
+
+---
+
+## 12. Санал болгох Tech Stack
+
+| Хэсэг | Технологи |
+|---|---|
+| Frontend | Next.js (User UI, Company Intro нь SEO-д сайн), React (Owner/Admin dashboard) |
+| Backend | Node.js + NestJS/Express |
+| Database | PostgreSQL (PostGIS extension — location query-д хэрэгтэй) |
+| Realtime | Socket.IO эсвэл Supabase Realtime |
+| Auth (Owner/Admin) | JWT |
+| Email OTP | Nodemailer / SendGrid |
+| File upload | Cloudinary |
+| Payment | Stripe (олон улсын карт), QPay (Монгол QR төлбөр) |
+| Styling | Tailwind CSS |
+| Deploy | Vercel (frontend) + Render/Railway (backend) |
+
+---
+
+## 13. 3 хүний хуваарилалт (шинэчилсэн)
+
+### Хүн 1 — User UI
+- Location-based discovery page
+- Lounge detail page (gallery, menu, real-time table map)
+- Reservation form + OTP verification UI
+
+### Хүн 2 — Owner Dashboard + Company Introduction UI
+- Owner login, reservation board (real-time)
+- Table/Menu/Staff CRUD
+- Statistics page
+- Company Introduction single page (Subscription plans + Stripe/QPay UI)
+
+### Хүн 3 — Admin Dashboard + Backend/Database/Realtime
+- Admin dashboard (organization CRUD, subscription status)
+- DB schema, REST API
+- Email OTP logic
+- Real-time (Socket.IO/Supabase)
+- Double-booking
+prevention logic
+- Stripe/QPay webhook & subscription cron job

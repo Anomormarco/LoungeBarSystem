@@ -1,0 +1,261 @@
+Төслийн нэр
+
+Lounge Table Reservation Platform
+
+Хэрэглэгч real-time байдлаар lounge-уудын сул ширээ шалгаад, боломжтой lounge дээр захиалга өгөх систем.
+
+1. User requirements
+Хэрэглэгч тал
+Register / Login
+Lounge жагсаалт харах
+Lounge filter хийх:
+Байршил
+Үнэ
+Rating
+Сул ширээтэй эсэх
+VIP / normal table
+Lounge detail харах:
+Зураг
+Хаяг
+Цагийн хуваарь
+Ширээний төрөл
+Үлдсэн сул ширээ
+Real-time сул ширээ харах
+Ширээ сонгох
+Захиалга өгөх
+Захиалгын төлөв харах:
+Pending
+Confirmed
+Cancelled
+Completed
+Захиалга цуцлах
+Захиалгын түүх харах
+2. Lounge owner / partner requirements
+Lounge dashboard
+Login хийх
+Өөрийн lounge profile удирдах
+Ширээ нэмэх / засах / устгах
+Ширээний төлөв өөрчлөх:
+Available
+Reserved
+Occupied
+Disabled
+Захиалга харах
+Захиалга батлах / цуцлах
+Real-time update хийх
+Өдрийн захиалгын жагсаалт харах
+Lounge ажиллах цаг тохируулах
+3. Admin requirements
+Platform admin
+Бүх хэрэглэгч харах
+Lounge owner approve хийх
+Lounge нэмэх / устгах / засах
+Бүх захиалга харах
+Complaint / report харах
+Dashboard statistics:
+Нийт хэрэглэгч
+Нийт lounge
+Өнөөдрийн захиалга
+Цуцлагдсан захиалга
+Идэвхтэй ширээ
+4. Real-time requirements
+
+Энэ төслийн хамгийн чухал хэсэг.
+
+Хэрэглэгч lounge detail page дээр байх үед сул ширээ real-time шинэчлэгдэнэ
+Нэг хэрэглэгч ширээ захиалбал бусад хэрэглэгчид шууд “reserved” болж харагдана
+Lounge owner ширээний төлөв өөрчилбөл хэрэглэгч тал дээр шууд шинэчлэгдэнэ
+Давхар захиалга үүсэхээс server тал дээр хамгаална
+
+Ашиглаж болох технологи:
+
+Socket.IO
+WebSocket
+Supabase Realtime
+Firebase Realtime Database
+5. Reservation flow
+Flow
+User lounge сонгоно
+Сул ширээ шалгана
+Ширээ сонгоно
+Огноо, цаг сонгоно
+Захиалга илгээнэ
+Server ширээ үнэхээр сул эсэхийг шалгана
+Захиалга үүсгэнэ
+Lounge owner-д notification очно
+Lounge owner confirm хийнэ
+User confirmed төлөв харна
+6. Database tables
+users
+id
+name
+email
+phone
+password
+role: user / lounge_owner / admin
+created_at
+lounges
+id
+owner_id
+name
+description
+address
+phone
+opening_time
+closing_time
+status
+created_at
+tables
+id
+lounge_id
+table_number
+capacity
+type: normal / vip
+status: available / reserved / occupied / disabled
+reservations
+id
+user_id
+lounge_id
+table_id
+reservation_date
+start_time
+end_time
+guest_count
+status: pending / confirmed / cancelled / completed
+created_at
+reviews
+id
+user_id
+lounge_id
+rating
+comment
+created_at
+notifications
+id
+user_id
+title
+message
+is_read
+created_at
+7. API requirements
+Auth API
+POST /register
+POST /login
+POST /logout
+GET /me
+Lounge API
+GET /lounges
+GET /lounges/:id
+POST /lounges
+PUT /lounges/:id
+DELETE /lounges/:id
+Table API
+GET /lounges/:id/tables
+POST /tables
+PUT /tables/:id
+DELETE /tables/:id
+Reservation API
+POST /reservations
+GET /my-reservations
+GET /owner/reservations
+PUT /reservations/:id/confirm
+PUT /reservations/:id/cancel
+PUT /reservations/:id/complete
+Admin API
+GET /admin/users
+GET /admin/lounges
+PUT /admin/lounges/:id/approve
+GET /admin/statistics
+8. Frontend pages
+Public pages
+Home page
+Lounge list page
+Lounge detail page
+Login page
+Register page
+User pages
+User dashboard
+Reservation page
+My reservations
+Profile page
+Lounge owner pages
+Owner dashboard
+Manage lounge
+Manage tables
+Reservation requests
+Real-time table status page
+Admin pages
+Admin dashboard
+Manage users
+Manage lounges
+Manage reservations
+9. 3 хүнээр хуваах
+Хүн 1 — User frontend
+Home page
+Lounge list
+Lounge detail
+Table availability UI
+Reservation form
+My reservations page
+Хүн 2 — Owner/Admin frontend
+Lounge owner dashboard
+Table management
+Reservation approval page
+Admin dashboard
+User/lounge management
+Хүн 3 — Backend + Database + Realtime
+DB schema
+Auth
+REST API
+Reservation logic
+Role permission
+WebSocket / realtime
+Double booking prevention
+10. MVP-д заавал орох feature
+Login/Register
+Role system
+Lounge list
+Lounge detail
+Table status
+Reservation create
+Lounge owner reservation confirm/cancel
+Real-time table update
+Admin lounge approve
+Database relation
+11. Нэмэлт feature
+Payment / deposit
+QR confirmation
+SMS notification
+Email notification
+Google Map integration
+Review/rating
+Favorite lounge
+Search by location
+Loyalty point
+Promo code
+Analytics
+dashboard
+12.
+Хамгийн чухал business rule
+
+Нэг ширээг нэг цаг дээр 2 хүн зэрэг захиалж болохгүй.
+
+Тиймээс backend дээр:
+
+table_id
+reservation_date
+start_time
+end_time
+status
+
+гэсэн нөхцлөөр давхцал шалгах logic заавал байх хэрэгтэй.
+
+13. Санал болгох stack
+Frontend: React эсвэл Next.js
+Backend: Node.js + Express/NestJS
+Database: PostgreSQL
+Realtime: Socket.IO
+Auth: JWT
+File upload: Cloudinary
+Styling: Tailwind CSS
+Deploy: Vercel + Render/Railway

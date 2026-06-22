@@ -1,13 +1,219 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
+}
+
+enum SubscriptionStatus {
+  active
+  expired
+  disabled
+}
+
+enum StaffRole {
+  manager
+  waiter
+  cashier
+}
+
+enum TableType {
+  normal
+  vip
+}
+
+enum TableStatus {
+  available
+  reserved
+  occupied
+  disabled
+  custom
+}
+
+enum ReservationStatus {
+  pending
+  confirmed
+  cancelled
+  completed
+  expired
+}
+
+enum PaymentMethod {
+  stripe
+  qpay
+}
+
+enum PaymentStatus {
+  success
+  failed
+  pending
+}
+
+enum AdminRole {
+  super_admin
+  staff_admin
+}
+
+model Organization {
+  id                 Int                @id @default(autoincrement())
+  name               String             @db.VarChar(191)
+  description        String?            @db.Text
+  address            String             @db.VarChar(255)
+  latitude           Decimal            @db.Decimal(10, 7)
+  longitude          Decimal            @db.Decimal(10, 7)
+  phone              String?            @db.VarChar(30)
+  exteriorImages     Json?              @map("exterior_images")
+  interiorImages     Json?              @map("interior_images")
+  openingTime        String             @map("opening_time") @db.VarChar(5)
+  closingTime        String             @map("closing_time") @db.VarChar(5)
+  subscriptionStatus SubscriptionStatus @default(expired) @map("subscription_status")
+  subscriptionExpiry DateTime?          @map("subscription_expiry")
+  isApproved         Boolean            @default(false) @map("is_approved")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+
+  staff         Staff[]
+  tables        Table[]
+  menuItems     MenuItem[]
+  reservations  Reservation[]
+  notifications Notification[]
+  payments      Payment[]
+
+  @@index([latitude, longitude])
+  @@index([subscriptionStatus])
+  @@map("organizations")
+}
+
+model Staff {
+  id             Int          @id @default(autoincrement())
+  organizationId Int          @map("organization_id")
+  name           String       @db.VarChar(191)
+  phone          String?      @db.VarChar(30)
+  email          String       @db.VarChar(191)
+  password       String?      @db.VarChar(255)
+  role           StaffRole
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@map("staff")
+}
+
+model Table {
+  id                Int           @id @default(autoincrement())
+  organizationId    Int           @map("organization_id")
+  tableNumber       String        @map("table_number") @db.VarChar(50)
+  capacity          Int
+  type              TableType     @default(normal)
+  status            TableStatus   @default(available)
+  customStatusLabel String?       @map("custom_status_label") @db.VarChar(100)
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+  organization      Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  reservations      Reservation[]
+
+  @@unique([organizationId, tableNumber])
+  @@index([organizationId, status])
+  @@map("tables")
+}
+
+model MenuItem {
+  id             Int          @id @default(autoincrement())
+  organizationId Int          @map("organization_id")
+  category       String       @db.VarChar(100)
+  name           String       @db.VarChar(191)
+  description    String?      @db.Text
+  price          Decimal      @db.Decimal(10, 2)
+  image          String?      @db.VarChar(500)
+  isAvailable    Boolean      @default(true) @map("is_available")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, category])
+  @@map("menu_items")
+}
+
+model Reservation {
+  id                Int                @id @default(autoincrement())
+  tableId           Int                @map("table_id")
+  organizationId    Int                @map("organization_id")
+  guestName         String             @map("guest_name") @db.VarChar(191)
+  guestPhone        String             @map("guest_phone") @db.VarChar(30)
+  guestEmail        String             @map("guest_email") @db.VarChar(191)
+  reservationDate   DateTime           @map("reservation_date") @db.Date
+  startTime         DateTime           @map("start_time")
+  endTime           DateTime           @map("end_time")
+  guestCount        Int                @map("guest_count")
+  status            ReservationStatus  @default(pending)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  table             Table              @relation(fields: [tableId], references: [id], onDelete: Restrict)
+  verificationCodes VerificationCode[]
+
+  @@index([organizationId, reservationDate])
+  @@index([tableId, reservationDate, startTime, endTime])
+  @@index([guestEmail])
+  @@map("reservations")
+}
+
+model VerificationCode {
+  id            Int          @id @default(autoincrement())
+  email         String       @db.VarChar(191)
+  code          String       @db.VarChar(6)
+  reservationId Int?         @map("reservation_id")
+  expiresAt     DateTime     @map("expires_at")
+  isUsed        Boolean      @default(false) @map("is_used")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  reservation   Reservation? @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+
+  @@index([email, code])
+  @@index([reservationId])
+  @@map("verification_codes")
+}
+
+model Notification {
+  id             Int          @id @default(autoincrement())
+  organizationId Int          @map("organization_id")
+  title          String       @db.VarChar(191)
+  message        String       @db.Text
+  isRead         Boolean      @default(false) @map("is_read")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, isRead])
+  @@map("notifications")
+}
+
+model Payment {
+  id             Int           @id @default(autoincrement())
+  organizationId Int           @map("organization_id")
+  planType       String        @map("plan_type") @db.VarChar(50)
+  amount         Decimal       @db.Decimal(10, 2)
+  paymentMethod  PaymentMethod @map("payment_method")
+  paymentStatus  PaymentStatus @default(pending) @map("payment_status")
+  periodStart    DateTime      @map("period_start")
+  periodEnd      DateTime      @map("period_end")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, paymentStatus])
+  @@map("subscriptions")
+}
+
+model Admin {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(191)
+  email     String    @unique @db.VarChar(191)
+  password  String    @db.VarChar(255)
+  role      AdminRole @default(staff_admin)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("admins")
 }

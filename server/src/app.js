@@ -1,10 +1,15 @@
-const express = require("express")
+const express = require("express");
 
-const app = express()
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-const listen = 3000;
-app.listen(Port,()=>{
-    console.log(`server 3000 deer aslaa ${PORT}`);
-})
+app.use(express.json());
 
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+app.listen(PORT, () => {
+  console.log(`server ${PORT} deer aslaa`);
+});
 

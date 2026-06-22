@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #0a0a0a;
+  color: #fafafa;
+}
+
+@layer utilities {
+  .text-gradient-yellow {
+    @apply bg-gradient-to-r from-lounge-yellow-light via-lounge-yellow to-lounge-yellow-dark bg-clip-text text-transparent;
+  }
+}

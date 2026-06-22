@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "start": "docker compose up",
+    "dev": "docker compose up --build",
+    "stop": "docker compose down",
     "db:create": "\"C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe\" -u root -p -e \"CREATE DATABASE IF NOT EXISTS lounge CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\"",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev --name init",

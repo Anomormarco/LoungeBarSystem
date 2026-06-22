@@ -1,0 +1,271 @@
+import React, { useState } from 'react';
+import { publicApi } from '../utils/api';
+import {
+  X,
+  Calendar,
+  Clock,
+  Users,
+  User,
+  Phone,
+  Mail,
+  Loader2,
+  CheckCircle,
+  Shield,
+} from 'lucide-react';
+
+export default function ReservationModal({ organization, table, onClose, onSuccess }) {
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [reservationId, setReservationId] = useState(null);
+  const [otpCode, setOtpCode] = useState('');
+
+  const today = new Date().toISOString().split('T')[0];
+  const [form, setForm] = useState({
+    reservationDate: today,
+    startTime: '18:00',
+    endTime: '20:00',
+    guestCount: Math.min(2, table?.capacity || 2),
+    guestName: '',
+    guestPhone: '',
+    guestEmail: '',
+  });
+
+  const updateForm = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+
+  const handleCreateReservation = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await publicApi.createReservation({
+        organizationId: organization.id,
+        tableId: table.id,
+        guestName: form.guestName,
+        guestPhone: form.guestPhone,
+        guestEmail: form.guestEmail,
+        reservationDate: form.reservationDate,
+        startTime: form.startTime,
+        endTime: form.endTime,
+        guestCount: Number(form.guestCount),
+      });
+
+      const id = res.data.id;
+      setReservationId(id);
+
+      await publicApi.sendOtp(form.guestEmail, id);
+      setStep(2);
+    } catch (err) {
+      setError(err.message || 'Захиалга үүсгэхэд алдаа гарлаа.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (otpCode.length !== 6) {
+      setError('6 оронтой код оруулна уу.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      await publicApi.verifyOtp(form.guestEmail, otpCode, reservationId);
+      setStep(3);
+      onSuccess?.();
+    } catch (err) {
+      setError(err.message || 'OTP баталгаажуулалт амжилтгүй.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+
+      <div className="relative w-full sm:max-w-lg bg-lounge-card border border-lounge-border rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-lounge-card border-b border-lounge-border px-6 py-4 flex items-center justify-between">
+          <div>
+            <h2 className="font-bold text-lg">Ширээ захиалах</h2>
+            <p className="text-xs text-lounge-muted">
+              Ширээ #{table?.tableNumber} · {table?.capacity} хүн
+            </p>
+          </div>
+          <button onClick={onClose} className="p-2 text-lounge-muted hover:text-white rounded-lg">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6">
+          {error && (
+            <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+
+          {step === 1 && (
+            <form onSubmit={handleCreateReservation} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-lounge-muted uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5" /> Огноо
+                  </label>
+                  <input
+                    type="date"
+                    value={form.reservationDate}
+                    min={today}
+                    onChange={(e) => updateForm('reservationDate', e.target.value)}
+                    className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-lounge-muted uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5" /> Зочдын тоо
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max={table?.capacity}
+                    value={form.guestCount}
+                    onChange={(e) => updateForm('guestCount', e.target.value)}
+                    className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-lounge-muted uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" /> Эхлэх
+                  </label>
+                  <input
+                    type="time"
+                    value={form.startTime}
+                    onChange={(e) => updateForm('startTime', e.target.value)}
+                    className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-lounge-muted uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" /> Дуусах
+                  </label>
+                  <input
+                    type="time"
+                    value={form.endTime}
+                    onChange={(e) => updateForm('endTime', e.target.value)}
+                    className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="border-t border-lounge-border pt-4 space-y-3">
+                <p className="text-xs font-semibold text-lounge-yellow uppercase tracking-wider">
+                  Холбоо барих мэдээлэл
+                </p>
+
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lounge-muted" />
+                  <input
+                    type="text"
+                    placeholder="Нэр"
+                    value={form.guestName}
+                    onChange={(e) => updateForm('guestName', e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    required
+                  />
+                </div>
+
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lounge-muted" />
+                  <input
+                    type="tel"
+                    placeholder="Утасны дугаар"
+                    value={form.guestPhone}
+                    onChange={(e) => updateForm('guestPhone', e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    required
+                  />
+                </div>
+
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lounge-muted" />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={form.guestEmail}
+                    onChange={(e) => updateForm('guestEmail', e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3.5 bg-lounge-yellow hover:bg-lounge-yellow-dark text-lounge-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'OTP код илгээх'}
+              </button>
+            </form>
+          )}
+
+          {step === 2 && (
+            <form onSubmit={handleVerifyOtp} className="space-y-5">
+              <div className="text-center py-4">
+                <Shield className="w-12 h-12 text-lounge-yellow mx-auto mb-3" />
+                <p className="text-sm text-lounge-muted">
+                  <strong className="text-white">{form.guestEmail}</strong> хаяг руу 6 оронтой код илгээлээ.
+                </p>
+              </div>
+
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                placeholder="000000"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                className="w-full px-4 py-4 bg-lounge-black border border-lounge-border rounded-xl text-center text-2xl font-mono tracking-[0.5em] focus:outline-none focus:border-lounge-yellow"
+                required
+              />
+
+              <button
+                type="submit"
+                disabled={loading || otpCode.length !== 6}
+                className="w-full py-3.5 bg-lounge-yellow hover:bg-lounge-yellow-dark text-lounge-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Баталгаажуулах'}
+              </button>
+            </form>
+          )}
+
+          {step === 3 && (
+            <div className="text-center py-6 space-y-4">
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+              <h3 className="text-xl font-bold">Захиалга баталгаажлаа!</h3>
+              <p className="text-sm text-lounge-muted">
+                Таны захиалга амжилттай бүртгэгдлээ. Lounge эзэмшигчид мэдэгдэл илгээгдсэн.
+              </p>
+              <button
+                onClick={onClose}
+                className="px-6 py-3 bg-lounge-yellow text-lounge-black font-bold rounded-xl"
+              >
+                Хаах
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: lounge_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: lounge
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  gateway:
+    build:
+      context: ./server
+      dockerfile: services/gateway/Dockerfile
+    container_name: lounge_gateway
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - LOUNGE_SERVICE_URL=http://lounge-service:3002
+      - RESERVATION_SERVICE_URL=http://reservation-service:3003
+      - PAYMENT_SERVICE_URL=http://payment-service:3004
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3005
+    depends_on:
+      - auth-service
+      - lounge-service
+      - reservation-service
+      - payment-service
+      - notification-service
+
+  auth-service:
+    build:
+      context: ./server
+      dockerfile: services/auth-service/Dockerfile
+    container_name: lounge_auth_service
+    restart: always
+    environment:
+      - DATABASE_URL=mysql://root:rootpassword@db:3306/lounge
+      - JWT_SECRET=supersecretjwtkey
+      - JWT_EXPIRES_IN=7d
+    depends_on:
+      - db
+
+  lounge-service:
+    build:
+      context: ./server
+      dockerfile: services/lounge-service/Dockerfile
+    container_name: lounge_lounge_service
+    restart: always
+    environment:
+      - DATABASE_URL=mysql://root:rootpassword@db:3306/lounge
+      - JWT_SECRET=supersecretjwtkey
+      - JWT_EXPIRES_IN=7d
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3005
+    depends_on:
+      - db
+
+  reservation-service:
+    build:
+      context: ./server
+      dockerfile: services/reservation-service/Dockerfile
+    container_name: lounge_reservation_service
+    restart: always
+    environment:
+      - DATABASE_URL=mysql://root:rootpassword@db:3306/lounge
+      - JWT_SECRET=supersecretjwtkey
+      - JWT_EXPIRES_IN=7d
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3005
+    depends_on:
+      - db
+
+  payment-service:
+    build:
+      context: ./server
+      dockerfile: services/payment-service/Dockerfile
+    container_name: lounge_payment_service
+    restart: always
+    environment:
+      - DATABASE_URL=mysql://root:rootpassword@db:3306/lounge
+      - JWT_SECRET=supersecretjwtkey
+      - JWT_EXPIRES_IN=7d
+    depends_on:
+      - db
+
+  notification-service:
+    build:
+      context: ./server
+      dockerfile: services/notification-service/Dockerfile
+    container_name: lounge_notification_service
+    restart: always
+    environment:
+      - CLIENT_ORIGIN=http://localhost:5173
+
+volumes:
+  db_data:

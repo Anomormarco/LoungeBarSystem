@@ -12,10 +12,16 @@ export async function request(path, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  let response;
+
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch (error) {
+    throw new Error(`API server холбогдохгүй байна. ${API_URL} асаалттай эсэхийг шалгана уу.`);
+  }
 
   if (!response.ok) {
     let message = 'Үйлдэл амжилтгүй боллоо';
@@ -32,8 +38,15 @@ export async function request(path, options = {}) {
 }
 
 export const publicApi = {
-  getNearbyOrganizations: (lat, lng, radius = 10) =>
-    request(`/organizations/nearby?lat=${lat}&lng=${lng}&radius=${radius}`, { tokenKey: null }),
+  getNearbyOrganizations: (lat, lng, radius = 10, filters = {}) => {
+    const params = new URLSearchParams({ lat, lng, radius });
+
+    if (filters.q) params.set('q', filters.q);
+    if (filters.tableType && filters.tableType !== 'all') params.set('tableType', filters.tableType);
+    if (filters.availableOnly) params.set('availableOnly', 'true');
+
+    return request(`/organizations/nearby?${params.toString()}`, { tokenKey: null });
+  },
   getOrganization: (id) => request(`/organizations/${id}`, { tokenKey: null }),
   getOrganizationMenu: (id) => request(`/organizations/${id}/menu`, { tokenKey: null }),
   getOrganizationTables: (id) => request(`/organizations/${id}/tables`, { tokenKey: null }),

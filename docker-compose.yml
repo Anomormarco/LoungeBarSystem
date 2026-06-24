@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: loungebar_password
       POSTGRES_DB: loungebar
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
 
@@ -23,6 +23,7 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - CLIENT_ORIGIN=http://localhost:5173
       - AUTH_SERVICE_URL=http://auth-service:3001
       - LOUNGE_SERVICE_URL=http://lounge-service:3002
       - RESERVATION_SERVICE_URL=http://reservation-service:3003

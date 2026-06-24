@@ -12,6 +12,7 @@
     "db:migrate": "prisma migrate dev --name init",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
+    "db:seed": "node scripts/seed-restaurants.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

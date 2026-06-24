@@ -2,8 +2,28 @@ node_modules
 **/node_modules/
 # Keep environment variables out of version control
 .env
+.env.local
+.env.*.local
+!.env.example
 *.log
+logs/
+dist/
+build/
+coverage/
+.cache/
+.turbo/
+.vite/
+*.tsbuildinfo
+.eslintcache
+tmp/
+temp/
+.tmp/
+uploads/
+*.sqlite
+*.sqlite3
+*.db
 
 /src/generated/prisma
+prisma/generated/
 
 

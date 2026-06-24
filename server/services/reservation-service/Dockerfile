@@ -1,8 +1,9 @@
-FROM node:18-alpine
+FROM node:22-alpine
 
 WORKDIR /usr/src/app
 
 COPY prisma ./prisma
+COPY prisma.config.ts ./prisma.config.ts
 
 COPY services/reservation-service/package*.json ./
 

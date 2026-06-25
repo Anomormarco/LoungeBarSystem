@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import io from 'socket.io-client';
-import { API_URL } from '../utils/api';
+import { SOCKET_URL } from '../utils/api';
 
 const UserSocketContext = createContext(null);
 
@@ -14,7 +14,7 @@ export function UserSocketProvider({ organizationId, children }) {
   useEffect(() => {
     if (!organizationId) return undefined;
 
-    const newSocket = io(API_URL, { transports: ['websocket'] });
+    const newSocket = io(SOCKET_URL, { transports: ['websocket'] });
 
     newSocket.on('connect', () => {
       setConnected(true);

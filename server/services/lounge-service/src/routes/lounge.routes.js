@@ -25,7 +25,7 @@ const {
   approveOrganization,
   disableOrganization,
 } = require("../modules/admin/admin-organization.service");
-const { ownerGuard, adminGuard } = require("../middlewares/auth.middleware");
+const { ownerActiveGuard, adminGuard } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
@@ -67,7 +67,7 @@ router.get("/organizations/:id/menu", async (req, res, next) => {
 });
 
 // Owner Table Management APIs
-router.get("/owner/tables", ownerGuard, async (req, res, next) => {
+router.get("/owner/tables", ownerActiveGuard, async (req, res, next) => {
   try {
     const tables = await getOwnerTables(req.user.organizationId);
     res.json({ data: tables });
@@ -76,7 +76,7 @@ router.get("/owner/tables", ownerGuard, async (req, res, next) => {
   }
 });
 
-router.post("/owner/tables", ownerGuard, async (req, res, next) => {
+router.post("/owner/tables", ownerActiveGuard, async (req, res, next) => {
   try {
     const table = await createOwnerTable(req.user.organizationId, req.body);
     res.status(201).json({ data: table });
@@ -85,7 +85,7 @@ router.post("/owner/tables", ownerGuard, async (req, res, next) => {
   }
 });
 
-router.put("/owner/tables/:id", ownerGuard, async (req, res, next) => {
+router.put("/owner/tables/:id", ownerActiveGuard, async (req, res, next) => {
   try {
     const table = await updateOwnerTable(req.user.organizationId, req.params.id, req.body);
     res.json({ data: table });
@@ -94,7 +94,7 @@ router.put("/owner/tables/:id", ownerGuard, async (req, res, next) => {
   }
 });
 
-router.delete("/owner/tables/:id", ownerGuard, async (req, res, next) => {
+router.delete("/owner/tables/:id", ownerActiveGuard, async (req, res, next) => {
   try {
     const table = await deleteOwnerTable(req.user.organizationId, req.params.id);
     res.json({ data: table });
@@ -104,7 +104,7 @@ router.delete("/owner/tables/:id", ownerGuard, async (req, res, next) => {
 });
 
 // Owner Menu Item Management APIs
-router.get("/owner/menu-items", ownerGuard, async (req, res, next) => {
+router.get("/owner/menu-items", ownerActiveGuard, async (req, res, next) => {
   try {
     const menuItems = await getOwnerMenuItems(req.user.organizationId);
     res.json({ data: menuItems });
@@ -113,7 +113,7 @@ router.get("/owner/menu-items", ownerGuard, async (req, res, next) => {
   }
 });
 
-router.post("/owner/menu-items", ownerGuard, async (req, res, next) => {
+router.post("/owner/menu-items", ownerActiveGuard, async (req, res, next) => {
   try {
     const menuItem = await createOwnerMenuItem(req.user.organizationId, req.body);
     res.status(201).json({ data: menuItem });
@@ -122,7 +122,7 @@ router.post("/owner/menu-items", ownerGuard, async (req, res, next) => {
   }
 });
 
-router.put("/owner/menu-items/:id", ownerGuard, async (req, res, next) => {
+router.put("/owner/menu-items/:id", ownerActiveGuard, async (req, res, next) => {
   try {
     const menuItem = await updateOwnerMenuItem(req.user.organizationId, req.params.id, req.body);
     res.json({ data: menuItem });
@@ -131,7 +131,7 @@ router.put("/owner/menu-items/:id", ownerGuard, async (req, res, next) => {
   }
 });
 
-router.delete("/owner/menu-items/:id", ownerGuard, async (req, res, next) => {
+router.delete("/owner/menu-items/:id", ownerActiveGuard, async (req, res, next) => {
   try {
     const menuItem = await deleteOwnerMenuItem(req.user.organizationId, req.params.id);
     res.json({ data: menuItem });

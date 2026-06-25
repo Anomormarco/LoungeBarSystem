@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { publicApi } from '../utils/api';
 import {
   X,
@@ -17,6 +17,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [reservationId, setReservationId] = useState(null);
   const [otpCode, setOtpCode] = useState('');
 
@@ -32,6 +33,17 @@ export default function ReservationModal({ organization, table, onClose, onSucce
   });
 
   const updateForm = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+
+  useEffect(() => {
+    if (!successMessage) return undefined;
+
+    const timer = setTimeout(() => {
+      setSuccessMessage('');
+      onClose?.();
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [successMessage, onClose]);
 
   const handleCreateReservation = async (e) => {
     e.preventDefault();
@@ -75,7 +87,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
 
     try {
       await publicApi.verifyOtp(form.guestEmail, otpCode, reservationId);
-      setStep(3);
+      setSuccessMessage('Захиалга амжилттай баталгаажлаа');
       onSuccess?.();
     } catch (err) {
       setError(err.message || 'OTP баталгаажуулалт амжилтгүй.');
@@ -105,6 +117,13 @@ export default function ReservationModal({ organization, table, onClose, onSucce
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
               {error}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mb-4 p-3 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 shrink-0" />
+              {successMessage}
             </div>
           )}
 
@@ -219,7 +238,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
             </form>
           )}
 
-          {step === 2 && (
+          {step === 2 && !successMessage && (
             <form onSubmit={handleVerifyOtp} className="space-y-5">
               <div className="text-center py-4">
                 <Shield className="w-12 h-12 text-lounge-yellow mx-auto mb-3" />

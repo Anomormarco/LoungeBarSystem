@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import UserLayout from '../../components/UserLayout';
 import ReservationModal from '../../components/ReservationModal';
 import { UserSocketProvider, useUserSocket } from '../../context/UserSocketContext';
@@ -39,6 +39,7 @@ function getStatusColor(table) {
 function LoungeDetailContent() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const routeLocation = useLocation();
   const { connected, tableUpdates, clearTableUpdate } = useUserSocket();
 
   const [organization, setOrganization] = useState(null);
@@ -90,6 +91,13 @@ function LoungeDetailContent() {
   const exteriorImages = organization?.exteriorImages || [];
   const interiorImages = organization?.interiorImages || [];
   const galleryImages = galleryTab === 'exterior' ? exteriorImages : interiorImages;
+  const closeDetail = () => {
+    if (routeLocation.state?.fromHome) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
 
   const menuByCategory = menuItems.reduce((acc, item) => {
     const cat = item.category || 'Бусад';
@@ -127,9 +135,18 @@ function LoungeDetailContent() {
 
   return (
     <UserLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <div
+        className="min-h-screen"
+        onClick={() => {
+          if (!selectedTable) closeDetail();
+        }}
+      >
+      <div
+        className="max-w-7xl mx-auto px-4 sm:px-6 py-6"
+        onClick={(event) => event.stopPropagation()}
+      >
         <button
-          onClick={() => navigate('/')}
+          onClick={closeDetail}
           className="flex items-center gap-2 text-sm text-lounge-muted hover:text-lounge-yellow mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -315,6 +332,7 @@ function LoungeDetailContent() {
             )}
           </div>
         )}
+      </div>
       </div>
 
       {selectedTable && (

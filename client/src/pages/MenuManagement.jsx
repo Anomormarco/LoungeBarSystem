@@ -120,7 +120,7 @@ export default function MenuManagement() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-100">Цэсний удирдлага (Menu CRUD)</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-100">Цэсний удирдлага</h1>
           <p className="text-slate-400 text-sm">Хоол, ундааны нэрс, ангилал болон үнэ удирдах</p>
         </div>
         <button

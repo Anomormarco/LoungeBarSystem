@@ -33,6 +33,10 @@ export default function AdminOrganizations() {
     closingTime: '23:00',
     phone: '',
     description: '',
+    ownerName: '',
+    ownerEmail: '',
+    ownerPhone: '',
+    ownerPassword: '',
   });
 
   const fetchOrgs = async () => {
@@ -77,6 +81,9 @@ export default function AdminOrganizations() {
         longitude: Number(form.longitude),
       };
       if (editOrg) {
+        delete payload.ownerPassword;
+      }
+      if (editOrg) {
         await adminApi.updateOrganization(editOrg.id, payload);
       } else {
         await adminApi.createOrganization(payload);
@@ -102,6 +109,10 @@ export default function AdminOrganizations() {
       closingTime: org.closingTime || '23:00',
       phone: org.phone || '',
       description: org.description || '',
+      ownerName: org.staff?.[0]?.name || '',
+      ownerEmail: org.staff?.[0]?.email || '',
+      ownerPhone: org.staff?.[0]?.phone || '',
+      ownerPassword: '',
     });
     setShowForm(true);
   };
@@ -112,7 +123,6 @@ export default function AdminOrganizations() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-extrabold">Байгууллагууд</h1>
-            <p className="text-lounge-muted text-sm">CRUD, approve/reject, subscription статус</p>
           </div>
           <button
             onClick={() => {
@@ -126,6 +136,10 @@ export default function AdminOrganizations() {
                 closingTime: '23:00',
                 phone: '',
                 description: '',
+                ownerName: '',
+                ownerEmail: '',
+                ownerPhone: '',
+                ownerPassword: '',
               });
               setShowForm(true);
             }}
@@ -178,6 +192,43 @@ export default function AdminOrganizations() {
                     />
                   </div>
                 ))}
+              </div>
+
+              <div className="pt-4 border-t border-lounge-border space-y-3">
+                <div>
+                  <p className="text-sm font-bold text-lounge-yellow">Owner account</p>
+                  <p className="text-xs text-lounge-muted">
+                    Admin owner-ийн анхны нэвтрэх email/password-г нэг удаа тохируулна. Owner дараа нь password-оо солино.
+                  </p>
+                </div>
+
+                {['ownerName', 'ownerEmail', 'ownerPhone'].map((field) => (
+                  <div key={field}>
+                    <label className="text-xs text-lounge-muted uppercase">{field}</label>
+                    <input
+                      type={field === 'ownerEmail' ? 'email' : 'text'}
+                      value={form[field]}
+                      onChange={(e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))}
+                      className="w-full mt-1 px-3 py-2 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                      required={!editOrg && ['ownerName', 'ownerEmail'].includes(field)}
+                      disabled={Boolean(editOrg)}
+                    />
+                  </div>
+                ))}
+
+                {!editOrg && (
+                  <div>
+                    <label className="text-xs text-lounge-muted uppercase">ownerPassword</label>
+                    <input
+                      type="password"
+                      value={form.ownerPassword}
+                      onChange={(e) => setForm((prev) => ({ ...prev, ownerPassword: e.target.value }))}
+                      className="w-full mt-1 px-3 py-2 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                      required
+                      minLength={8}
+                    />
+                  </div>
+                )}
               </div>
 
               <button
@@ -242,24 +293,27 @@ export default function AdminOrganizations() {
                         >
                           <Edit className="w-4 h-4" />
                         </button>
-                        {!org.isApproved && (
+                        {(!org.isApproved || org.subscriptionStatus !== 'active') && (
                           <button
                             onClick={() => handleAction(org.id, 'approve')}
                             disabled={actionLoading[org.id]}
-                            className="p-2 text-green-400 hover:bg-green-500/10 rounded-lg"
-                            title="Approve"
+                            className="px-3 py-2 text-xs font-bold text-green-400 border border-green-500/20 hover:bg-green-500/10 rounded-lg"
+                            title="Active болгох"
                           >
-                            <Check className="w-4 h-4" />
+                            <Check className="inline w-4 h-4 mr-1" />
+                            Идэвхтэй
                           </button>
                         )}
-                        <button
-                          onClick={() => handleAction(org.id, 'disable')}
-                          disabled={actionLoading[org.id]}
-                          className="p-2 text-lounge-yellow hover:bg-lounge-yellow/10 rounded-lg"
-                          title="Disable"
-                        >
-                          <Ban className="w-4 h-4" />
-                        </button>
+                        {org.isApproved && org.subscriptionStatus === 'active' && (
+                          <button
+                            onClick={() => handleAction(org.id, 'disable')}
+                            disabled={actionLoading[org.id]}
+                            className="p-2 text-lounge-yellow hover:bg-lounge-yellow/10 rounded-lg"
+                            title="Үйл ажиллагаа зогсоох"
+                          >
+                            <Ban className="w-4 h-4" />
+                          </button>
+                        )}
                         <button
                           onClick={() => handleAction(org.id, 'delete')}
                           disabled={actionLoading[org.id]}

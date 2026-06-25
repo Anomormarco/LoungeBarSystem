@@ -8,6 +8,10 @@ function parseId(id, label) {
   return parsed;
 }
 
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
 async function getOwnerStaff(organizationId) {
   return prisma.staff.findMany({
     where: { organizationId },
@@ -16,8 +20,14 @@ async function getOwnerStaff(organizationId) {
 }
 
 async function createOwnerStaff(organizationId, payload) {
-  if (!payload.name || !payload.email || !payload.role) {
+  const email = normalizeEmail(payload.email);
+
+  if (!payload.name || !email || !payload.role) {
     throw httpError(400, "Ner, email bolon erh shaardlagatai");
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw httpError(400, "Email buruu baina");
   }
 
   const password = payload.password ? await bcrypt.hash(payload.password, 10) : undefined;
@@ -27,7 +37,7 @@ async function createOwnerStaff(organizationId, payload) {
       organizationId,
       name: payload.name,
       phone: payload.phone,
-      email: payload.email,
+      email,
       password,
       role: payload.role,
     },
@@ -38,8 +48,16 @@ async function updateOwnerStaff(organizationId, staffId, payload) {
   const id = parseId(staffId, "Ajiltnii id");
   const data = {};
 
-  for (const field of ["name", "phone", "email", "role"]) {
+  for (const field of ["name", "phone", "role"]) {
     if (payload[field] !== undefined) data[field] = payload[field];
+  }
+
+  if (payload.email !== undefined) {
+    const email = normalizeEmail(payload.email);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw httpError(400, "Email buruu baina");
+    }
+    data.email = email;
   }
 
   if (payload.password) data.password = await bcrypt.hash(payload.password, 10);
@@ -66,9 +84,44 @@ async function deleteOwnerStaff(organizationId, staffId) {
   return { id };
 }
 
+async function changeOwnerPassword(user, payload) {
+  if (!payload.currentPassword || !payload.newPassword) {
+    throw httpError(400, "Odoogiin password bolon shine password shaardlagatai");
+  }
+
+  if (String(payload.newPassword).length < 8) {
+    throw httpError(400, "Shine password 8 temdegt ees urt baih yostoi");
+  }
+
+  const staff = await prisma.staff.findFirst({
+    where: {
+      id: user.id,
+      organizationId: user.organizationId,
+    },
+  });
+
+  if (!staff || !staff.password) {
+    throw httpError(404, "Owner burtgel oldsongui");
+  }
+
+  const passwordMatches = await bcrypt.compare(payload.currentPassword, staff.password);
+  if (!passwordMatches) {
+    throw httpError(401, "Odoogiin password buruu baina");
+  }
+
+  const password = await bcrypt.hash(payload.newPassword, 10);
+  await prisma.staff.update({
+    where: { id: staff.id },
+    data: { password },
+  });
+
+  return { changed: true };
+}
+
 module.exports = {
   getOwnerStaff,
   createOwnerStaff,
   updateOwnerStaff,
   deleteOwnerStaff,
+  changeOwnerPassword,
 };

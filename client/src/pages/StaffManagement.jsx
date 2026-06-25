@@ -30,7 +30,7 @@ export default function StaffManagement() {
 
   const fetchStaff = async () => {
     try {
-      const res = await api.getOwnerStaff();
+      const res = await api.getStaff();
       setStaffList(res.data);
     } catch (err) {
       console.error('Staff fetch error:', err);

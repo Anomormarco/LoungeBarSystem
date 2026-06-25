@@ -2,14 +2,20 @@ const prisma = require("../../utils/prisma");
 const httpError = require("../../utils/httpError");
 const { signToken, verifyPassword } = require("../../utils/auth");
 
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
 async function ownerLogin({ email, password }) {
-  if (!email || !password) {
+  const normalizedEmail = normalizeEmail(email);
+
+  if (!normalizedEmail || !password) {
     throw httpError(400, "Email bolon password shaardlagatai");
   }
 
   const staff = await prisma.staff.findFirst({
     where: {
-      email,
+      email: { equals: normalizedEmail, mode: "insensitive" },
       role: "manager",
     },
     include: {
@@ -42,12 +48,16 @@ async function ownerLogin({ email, password }) {
 }
 
 async function adminLogin({ email, password }) {
-  if (!email || !password) {
+  const normalizedEmail = normalizeEmail(email);
+
+  if (!normalizedEmail || !password) {
     throw httpError(400, "Email bolon password shaardlagatai");
   }
 
-  const admin = await prisma.admin.findUnique({
-    where: { email },
+  const admin = await prisma.admin.findFirst({
+    where: {
+      email: { equals: normalizedEmail, mode: "insensitive" },
+    },
   });
 
   if (!admin || !(await verifyPassword(password, admin.password))) {

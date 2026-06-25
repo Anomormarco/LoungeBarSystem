@@ -5,8 +5,9 @@ const {
   createOwnerStaff,
   updateOwnerStaff,
   deleteOwnerStaff,
+  changeOwnerPassword,
 } = require("../modules/staff/staff.service");
-const { ownerGuard, adminGuard } = require("../middlewares/auth.middleware");
+const { ownerGuard, ownerActiveGuard, adminGuard } = require("../middlewares/auth.middleware");
 const prisma = require("../utils/prisma");
 
 const router = express.Router();
@@ -21,8 +22,17 @@ router.post("/owner/login", async (req, res, next) => {
   }
 });
 
+router.put("/owner/password", ownerGuard, async (req, res, next) => {
+  try {
+    const data = await changeOwnerPassword(req.user, req.body);
+    res.json({ data });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Owner staff management
-router.get("/owner/staff", ownerGuard, async (req, res, next) => {
+router.get("/owner/staff", ownerActiveGuard, async (req, res, next) => {
   try {
     const staff = await getOwnerStaff(req.user.organizationId);
     res.json({ data: staff });
@@ -31,7 +41,7 @@ router.get("/owner/staff", ownerGuard, async (req, res, next) => {
   }
 });
 
-router.post("/owner/staff", ownerGuard, async (req, res, next) => {
+router.post("/owner/staff", ownerActiveGuard, async (req, res, next) => {
   try {
     const staff = await createOwnerStaff(req.user.organizationId, req.body);
     res.status(201).json({ data: staff });
@@ -40,7 +50,7 @@ router.post("/owner/staff", ownerGuard, async (req, res, next) => {
   }
 });
 
-router.put("/owner/staff/:id", ownerGuard, async (req, res, next) => {
+router.put("/owner/staff/:id", ownerActiveGuard, async (req, res, next) => {
   try {
     const staff = await updateOwnerStaff(req.user.organizationId, req.params.id, req.body);
     res.json({ data: staff });
@@ -49,7 +59,7 @@ router.put("/owner/staff/:id", ownerGuard, async (req, res, next) => {
   }
 });
 
-router.delete("/owner/staff/:id", ownerGuard, async (req, res, next) => {
+router.delete("/owner/staff/:id", ownerActiveGuard, async (req, res, next) => {
   try {
     const staff = await deleteOwnerStaff(req.user.organizationId, req.params.id);
     res.json({ data: staff });

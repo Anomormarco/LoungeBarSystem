@@ -7,7 +7,7 @@ const {
   getOwnerReservations,
 } = require("../modules/reservations/reservation.service");
 const { getOwnerStatistics } = require("../modules/statistics/statistics.service");
-const { ownerGuard } = require("../middlewares/auth.middleware");
+const { ownerActiveGuard } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
@@ -40,7 +40,7 @@ router.post("/reservations", async (req, res, next) => {
 });
 
 // Owner reservation dashboard APIs
-router.get("/owner/reservations", ownerGuard, async (req, res, next) => {
+router.get("/owner/reservations", ownerActiveGuard, async (req, res, next) => {
   try {
     const reservations = await getOwnerReservations(req.user.organizationId);
     res.json({ data: reservations });
@@ -49,7 +49,7 @@ router.get("/owner/reservations", ownerGuard, async (req, res, next) => {
   }
 });
 
-router.put("/owner/reservations/:id/confirm", ownerGuard, async (req, res, next) => {
+router.put("/owner/reservations/:id/confirm", ownerActiveGuard, async (req, res, next) => {
   try {
     const reservation = await updateOwnerReservationStatus({
       reservationId: req.params.id,
@@ -62,7 +62,7 @@ router.put("/owner/reservations/:id/confirm", ownerGuard, async (req, res, next)
   }
 });
 
-router.put("/owner/reservations/:id/cancel", ownerGuard, async (req, res, next) => {
+router.put("/owner/reservations/:id/cancel", ownerActiveGuard, async (req, res, next) => {
   try {
     const reservation = await updateOwnerReservationStatus({
       reservationId: req.params.id,
@@ -75,7 +75,7 @@ router.put("/owner/reservations/:id/cancel", ownerGuard, async (req, res, next) 
   }
 });
 
-router.put("/owner/reservations/:id/complete", ownerGuard, async (req, res, next) => {
+router.put("/owner/reservations/:id/complete", ownerActiveGuard, async (req, res, next) => {
   try {
     const reservation = await updateOwnerReservationStatus({
       reservationId: req.params.id,
@@ -89,7 +89,7 @@ router.put("/owner/reservations/:id/complete", ownerGuard, async (req, res, next
 });
 
 // Owner stats APIs
-router.get("/owner/statistics", ownerGuard, async (req, res, next) => {
+router.get("/owner/statistics", ownerActiveGuard, async (req, res, next) => {
   try {
     const statistics = await getOwnerStatistics(req.user.organizationId, req.query.range);
     res.json({ data: statistics });

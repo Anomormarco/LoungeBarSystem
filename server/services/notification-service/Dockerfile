@@ -4,6 +4,8 @@ WORKDIR /usr/src/app
 
 COPY services/notification-service/package*.json ./
 
+RUN npm config set strict-ssl false
+
 RUN npm install
 
 COPY services/notification-service/src ./src

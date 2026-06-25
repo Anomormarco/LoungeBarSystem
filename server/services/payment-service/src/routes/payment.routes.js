@@ -10,19 +10,27 @@ const prisma = require("../utils/prisma");
 
 const router = express.Router();
 
-// Public payment checkout sessions
-router.post("/payments/stripe/create-checkout-session", express.json(), async (req, res, next) => {
+// Owner payment checkout sessions. Organization is taken from the owner token.
+router.post("/payments/stripe/create-checkout-session", ownerGuard, express.json(), async (req, res, next) => {
   try {
-    const data = await createStripeCheckoutSession(req.body);
+    const data = await createStripeCheckoutSession({
+      ...req.body,
+      organizationId: req.user.organizationId,
+      periodDays: 30,
+    });
     res.status(201).json({ data });
   } catch (error) {
     next(error);
   }
 });
 
-router.post("/payments/qpay/create-invoice", express.json(), async (req, res, next) => {
+router.post("/payments/qpay/create-invoice", ownerGuard, express.json(), async (req, res, next) => {
   try {
-    const data = await createQpayInvoice(req.body);
+    const data = await createQpayInvoice({
+      ...req.body,
+      organizationId: req.user.organizationId,
+      periodDays: 30,
+    });
     res.status(201).json({ data });
   } catch (error) {
     next(error);

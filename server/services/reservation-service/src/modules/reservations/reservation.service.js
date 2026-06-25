@@ -24,10 +24,15 @@ function expiresInMinutes(minutes) {
 }
 
 async function sendReservationOtp({ email, reservationId }) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
   const parsedReservationId = reservationId ? Number(reservationId) : null;
 
-  if (!email) {
+  if (!normalizedEmail) {
     throw httpError(400, "Email shaardlagatai");
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    throw httpError(400, "Email buruu baina");
   }
 
   if (reservationId && !Number.isInteger(parsedReservationId)) {
@@ -39,7 +44,7 @@ async function sendReservationOtp({ email, reservationId }) {
 
   const verificationCode = await prisma.verificationCode.create({
     data: {
-      email,
+      email: normalizedEmail,
       code,
       reservationId: parsedReservationId,
       expiresAt,
@@ -47,10 +52,18 @@ async function sendReservationOtp({ email, reservationId }) {
   });
 
   await sendEmail({
-    to: email,
-    subject: "Your Lounge reservation OTP",
-    text: `Your verification code is ${code}. It expires in 5 minutes.`,
-    html: `<p>Your verification code is <strong>${code}</strong>.</p><p>It expires in 5 minutes.</p>`,
+    to: normalizedEmail,
+    subject: "Lounge Reserve verification code",
+    text: `Your Lounge Reserve verification code is ${code}. It expires in 5 minutes.`,
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #111827;">
+        <h2 style="margin: 0 0 12px;">Lounge Reserve</h2>
+        <p>Your reservation verification code is:</p>
+        <div style="font-size: 28px; font-weight: 700; letter-spacing: 6px; margin: 18px 0;">${code}</div>
+        <p>This code expires in 5 minutes.</p>
+        <p style="color: #6b7280; font-size: 12px;">If you did not request this code, you can ignore this email.</p>
+      </div>
+    `,
   });
 
   return {
@@ -189,16 +202,17 @@ async function createReservation(payload) {
 }
 
 async function verifyReservationOtp({ email, code, reservationId }) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
   const parsedReservationId = Number(reservationId);
 
-  if (!email || !code || !Number.isInteger(parsedReservationId)) {
+  if (!normalizedEmail || !code || !Number.isInteger(parsedReservationId)) {
     throw httpError(400, "Email, code bolon zahialgiin id shaardlagatai");
   }
 
   const reservation = await prisma.$transaction(async (tx) => {
     const verificationCode = await tx.verificationCode.findFirst({
       where: {
-        email,
+        email: normalizedEmail,
         code,
         reservationId: parsedReservationId,
         isUsed: false,
@@ -351,4 +365,3 @@ module.exports = {
   updateOwnerReservationStatus,
   getOwnerReservations,
 };
-

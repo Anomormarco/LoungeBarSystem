@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+const SOCKET_URL = import.meta.env.VITE_API_URL || window.location.origin;
 
 export async function request(path, options = {}) {
   const tokenKey = options.tokenKey || 'owner_token';
@@ -14,13 +15,16 @@ export async function request(path, options = {}) {
 
   let response;
 
+  const url = `${API_URL}${path}`;
+
   try {
-    response = await fetch(`${API_URL}${path}`, {
+    response = await fetch(url, {
       ...options,
       headers,
     });
   } catch (error) {
-    throw new Error(`API server холбогдохгүй байна. ${API_URL} асаалттай эсэхийг шалгана уу.`);
+    console.error('API connection failed:', { url, error });
+    throw new Error(`API server холбогдохгүй байна. ${url} (${error.message})`);
   }
 
   if (!response.ok) {
@@ -76,6 +80,11 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
+  changePassword: (currentPassword, newPassword) =>
+    request('/owner/password', {
+      method: 'PUT',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    }),
   getReservations: () => request('/owner/reservations'),
   confirmReservation: (id) => request(`/owner/reservations/${id}/confirm`, { method: 'PUT' }),
   cancelReservation: (id) => request(`/owner/reservations/${id}/cancel`, { method: 'PUT' }),
@@ -100,15 +109,15 @@ export const api = {
   deleteStaff: (id) => request(`/owner/staff/${id}`, { method: 'DELETE' }),
   getStatistics: (range = '7d') => request(`/owner/statistics?range=${range}`),
   getSubscription: () => request('/owner/subscription'),
-  createStripeCheckout: (organizationId, amount, planType, successUrl, cancelUrl) =>
+  createStripeCheckout: (amount, planType, successUrl, cancelUrl) =>
     request('/payments/stripe/create-checkout-session', {
       method: 'POST',
-      body: JSON.stringify({ organizationId, amount, planType, successUrl, cancelUrl }),
+      body: JSON.stringify({ amount, planType, successUrl, cancelUrl }),
     }),
-  createQpayInvoice: (organizationId, amount, planType) =>
+  createQpayInvoice: (amount, planType) =>
     request('/payments/qpay/create-invoice', {
       method: 'POST',
-      body: JSON.stringify({ organizationId, amount, planType }),
+      body: JSON.stringify({ amount, planType }),
     }),
   simulateQpayPayment: (paymentId, status) =>
     request('/payments/webhook/qpay', {
@@ -146,4 +155,4 @@ export const adminApi = {
     request(`/admin/organizations/${id}/disable`, { method: 'PUT', tokenKey: 'admin_token' }),
 };
 
-export { API_URL };
+export { API_URL, SOCKET_URL };

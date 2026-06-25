@@ -1,10 +1,7 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { MapPin, Building2, ArrowRight } from 'lucide-react';
+import { Link, NavLink } from 'react-router-dom';
 
 export default function UserLayout({ children }) {
-  const navigate = useNavigate();
-
   return (
     <div className="min-h-screen bg-lounge-black text-white">
       <div className="absolute top-0 left-0 w-full h-72 bg-gradient-to-b from-lounge-yellow/10 to-transparent pointer-events-none" />
@@ -20,19 +17,17 @@ export default function UserLayout({ children }) {
           </div>
         </Link>
 
-        <nav className="flex items-center gap-2 sm:gap-4">
-          <Link
-            to="/for-owners"
-            className="hidden sm:inline text-xs text-lounge-muted hover:text-lounge-yellow transition-colors"
+        <nav className="flex items-center gap-2">
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              `px-3 py-2 text-xs font-semibold rounded-lg transition-colors ${
+                isActive ? 'bg-lounge-yellow/10 text-lounge-yellow' : 'text-lounge-muted hover:text-lounge-yellow'
+              }`
+            }
           >
-            Эзэмшигчид
-          </Link>
-          <button
-            onClick={() => navigate('/login')}
-            className="px-3 sm:px-4 py-2 text-xs font-semibold text-lounge-yellow border border-lounge-yellow/30 rounded-lg hover:bg-lounge-yellow/10 transition-colors"
-          >
-            Owner Login
-          </button>
+            Lounge хайх
+          </NavLink>
         </nav>
       </header>
 

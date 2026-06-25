@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
 import UserLayout from '../../components/UserLayout';
+import ReservationModal from '../../components/ReservationModal';
 import { publicApi } from '../../utils/api';
 import {
   AlertCircle,
   ChevronRight,
+  Crown,
   Image as ImageIcon,
   Loader2,
   MapPin,
@@ -42,6 +43,25 @@ const STATUS_LABELS = {
   custom: 'Тусгай',
 };
 
+const STATUS_CONFIG = {
+  available: { label: 'Сул', color: 'bg-green-500/20 text-green-400 border-green-500/30' },
+  reserved: { label: 'Захиалгатай', color: 'bg-lounge-yellow/20 text-lounge-yellow border-lounge-yellow/30' },
+  occupied: { label: 'Дүүрсэн', color: 'bg-red-500/20 text-red-400 border-red-500/30' },
+  disabled: { label: 'Идэвхгүй', color: 'bg-neutral-500/20 text-neutral-400 border-neutral-500/30' },
+  custom: { label: 'Тусгай', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
+};
+
+function getStatusLabel(table) {
+  if (table.status === 'custom' && table.customStatusLabel) {
+    return table.customStatusLabel;
+  }
+  return STATUS_CONFIG[table.status]?.label || table.status;
+}
+
+function getStatusColor(table) {
+  return STATUS_CONFIG[table.status]?.color || STATUS_CONFIG.custom.color;
+}
+
 function formatDistance(meters) {
   if (meters == null) return '';
   if (meters < 1000) return `${Math.round(meters)} м`;
@@ -78,9 +98,9 @@ function getTableStatusCounts(tables) {
 }
 
 export default function Home() {
-  const navigate = useNavigate();
-  const [location, setLocation] = useState(null);
-  const [locationLabel, setLocationLabel] = useState('');
+  const detailRequestRef = useRef(0);
+  const [location, setLocation] = useState({ lat: DEFAULT_LOCATION.lat, lng: DEFAULT_LOCATION.lng });
+  const [locationLabel, setLocationLabel] = useState(DEFAULT_LOCATION.label);
   const [locationError, setLocationError] = useState('');
   const [loadingLocation, setLoadingLocation] = useState(true);
   const [organizations, setOrganizations] = useState([]);
@@ -93,6 +113,8 @@ export default function Home() {
   const [selectedOrgId, setSelectedOrgId] = useState(null);
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [detailOverlayOpen, setDetailOverlayOpen] = useState(false);
+  const [selectedTable, setSelectedTable] = useState(null);
 
   const selectedSummary = organizations.find((org) => org.id === selectedOrgId);
   const mapBounds = UB_MAP_BOUNDS;
@@ -106,6 +128,33 @@ export default function Home() {
   const selectedPhone = selectedDetail?.phone || selectedSummary?.phone;
   const selectedOpeningTime = selectedDetail?.openingTime || selectedSummary?.opening_time;
   const selectedClosingTime = selectedDetail?.closingTime || selectedSummary?.closing_time;
+
+  const openLoungeDetail = () => {
+    setDetailOverlayOpen(true);
+  };
+
+  const closeLoungeDetail = () => {
+    setDetailOverlayOpen(false);
+    setSelectedTable(null);
+  };
+
+  const refreshSelectedTables = async () => {
+    if (!selectedSummary) return;
+
+    const tablesRes = await publicApi.getOrganizationTables(selectedSummary.id);
+    setSelectedDetail((prev) => ({
+      ...(prev || selectedSummary),
+      tables: tablesRes.data || [],
+      menuItems,
+    }));
+  };
+
+  const useDefaultLocation = (message = '') => {
+    setLocation({ lat: DEFAULT_LOCATION.lat, lng: DEFAULT_LOCATION.lng });
+    setLocationLabel(DEFAULT_LOCATION.label);
+    setLocationError(typeof message === 'string' ? message : '');
+    setLoadingLocation(false);
+  };
 
   const requestLocation = () => {
     setLoadingLocation(true);
@@ -129,13 +178,6 @@ export default function Home() {
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
-  };
-
-  const useDefaultLocation = () => {
-    setLocation({ lat: DEFAULT_LOCATION.lat, lng: DEFAULT_LOCATION.lng });
-    setLocationLabel(DEFAULT_LOCATION.label);
-    setLocationError('');
-    setLoadingLocation(false);
   };
 
   useEffect(() => {
@@ -165,9 +207,19 @@ export default function Home() {
     fetchNearby();
   }, [location, radius, searchQuery, tableType, availableOnly]);
 
-  const selectOrganization = async (org) => {
+  const clearOrganizationPreview = () => {
+    detailRequestRef.current += 1;
+    closeLoungeDetail();
+    setSelectedOrgId(null);
+    setSelectedDetail(null);
+    setDetailLoading(false);
+  };
+
+  const previewOrganization = async (org) => {
     if (org.id === selectedOrgId && selectedDetail) return;
 
+    const requestId = detailRequestRef.current + 1;
+    detailRequestRef.current = requestId;
     setSelectedOrgId(org.id);
     setDetailLoading(true);
     setSelectedDetail(null);
@@ -177,15 +229,19 @@ export default function Home() {
         publicApi.getOrganizationTables(org.id),
         publicApi.getOrganizationMenu(org.id),
       ]);
-      setSelectedDetail({
-        ...orgRes.data,
-        tables: tablesRes.data || [],
-        menuItems: menuRes.data || [],
-      });
+      if (detailRequestRef.current === requestId) {
+        setSelectedDetail({
+          ...orgRes.data,
+          tables: tablesRes.data || [],
+          menuItems: menuRes.data || [],
+        });
+      }
     } catch (err) {
       setError(err.message || 'Lounge мэдээлэл ачаалахад алдаа гарлаа.');
     } finally {
-      setDetailLoading(false);
+      if (detailRequestRef.current === requestId) {
+        setDetailLoading(false);
+      }
     }
   };
 
@@ -255,6 +311,7 @@ export default function Home() {
             <div
               className="relative mt-4 overflow-hidden rounded-2xl border border-lounge-border bg-white"
               style={{ height: 720, minHeight: 720 }}
+              onClick={clearOrganizationPreview}
             >
               <iframe
                 title="Google map"
@@ -265,7 +322,7 @@ export default function Home() {
                 allowFullScreen
               />
 
-              <div className="pointer-events-none absolute inset-0 z-10">
+              <div className="pointer-events-none absolute inset-0 z-30">
                 {location && (
                   <div
                     className="absolute -translate-x-1/2 -translate-y-1/2"
@@ -285,19 +342,34 @@ export default function Home() {
                     <button
                       key={org.id}
                       type="button"
-                      onClick={() => selectOrganization(org)}
-                      onMouseEnter={() => selectOrganization(org)}
-                      onPointerEnter={() => selectOrganization(org)}
-                      onFocus={() => selectOrganization(org)}
-                      className={`pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border-2 border-lounge-black shadow-lg transition-transform duration-200 ease-out ${
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        previewOrganization(org);
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          previewOrganization(org);
+                        }
+                      }}
+                      className={`pointer-events-auto absolute -translate-x-1/2 -translate-y-full flex h-10 w-10 items-end justify-center pb-1 transition-transform duration-200 ease-out ${
                         active
-                          ? 'w-8 h-8 bg-orange-400 text-lounge-black scale-125 shadow-orange-400/50 z-20'
-                          : 'w-6 h-6 bg-lounge-yellow text-lounge-black hover:scale-125 hover:bg-orange-300 shadow-lounge-yellow/30'
-                      } text-[11px] font-black cursor-pointer`}
+                          ? 'scale-110 z-40'
+                          : 'hover:scale-110'
+                      } cursor-pointer`}
                       style={getMarkerPosition(org, mapBounds)}
                       title={org.name}
                     >
-                      L
+                      <span
+                        className={`relative flex h-5 w-5 rotate-45 items-center justify-center rounded-full rounded-br-sm border border-lounge-black/80 shadow-md ${
+                          active
+                            ? 'bg-[#d97706] shadow-[#d97706]/45'
+                            : 'bg-[#eab308] shadow-[#ca8a04]/35'
+                        }`}
+                      >
+                        <span className="h-2 w-2 -rotate-45 rounded-full bg-lounge-black/70 ring-1 ring-lounge-black/20" />
+                      </span>
                     </button>
                   );
                 })}
@@ -323,9 +395,11 @@ export default function Home() {
                   <p className="text-sm text-lounge-muted">Ойролцоох lounge хайж байна...</p>
                 </div>
               )}
-
               {selectedSummary && (
-                <div className="absolute bottom-4 right-4 z-30 w-[min(380px,calc(100%-2rem))] rounded-2xl bg-lounge-card border border-lounge-border shadow-2xl overflow-hidden">
+                <div
+                  className="absolute bottom-4 right-4 z-40 w-[min(380px,calc(100%-2rem))] rounded-2xl bg-lounge-card border border-lounge-border shadow-2xl overflow-hidden"
+                  onClick={(event) => event.stopPropagation()}
+                >
                   <div className="relative h-32">
                     <img
                       src={getCoverImage(selectedDetail || selectedSummary)}
@@ -460,7 +534,7 @@ export default function Home() {
 
                         <button
                           type="button"
-                          onClick={() => navigate(`/lounge/${selectedSummary.id}`)}
+                          onClick={openLoungeDetail}
                           className="w-full py-2.5 rounded-xl bg-lounge-yellow text-lounge-black text-sm font-extrabold hover:bg-lounge-yellow-dark transition-colors flex items-center justify-center gap-2"
                         >
                           Дэлгэрэнгүй захиалах
@@ -532,6 +606,211 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {detailOverlayOpen && selectedSummary && (
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto bg-lounge-black/80 px-4 py-6 sm:py-10"
+          onClick={closeLoungeDetail}
+        >
+          <div
+            className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-lounge-border bg-lounge-card shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="relative h-56 sm:h-72">
+              <img
+                src={getCoverImage(selectedDetail || selectedSummary)}
+                alt={selectedSummary.name}
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-lounge-black via-lounge-black/40 to-transparent" />
+              <button
+                type="button"
+                onClick={closeLoungeDetail}
+                className="absolute right-4 top-4 rounded-xl border border-lounge-border bg-lounge-black/85 p-2 text-lounge-muted transition-colors hover:text-white"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <div className="absolute bottom-5 left-5 right-16">
+                <h2 className="text-2xl font-extrabold sm:text-3xl">{selectedSummary.name}</h2>
+                <p className="mt-2 flex items-center gap-2 text-sm text-lounge-muted">
+                  <MapPin className="h-4 w-4 shrink-0 text-lounge-yellow" />
+                  <span className="line-clamp-2">{selectedSummary.address}</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6 p-5 sm:p-6">
+              {detailLoading && (
+                <div className="flex items-center gap-2 rounded-xl border border-lounge-border bg-lounge-black px-4 py-3 text-sm text-lounge-yellow">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Дэлгэрэнгүй мэдээлэл ачаалж байна...
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                  <p className="text-xs text-lounge-muted">Сул ширээ</p>
+                  <p className="mt-1 text-2xl font-extrabold text-lounge-yellow">
+                    {selectedSummary.availableTableCount ?? tableStatusCounts.available ?? 0}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                  <p className="text-xs text-lounge-muted">VIP</p>
+                  <p className="mt-1 text-2xl font-extrabold text-lounge-yellow">
+                    {selectedSummary.vipTableCount ?? tables.filter((table) => table.type === 'vip').length}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                  <p className="text-xs text-lounge-muted">Зай</p>
+                  <p className="mt-1 text-2xl font-extrabold text-lounge-yellow">
+                    {formatDistance(Number(selectedSummary.distanceMeters)) || '-'}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                  <p className="text-xs text-lounge-muted">Цаг</p>
+                  <p className="mt-2 text-sm font-bold text-white">
+                    {selectedOpeningTime && selectedClosingTime
+                      ? `${selectedOpeningTime} - ${selectedClosingTime}`
+                      : 'Тодорхойгүй'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                    <h3 className="mb-2 text-sm font-extrabold text-lounge-yellow">Мэдээлэл</h3>
+                    <p className="text-sm leading-relaxed text-lounge-muted">
+                      {selectedDescription || 'Тайлбар бүртгэгдээгүй байна.'}
+                    </p>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-lg border border-lounge-border bg-lounge-card px-3 py-2">
+                        <p className="text-[11px] uppercase text-lounge-muted">Утас</p>
+                        <p className="mt-1 text-sm font-bold text-white">{selectedPhone || 'Бүртгэлгүй'}</p>
+                      </div>
+                      <div className="rounded-lg border border-lounge-border bg-lounge-card px-3 py-2">
+                        <p className="text-[11px] uppercase text-lounge-muted">Байршил</p>
+                        <p className="mt-1 line-clamp-2 text-sm font-bold text-white">{selectedSummary.address}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-lounge-yellow">
+                      <ImageIcon className="h-4 w-4" />
+                      Interior / Exterior
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      {(previewImages.length > 0 ? previewImages : [getCoverImage(selectedDetail || selectedSummary)]).slice(0, 4).map((image, index) => (
+                        <img
+                          key={image + index}
+                          src={image}
+                          alt=""
+                          className="h-28 w-full rounded-lg border border-lounge-border object-cover"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-lounge-yellow">
+                      <Table2 className="h-4 w-4" />
+                      Ширээний төлөв
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(STATUS_LABELS).map(([status, label]) => (
+                        <div key={status} className="flex items-center justify-between rounded-lg border border-lounge-border bg-lounge-card px-3 py-2 text-sm">
+                          <span className="text-lounge-muted">{label}</span>
+                          <span className="font-extrabold text-lounge-yellow">{tableStatusCounts[status] || 0}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                    <h3 className="mb-2 flex items-center gap-2 text-sm font-extrabold text-lounge-yellow">
+                      <Table2 className="h-4 w-4" />
+                      Захиалга өгөх ширээ
+                    </h3>
+                    <p className="mb-3 text-xs text-lounge-muted">
+                      Ногоон буюу сул ширээн дээр дараад захиалгаа өгнө.
+                    </p>
+                    <div className="grid max-h-80 grid-cols-2 gap-2 overflow-auto pr-1 sm:grid-cols-3">
+                      {tables.map((table) => {
+                        const isAvailable = table.status === 'available';
+                        return (
+                          <button
+                            key={table.id}
+                            type="button"
+                            disabled={!isAvailable}
+                            onClick={() => isAvailable && setSelectedTable(table)}
+                            className={`rounded-xl border p-3 text-left transition-all ${
+                              isAvailable
+                                ? 'border-lounge-border bg-lounge-card hover:border-lounge-yellow hover:shadow-lg hover:shadow-lounge-yellow/10'
+                                : 'cursor-not-allowed border-lounge-border/50 bg-lounge-card/40 opacity-60'
+                            }`}
+                          >
+                            <div className="mb-2 flex items-center justify-between gap-2">
+                              <span className="text-base font-extrabold">#{table.tableNumber}</span>
+                              {table.type === 'vip' && <Crown className="h-4 w-4 text-lounge-yellow" />}
+                            </div>
+                            <p className="mb-2 text-xs text-lounge-muted">{table.capacity} хүн</p>
+                            <span className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold ${getStatusColor(table)}`}>
+                              {getStatusLabel(table)}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {tables.length === 0 && (
+                      <div className="rounded-lg border border-lounge-border bg-lounge-card px-3 py-3 text-sm text-lounge-muted">
+                        {detailLoading ? 'Ширээ ачаалж байна...' : 'Ширээ бүртгэлгүй байна.'}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-lounge-yellow">
+                      <UtensilsCrossed className="h-4 w-4" />
+                      Menu
+                    </h3>
+                    <div className="space-y-2">
+                      {menuItems.length > 0 ? (
+                        menuItems.slice(0, 6).map((item) => (
+                          <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-lounge-border bg-lounge-card px-3 py-2">
+                            <p className="truncate text-sm font-semibold">{item.name}</p>
+                            <span className="shrink-0 text-sm font-extrabold text-lounge-yellow">
+                              {Number(item.price).toLocaleString()} ₮
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="rounded-lg border border-lounge-border bg-lounge-card px-3 py-3 text-sm text-lounge-muted">
+                          {detailLoading ? 'Menu ачаалж байна...' : 'Menu бүртгэлгүй байна'}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedTable && selectedSummary && (
+        <ReservationModal
+          organization={selectedDetail || selectedSummary}
+          table={selectedTable}
+          onClose={() => setSelectedTable(null)}
+          onSuccess={() => {
+            refreshSelectedTables();
+          }}
+        />
+      )}
     </UserLayout>
   );
 }

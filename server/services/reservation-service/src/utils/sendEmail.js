@@ -5,7 +5,7 @@ function hasSendGridConfig() {
 }
 
 function hasSmtpConfig() {
-  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+  return Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
 }
 
 function createSendGridTransporter() {
@@ -21,10 +21,12 @@ function createSendGridTransporter() {
 }
 
 function createSmtpTransporter() {
+  const port = Number(process.env.SMTP_PORT || 587);
+
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: process.env.SMTP_SECURE === "true",
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port,
+    secure: process.env.SMTP_SECURE === "true" || port === 465,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -48,12 +50,15 @@ async function sendEmail({ to, subject, text, html }) {
   const transporter = createTransporter();
 
   if (!transporter) {
-    console.log("[email:dev]", { to, subject, text });
-    return { skipped: true };
+    const error = new Error("Email service tohiruulagdaagui baina. SMTP_USER/SMTP_PASS esvel SENDGRID_API_KEY shaardlagatai.");
+    error.statusCode = 503;
+    throw error;
   }
 
+  const from = process.env.EMAIL_FROM || process.env.SMTP_USER;
+
   return transporter.sendMail({
-    from: process.env.EMAIL_FROM || process.env.SMTP_USER || "no-reply@lounge.local",
+    from,
     to,
     subject,
     text,

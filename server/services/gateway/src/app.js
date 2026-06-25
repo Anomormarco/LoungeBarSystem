@@ -10,6 +10,17 @@ const PAYMENT_SERVICE_URL = process.env.PAYMENT_SERVICE_URL || "http://payment-s
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || "http://notification-service:3005";
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 
+function isAllowedDevOrigin(origin) {
+  if (!origin) return false;
+
+  try {
+    const url = new URL(origin);
+    return url.protocol === "http:" && url.port === "5173";
+  } catch (_error) {
+    return false;
+  }
+}
+
 function serviceProxy(target, options = {}) {
   return createProxyMiddleware({
     target,
@@ -27,7 +38,7 @@ app.use((req, res, next) => {
   ]);
   const origin = req.headers.origin;
 
-  if (origin && allowedOrigins.has(origin)) {
+  if (origin && (allowedOrigins.has(origin) || isAllowedDevOrigin(origin))) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
 
@@ -59,6 +70,7 @@ app.use("/socket.io", createProxyMiddleware({
 // Route mappings
 // 1. Auth Service
 app.use("/owner/login", serviceProxy(AUTH_SERVICE_URL));
+app.use("/owner/password", serviceProxy(AUTH_SERVICE_URL));
 app.use("/owner/staff", serviceProxy(AUTH_SERVICE_URL));
 app.use("/admin/login", serviceProxy(AUTH_SERVICE_URL));
 app.use("/admin/statistics", serviceProxy(AUTH_SERVICE_URL));

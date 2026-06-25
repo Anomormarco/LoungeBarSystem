@@ -1,5 +1,6 @@
 const httpError = require("../utils/httpError");
 const { verifyToken } = require("../utils/auth");
+const prisma = require("../utils/prisma");
 
 function authRequired(req, res, next) {
   try {
@@ -30,9 +31,35 @@ function roleGuard(...roles) {
 const ownerGuard = [authRequired, roleGuard("owner")];
 const adminGuard = [authRequired, roleGuard("admin")];
 
+async function subscriptionRequired(req, res, next) {
+  try {
+    const organization = await prisma.organization.findUnique({
+      where: { id: req.user.organizationId },
+      select: { subscriptionStatus: true, subscriptionExpiry: true, isApproved: true },
+    });
+
+    const isActive =
+      organization?.isApproved === true &&
+      organization?.subscriptionStatus === "active" &&
+      organization?.subscriptionExpiry &&
+      new Date(organization.subscriptionExpiry).getTime() > Date.now();
+
+    if (!isActive) {
+      return next(httpError(402, "Subscription duussan baina. Tulbur tulj 30 honogiin erh idevhjuulne uu."));
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+const ownerActiveGuard = [...ownerGuard, subscriptionRequired];
+
 module.exports = {
   authRequired,
   roleGuard,
   ownerGuard,
+  ownerActiveGuard,
   adminGuard,
 };

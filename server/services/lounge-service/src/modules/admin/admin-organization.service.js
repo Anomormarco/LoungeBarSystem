@@ -1,6 +1,7 @@
 const prisma = require("../../utils/prisma");
 const httpError = require("../../utils/httpError");
 const bcrypt = require("bcryptjs");
+const { isGmail, isStrongPassword, passwordRuleMessage } = require("../../utils/validation");
 
 function parseOrganizationId(id) {
   const organizationId = Number(id);
@@ -88,8 +89,12 @@ async function createOrganization(payload) {
     throw httpError(400, "Owner нэр, имэйл болон анхны нууц үг шаардлагатай.");
   }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ownerEmail)) {
-    throw httpError(400, "Owner имэйл хаяг буруу байна.");
+  if (!isGmail(ownerEmail)) {
+    throw httpError(400, "Owner имэйл зөвхөн @gmail.com байх ёстой.");
+  }
+
+  if (!isStrongPassword(payload.ownerPassword)) {
+    throw httpError(400, passwordRuleMessage());
   }
 
   const existingOwner = await prisma.staff.findFirst({

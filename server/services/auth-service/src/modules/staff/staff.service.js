@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
-const prisma = require("../../utils/prisma");
 const httpError = require("../../utils/httpError");
+const { isGmail, isStrongPassword, passwordRuleMessage } = require("../../utils/validation");
+const staffRepository = require("../../repositories/staff.repository");
 
 function parseId(id, label) {
   const parsed = Number(id);
@@ -13,10 +14,7 @@ function normalizeEmail(email) {
 }
 
 async function getOwnerStaff(organizationId) {
-  return prisma.staff.findMany({
-    where: { organizationId },
-    orderBy: { createdAt: "desc" },
-  });
+  return staffRepository.findByOrganization(organizationId);
 }
 
 async function createOwnerStaff(organizationId, payload) {
@@ -26,26 +24,28 @@ async function createOwnerStaff(organizationId, payload) {
     throw httpError(400, "Нэр, имэйл болон эрх шаардлагатай.");
   }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw httpError(400, "Имэйл хаяг буруу байна.");
+  if (!isGmail(email)) {
+    throw httpError(400, "Имэйл зөвхөн @gmail.com байх ёстой.");
+  }
+
+  if (payload.password && !isStrongPassword(payload.password)) {
+    throw httpError(400, passwordRuleMessage());
   }
 
   const password = payload.password ? await bcrypt.hash(payload.password, 10) : undefined;
 
-  return prisma.staff.create({
-    data: {
-      organizationId,
-      name: payload.name,
-      phone: payload.phone,
-      email,
-      password,
-      role: payload.role,
-    },
+  return staffRepository.create({
+    organizationId,
+    name: payload.name,
+    phone: payload.phone,
+    email,
+    password,
+    role: payload.role,
   });
 }
 
 async function updateOwnerStaff(organizationId, staffId, payload) {
-  const id = parseId(staffId, "Ajiltnii id");
+  const id = parseId(staffId, "Ажилтны ID");
   const data = {};
 
   for (const field of ["name", "phone", "role"]) {
@@ -54,34 +54,25 @@ async function updateOwnerStaff(organizationId, staffId, payload) {
 
   if (payload.email !== undefined) {
     const email = normalizeEmail(payload.email);
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      throw httpError(400, "Имэйл хаяг буруу байна.");
+    if (!isGmail(email)) {
+      throw httpError(400, "Имэйл зөвхөн @gmail.com байх ёстой.");
     }
     data.email = email;
   }
 
-  if (payload.password) data.password = await bcrypt.hash(payload.password, 10);
+  if (payload.password) {
+    if (!isStrongPassword(payload.password)) {
+      throw httpError(400, passwordRuleMessage());
+    }
+    data.password = await bcrypt.hash(payload.password, 10);
+  }
 
-  return prisma.staff.update({
-    where: {
-      id,
-      organizationId,
-    },
-    data,
-  });
+  return staffRepository.updateByOrganization({ id, organizationId, data });
 }
 
 async function deleteOwnerStaff(organizationId, staffId) {
-  const id = parseId(staffId, "Ajiltnii id");
-
-  await prisma.staff.delete({
-    where: {
-      id,
-      organizationId,
-    },
-  });
-
-  return { id };
+  const id = parseId(staffId, "Ажилтны ID");
+  return staffRepository.deleteByOrganization({ id, organizationId });
 }
 
 async function changeOwnerPassword(user, payload) {
@@ -89,16 +80,11 @@ async function changeOwnerPassword(user, payload) {
     throw httpError(400, "Одоогийн нууц үг болон шинэ нууц үг шаардлагатай.");
   }
 
-  if (String(payload.newPassword).length < 8) {
-    throw httpError(400, "Шинэ нууц үг хамгийн багадаа 8 тэмдэгттэй байх ёстой.");
+  if (!isStrongPassword(payload.newPassword)) {
+    throw httpError(400, passwordRuleMessage());
   }
 
-  const staff = await prisma.staff.findFirst({
-    where: {
-      id: user.id,
-      organizationId: user.organizationId,
-    },
-  });
+  const staff = await staffRepository.findOneByUser(user);
 
   if (!staff || !staff.password) {
     throw httpError(404, "Owner бүртгэл олдсонгүй.");
@@ -110,10 +96,7 @@ async function changeOwnerPassword(user, payload) {
   }
 
   const password = await bcrypt.hash(payload.newPassword, 10);
-  await prisma.staff.update({
-    where: { id: staff.id },
-    data: { password },
-  });
+  await staffRepository.updateById(staff.id, { password });
 
   return { changed: true };
 }

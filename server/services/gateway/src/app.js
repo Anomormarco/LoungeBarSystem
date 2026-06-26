@@ -1,5 +1,7 @@
 const express = require("express");
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const rateLimiter = require("./middlewares/rateLimiter");
+const errorHandler = require("./middlewares/errorHandler.middleware");
 
 const app = express();
 
@@ -26,6 +28,9 @@ function serviceProxy(target, options = {}) {
     target,
     changeOrigin: true,
     pathRewrite: (_path, req) => req.originalUrl,
+    onError: (err, req, res) => {
+      res.status(502).json({ message: "Дотоод сервис рүү холбогдоход алдаа гарлаа." });
+    },
     ...options,
   });
 }
@@ -53,6 +58,8 @@ app.use((req, res, next) => {
 
   return next();
 });
+
+app.use(rateLimiter);
 
 // Gateway health check
 app.get("/health", (req, res) => {
@@ -92,5 +99,7 @@ app.use("/owner/subscription", serviceProxy(PAYMENT_SERVICE_URL));
 
 // 5. Notification Service (standard HTTP APIs if any)
 app.use("/notifications", serviceProxy(NOTIFICATION_SERVICE_URL));
+
+app.use(errorHandler);
 
 module.exports = app;

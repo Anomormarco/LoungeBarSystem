@@ -1,5 +1,6 @@
 services:
   client:
+    image: ${DOCKER_IMAGE_REPOSITORY:-loungebarsystem}:client-${IMAGE_TAG:-latest}
     build:
       context: ./client
     container_name: lounge_client
@@ -25,6 +26,7 @@ services:
       - db_data:/var/lib/postgresql/data
 
   gateway:
+    image: ${DOCKER_IMAGE_REPOSITORY:-loungebarsystem}:gateway-${IMAGE_TAG:-latest}
     build:
       context: ./server
       dockerfile: services/gateway/Dockerfile
@@ -47,26 +49,29 @@ services:
       - notification-service
 
   auth-service:
+    image: ${DOCKER_IMAGE_REPOSITORY:-loungebarsystem}:auth-service-${IMAGE_TAG:-latest}
     build:
       context: ./server
       dockerfile: services/auth-service/Dockerfile
     container_name: lounge_auth_service
     restart: always
     environment:
-      - DATABASE_URL=postgresql://loungebar_user:loungebar_password@db:5432/loungebar
+      - DATABASE_URL=${DATABASE_URL:-postgresql://loungebar_user:loungebar_password@db:5432/loungebar}
       - JWT_SECRET=supersecretjwtkey
       - JWT_EXPIRES_IN=7d
     depends_on:
       - db
 
   lounge-service:
+    image: ${DOCKER_IMAGE_REPOSITORY:-loungebarsystem}:lounge-service-${IMAGE_TAG:-latest}
     build:
       context: ./server
       dockerfile: services/lounge-service/Dockerfile
     container_name: lounge_lounge_service
     restart: always
     environment:
-      - DATABASE_URL=postgresql://loungebar_user:loungebar_password@db:5432/loungebar
+      - DATABASE_URL=${DATABASE_URL:-postgresql://loungebar_user:loungebar_password@db:5432/loungebar}
+      - READ_DATABASE_URL=${READ_DATABASE_URL:-postgresql://loungebar_user:loungebar_password@db:5432/loungebar}
       - JWT_SECRET=supersecretjwtkey
       - JWT_EXPIRES_IN=7d
       - TZ=Asia/Ulaanbaatar
@@ -77,13 +82,14 @@ services:
       - db
 
   reservation-service:
+    image: ${DOCKER_IMAGE_REPOSITORY:-loungebarsystem}:reservation-service-${IMAGE_TAG:-latest}
     build:
       context: ./server
       dockerfile: services/reservation-service/Dockerfile
     container_name: lounge_reservation_service
     restart: always
     environment:
-      - DATABASE_URL=postgresql://loungebar_user:loungebar_password@db:5432/loungebar
+      - DATABASE_URL=${DATABASE_URL:-postgresql://loungebar_user:loungebar_password@db:5432/loungebar}
       - JWT_SECRET=supersecretjwtkey
       - JWT_EXPIRES_IN=7d
       - NOTIFICATION_SERVICE_URL=http://notification-service:3005
@@ -98,13 +104,14 @@ services:
       - db
 
   payment-service:
+    image: ${DOCKER_IMAGE_REPOSITORY:-loungebarsystem}:payment-service-${IMAGE_TAG:-latest}
     build:
       context: ./server
       dockerfile: services/payment-service/Dockerfile
     container_name: lounge_payment_service
     restart: always
     environment:
-      - DATABASE_URL=postgresql://loungebar_user:loungebar_password@db:5432/loungebar
+      - DATABASE_URL=${DATABASE_URL:-postgresql://loungebar_user:loungebar_password@db:5432/loungebar}
       - JWT_SECRET=supersecretjwtkey
       - JWT_EXPIRES_IN=7d
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
@@ -118,6 +125,7 @@ services:
       - db
 
   notification-service:
+    image: ${DOCKER_IMAGE_REPOSITORY:-loungebarsystem}:notification-service-${IMAGE_TAG:-latest}
     build:
       context: ./server
       dockerfile: services/notification-service/Dockerfile

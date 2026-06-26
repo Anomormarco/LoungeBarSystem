@@ -1,5 +1,6 @@
 const express = require("express");
 const reservationRoutes = require("./routes/reservation.routes");
+const errorHandler = require("./middlewares/errorHandler.middleware");
 
 const app = express();
 
@@ -10,12 +11,6 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/", reservationRoutes);
-
-app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  res.status(statusCode).json({
-    message: err.message || "Серверийн дотоод алдаа гарлаа.",
-  });
-});
+app.use(errorHandler);
 
 module.exports = app;

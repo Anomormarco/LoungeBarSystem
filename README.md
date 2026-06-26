@@ -6,6 +6,37 @@
 docker compose up --build
 ```
 
+## Docker Images
+
+Build local images:
+
+```powershell
+docker compose build
+```
+
+Default image tags:
+
+```text
+loungebarsystem:client-latest
+loungebarsystem:gateway-latest
+loungebarsystem:auth-service-latest
+loungebarsystem:lounge-service-latest
+loungebarsystem:reservation-service-latest
+loungebarsystem:payment-service-latest
+loungebarsystem:notification-service-latest
+```
+
+Push to Docker Hub:
+
+```powershell
+$env:DOCKER_IMAGE_REPOSITORY="myngaa/loungebar"
+$env:IMAGE_TAG="latest"
+docker compose build
+docker compose push
+```
+
+This publishes images like `myngaa/loungebar:client-latest`.
+
 ## Local URLs
 
 | Role | URL | Notes |
@@ -102,3 +133,40 @@ payment_intent.payment_failed
 customer.subscription.updated
 customer.subscription.deleted
 ```
+
+## Backup / Restore
+
+Code backup:
+
+- Code must be pushed to GitHub/GitLab regularly.
+- `.env` files are ignored and must be stored separately in a safe password manager or deployment dashboard.
+
+Database backup:
+
+Local Docker PostgreSQL backup:
+
+```powershell
+.\server\scripts\backup-postgres.ps1
+```
+
+This creates a timestamped dump under `backups/`. The `backups/` folder is ignored by Git.
+
+Render/production PostgreSQL backup:
+
+```powershell
+$env:DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB?sslmode=require"
+.\server\scripts\backup-postgres.ps1
+```
+
+Restore local Docker PostgreSQL from a dump:
+
+```powershell
+.\server\scripts\restore-postgres.ps1 -BackupFile .\backups\loungebar-YYYYMMDD-HHMMSS.dump
+```
+
+Recommended production safety rule:
+
+- Take at least one manual backup before deployment.
+- Keep daily automated database backups on the hosting provider if available.
+- Download an extra backup before schema migrations.
+- Never commit backup dumps or `.env` secrets.

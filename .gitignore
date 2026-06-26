@@ -48,6 +48,8 @@ lerna-debug.log*
 **/temp/
 **/.tmp/
 **/uploads/
+backups/
+**/backups/
 **/*.sqlite
 **/*.sqlite3
 **/*.db

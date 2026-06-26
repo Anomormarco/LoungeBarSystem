@@ -1,5 +1,6 @@
 const express = require("express");
 const { emitToOrganization } = require("./socket");
+const errorHandler = require("./middlewares/errorHandler.middleware");
 
 const app = express();
 
@@ -9,18 +10,17 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok", service: "notification-service" });
 });
 
-app.post("/internal/emit", (req, res) => {
+app.post("/internal/emit", (req, res, next) => {
   const { organizationId, eventName, payload } = req.body;
   if (!organizationId || !eventName) {
-    return res.status(400).json({ error: "organizationId болон eventName шаардлагатай." });
+    const error = new Error("organizationId болон eventName шаардлагатай.");
+    error.statusCode = 400;
+    return next(error);
   }
   emitToOrganization(organizationId, eventName, payload);
   res.json({ success: true });
 });
 
-app.use((err, req, res, next) => {
-  console.error("[notification-service-error]", err);
-  res.status(500).json({ error: err.message || "Сервер дээр алдаа гарлаа." });
-});
+app.use(errorHandler);
 
 module.exports = app;

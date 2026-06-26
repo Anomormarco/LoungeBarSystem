@@ -1,101 +1,18 @@
 const express = require("express");
-const {
-  sendReservationOtp,
-  createReservation,
-  verifyReservationOtp,
-  updateOwnerReservationStatus,
-  getOwnerReservations,
-} = require("../modules/reservations/reservation.service");
-const { getOwnerStatistics } = require("../modules/statistics/statistics.service");
+const controller = require("../controllers/reservation.controller");
 const { ownerActiveGuard } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
-// Public reservation APIs
-router.post("/reservations/send-otp", async (req, res, next) => {
-  try {
-    const otp = await sendReservationOtp(req.body);
-    res.status(201).json({ data: otp });
-  } catch (error) {
-    next(error);
-  }
-});
+router.post("/reservations/send-otp", controller.sendOtp);
+router.post("/reservations/verify-otp", controller.verifyOtp);
+router.post("/reservations", controller.createReservation);
 
-router.post("/reservations/verify-otp", async (req, res, next) => {
-  try {
-    const reservation = await verifyReservationOtp(req.body);
-    res.json({ data: reservation });
-  } catch (error) {
-    next(error);
-  }
-});
+router.get("/owner/reservations", ownerActiveGuard, controller.ownerReservations);
+router.put("/owner/reservations/:id/confirm", ownerActiveGuard, controller.confirmOwnerReservation);
+router.put("/owner/reservations/:id/cancel", ownerActiveGuard, controller.cancelOwnerReservation);
+router.put("/owner/reservations/:id/complete", ownerActiveGuard, controller.completeOwnerReservation);
 
-router.post("/reservations", async (req, res, next) => {
-  try {
-    const reservation = await createReservation(req.body);
-    res.status(201).json({ data: reservation });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// Owner reservation dashboard APIs
-router.get("/owner/reservations", ownerActiveGuard, async (req, res, next) => {
-  try {
-    const reservations = await getOwnerReservations(req.user.organizationId);
-    res.json({ data: reservations });
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.put("/owner/reservations/:id/confirm", ownerActiveGuard, async (req, res, next) => {
-  try {
-    const reservation = await updateOwnerReservationStatus({
-      reservationId: req.params.id,
-      organizationId: req.user.organizationId,
-      status: "confirmed",
-    });
-    res.json({ data: reservation });
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.put("/owner/reservations/:id/cancel", ownerActiveGuard, async (req, res, next) => {
-  try {
-    const reservation = await updateOwnerReservationStatus({
-      reservationId: req.params.id,
-      organizationId: req.user.organizationId,
-      status: "cancelled",
-    });
-    res.json({ data: reservation });
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.put("/owner/reservations/:id/complete", ownerActiveGuard, async (req, res, next) => {
-  try {
-    const reservation = await updateOwnerReservationStatus({
-      reservationId: req.params.id,
-      organizationId: req.user.organizationId,
-      status: "completed",
-    });
-    res.json({ data: reservation });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// Owner stats APIs
-router.get("/owner/statistics", ownerActiveGuard, async (req, res, next) => {
-  try {
-    const statistics = await getOwnerStatistics(req.user.organizationId, req.query.range);
-    res.json({ data: statistics });
-  } catch (error) {
-    next(error);
-  }
-});
+router.get("/owner/statistics", ownerActiveGuard, controller.ownerStatistics);
 
 module.exports = router;

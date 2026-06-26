@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   BarChart3,
   Bell,
+  BellRing,
   CreditCard,
   LayoutDashboard,
   LogOut,
@@ -19,7 +20,15 @@ import {
 } from 'lucide-react';
 
 export default function Layout({ children }) {
-  const { notifications, unreadCount, connected, markAllAsRead, clearNotifications } = useSocket();
+  const {
+    notifications,
+    spotlightNotification,
+    unreadCount,
+    connected,
+    markAllAsRead,
+    clearNotifications,
+    dismissSpotlight,
+  } = useSocket();
   const [showNotifications, setShowNotifications] = useState(false);
   const [subscription, setSubscription] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -39,6 +48,18 @@ export default function Layout({ children }) {
     localStorage.removeItem('owner_token');
     localStorage.removeItem('owner_user');
     window.location.href = '/login';
+  };
+
+  const openSpotlightReservation = () => {
+    dismissSpotlight();
+    markAllAsRead();
+    navigate('/dashboard');
+  };
+
+  const requestBrowserNotifications = () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
   };
 
   const isExpiringSoon = () => {
@@ -149,6 +170,7 @@ export default function Layout({ children }) {
           <div className="flex items-center gap-3 relative">
             <button
               onClick={() => {
+                requestBrowserNotifications();
                 setShowNotifications(!showNotifications);
                 markAllAsRead();
               }}
@@ -199,6 +221,48 @@ export default function Layout({ children }) {
             )}
           </div>
         </header>
+
+        {spotlightNotification && (
+          <div className="fixed right-5 top-24 z-[70] w-[min(420px,calc(100vw-2rem))]">
+            <div className="relative overflow-hidden rounded-2xl border border-amber-400/50 bg-slate-950 shadow-2xl shadow-amber-500/20 animate-pulse">
+              <div className="absolute inset-x-0 top-0 h-1 bg-amber-400" />
+              <button
+                type="button"
+                onClick={dismissSpotlight}
+                className="absolute right-3 top-3 rounded-full p-1 text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+                aria-label="Мэдэгдэл хаах"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={openSpotlightReservation}
+                className="w-full p-5 pr-11 text-left"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-400 text-slate-950 shadow-lg shadow-amber-400/30">
+                    <BellRing className="h-6 w-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-base font-black text-amber-300">{spotlightNotification.title}</h3>
+                      <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-black uppercase text-white">
+                        Яаралтай
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm font-semibold leading-relaxed text-slate-100">
+                      {spotlightNotification.message}
+                    </p>
+                    <p className="mt-3 text-xs font-bold text-amber-300">
+                      Дараад захиалгын самбар руу орох
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
 
         {isExpiringSoon() && (
           <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-3 flex items-center justify-between gap-4">

@@ -89,10 +89,10 @@ export default function LoungeMap({
               eventHandlers={{
                 click: (event) => {
                   event.originalEvent?.stopPropagation?.();
-                  onOrganizationSelect?.(org);
+                  onOrganizationSelect?.(org, { source: 'click' });
                 },
-                mouseover: () => onOrganizationSelect?.(org),
-                mouseout: () => onOrganizationClear?.(),
+                mouseover: () => onOrganizationSelect?.(org, { source: 'hover' }),
+                mouseout: () => onOrganizationClear?.({ source: 'mouseout', organizationId: org.id }),
               }}
             >
               <Popup>

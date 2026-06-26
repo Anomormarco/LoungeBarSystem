@@ -116,6 +116,7 @@ export default function Home() {
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailOverlayOpen, setDetailOverlayOpen] = useState(false);
+  const [stickyPreviewId, setStickyPreviewId] = useState(null);
   const [selectedTable, setSelectedTable] = useState(null);
   const [tableViewFilter, setTableViewFilter] = useState('all');
 
@@ -150,6 +151,7 @@ export default function Home() {
 
   const hideOrganizationPreview = () => {
     if (detailOverlayOpen) return;
+    if (stickyPreviewId) return;
     clearOrganizationPreview();
   };
 
@@ -230,12 +232,18 @@ export default function Home() {
   const clearOrganizationPreview = () => {
     detailRequestRef.current += 1;
     closeLoungeDetail();
+    setStickyPreviewId(null);
     setSelectedOrgId(null);
     setSelectedDetail(null);
     setDetailLoading(false);
   };
 
-  const previewOrganization = async (org) => {
+  const previewOrganization = async (org, options = {}) => {
+    if (stickyPreviewId && options.source === 'hover' && org.id !== stickyPreviewId) return;
+
+    if (options.source === 'click') {
+      setStickyPreviewId(org.id);
+    }
     if (org.id === selectedOrgId && selectedDetail) return;
 
     const requestId = detailRequestRef.current + 1;

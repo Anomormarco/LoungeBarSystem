@@ -14,10 +14,10 @@ async function emitToOrganization(organizationId, eventName, payload) {
       }),
     });
     if (!response.ok) {
-      console.error(`[lounge-service-socket] Failed to forward event to notification service: ${response.statusText}`);
+      console.error(`[lounge-service-socket] Мэдэгдлийн сервис рүү event дамжуулахад алдаа гарлаа: ${response.statusText}`);
     }
   } catch (error) {
-    console.error("[lounge-service-socket] Error communicating with notification service:", error.message);
+    console.error("[lounge-service-socket] Мэдэгдлийн сервистэй холбогдоход алдаа гарлаа:", error.message);
   }
 }
 

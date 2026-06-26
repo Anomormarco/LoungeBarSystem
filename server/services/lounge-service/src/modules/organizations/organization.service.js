@@ -16,7 +16,7 @@ async function getNearbyOrganizations({ lat, lng, radius, q, tableType, availabl
   const requestedTableType = ["normal", "vip"].includes(tableType) ? tableType : null;
 
   if (parsedLat === null || parsedLng === null) {
-    throw httpError(400, "lat bolon lng query param shaardlagatai");
+    throw httpError(400, "lat болон lng query параметр шаардлагатай.");
   }
 
   return prisma.$queryRaw`
@@ -84,7 +84,7 @@ async function getOrganizationDetail(id) {
   const organizationId = Number(id);
 
   if (!Number.isInteger(organizationId)) {
-    throw httpError(400, "Baiguullagiin id buruu baina");
+    throw httpError(400, "Байгууллагын ID буруу байна.");
   }
 
   const organization = await prisma.organization.findUnique({
@@ -101,7 +101,7 @@ async function getOrganizationDetail(id) {
   });
 
   if (!organization) {
-    throw httpError(404, "Baiguullaga oldsongui");
+    throw httpError(404, "Байгууллага олдсонгүй.");
   }
 
   return organization;

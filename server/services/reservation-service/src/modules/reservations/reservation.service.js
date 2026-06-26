@@ -14,6 +14,27 @@ function parseDateTime(date, timeOrDateTime) {
   return Number.isNaN(dateTime.getTime()) ? null : dateTime;
 }
 
+function addMinutes(date, minutes) {
+  return new Date(date.getTime() + minutes * 60 * 1000);
+}
+
+function timeToMinutes(time) {
+  const [hours, minutes] = String(time || "").split(":").map(Number);
+  if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return null;
+  return hours * 60 + minutes;
+}
+
+function dateTimeFromMinutes(date, minutes) {
+  const dayOffset = Math.floor(minutes / 1440);
+  const minuteOfDay = minutes % 1440;
+  const hours = Math.floor(minuteOfDay / 60);
+  const mins = minuteOfDay % 60;
+  const result = new Date(`${date}T00:00:00`);
+  result.setDate(result.getDate() + dayOffset);
+  result.setHours(hours, mins, 0, 0);
+  return result;
+}
+
 function reservationDateOnly(date) {
   const parsed = new Date(`${date}T00:00:00`);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
@@ -28,15 +49,15 @@ async function sendReservationOtp({ email, reservationId }) {
   const parsedReservationId = reservationId ? Number(reservationId) : null;
 
   if (!normalizedEmail) {
-    throw httpError(400, "Email shaardlagatai");
+    throw httpError(400, "Имэйл шаардлагатай.");
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
-    throw httpError(400, "Email buruu baina");
+    throw httpError(400, "Имэйл хаяг буруу байна.");
   }
 
   if (reservationId && !Number.isInteger(parsedReservationId)) {
-    throw httpError(400, "Zahialgiin id buruu baina");
+    throw httpError(400, "Захиалгын ID буруу байна.");
   }
 
   const code = generateOtp();
@@ -53,15 +74,15 @@ async function sendReservationOtp({ email, reservationId }) {
 
   await sendEmail({
     to: normalizedEmail,
-    subject: "Lounge Reserve verification code",
-    text: `Your Lounge Reserve verification code is ${code}. It expires in 5 minutes.`,
+    subject: "Lounge Reserve баталгаажуулах код",
+    text: `Таны Lounge Reserve баталгаажуулах код: ${code}. Код 5 минутын дараа хүчингүй болно.`,
     html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #111827;">
         <h2 style="margin: 0 0 12px;">Lounge Reserve</h2>
-        <p>Your reservation verification code is:</p>
+        <p>Таны захиалга баталгаажуулах код:</p>
         <div style="font-size: 28px; font-weight: 700; letter-spacing: 6px; margin: 18px 0;">${code}</div>
-        <p>This code expires in 5 minutes.</p>
-        <p style="color: #6b7280; font-size: 12px;">If you did not request this code, you can ignore this email.</p>
+        <p>Энэ код 5 минутын дараа хүчингүй болно.</p>
+        <p style="color: #6b7280; font-size: 12px;">Хэрэв та энэ кодыг хүсээгүй бол энэ имэйлийг үл тоож болно.</p>
       </div>
     `,
   });
@@ -82,7 +103,6 @@ function parseReservationPayload(payload) {
     guestEmail,
     reservationDate,
     startTime,
-    endTime,
     guestCount,
   } = payload;
 
@@ -91,7 +111,6 @@ function parseReservationPayload(payload) {
   const parsedGuestCount = Number(guestCount);
   const parsedReservationDate = reservationDateOnly(reservationDate);
   const parsedStartTime = parseDateTime(reservationDate, startTime);
-  const parsedEndTime = parseDateTime(reservationDate, endTime);
 
   if (
     !Number.isInteger(parsedOrganizationId) ||
@@ -101,14 +120,9 @@ function parseReservationPayload(payload) {
     !guestPhone ||
     !guestEmail ||
     !parsedReservationDate ||
-    !parsedStartTime ||
-    !parsedEndTime
+    !parsedStartTime
   ) {
-    throw httpError(400, "Zahialgiin medeelel buruu baina");
-  }
-
-  if (parsedStartTime >= parsedEndTime) {
-    throw httpError(400, "Duusah tsag ehleh tsagaas hoish baih yostoi");
+    throw httpError(400, "Захиалгын мэдээлэл буруу байна.");
   }
 
   return {
@@ -117,11 +131,38 @@ function parseReservationPayload(payload) {
     guestName,
     guestPhone,
     guestEmail,
+    reservationDateRaw: reservationDate,
+    startTimeRaw: startTime,
     reservationDate: parsedReservationDate,
     startTime: parsedStartTime,
-    endTime: parsedEndTime,
     guestCount: parsedGuestCount,
   };
+}
+
+function calculateReservationEndTime({ reservationDate, startTime, openingTime, closingTime }) {
+  const openingMinutes = timeToMinutes(openingTime);
+  const closingMinutesRaw = timeToMinutes(closingTime);
+  const startMinutes = timeToMinutes(startTime);
+  const durationMinutes = Number(process.env.RESERVATION_DURATION_MINUTES || 120);
+
+  if (openingMinutes === null || closingMinutesRaw === null || startMinutes === null) {
+    throw httpError(400, "Ажлын цаг эсвэл захиалгын эхлэх цаг буруу байна.");
+  }
+
+  const closingMinutes = closingMinutesRaw <= openingMinutes ? closingMinutesRaw + 1440 : closingMinutesRaw;
+  const normalizedStartMinutes = startMinutes < openingMinutes && closingMinutesRaw <= openingMinutes
+    ? startMinutes + 1440
+    : startMinutes;
+
+  if (normalizedStartMinutes < openingMinutes || normalizedStartMinutes >= closingMinutes) {
+    throw httpError(400, "Сонгосон цаг lounge-ийн ажиллах цагт багтахгүй байна.");
+  }
+
+  const startDateTime = dateTimeFromMinutes(reservationDate, normalizedStartMinutes);
+  const closingDateTime = dateTimeFromMinutes(reservationDate, closingMinutes);
+  const endDateTime = addMinutes(startDateTime, durationMinutes);
+
+  return endDateTime > closingDateTime ? closingDateTime : endDateTime;
 }
 
 async function createReservation(payload) {
@@ -138,11 +179,31 @@ async function createReservation(payload) {
     const table = lockedTables[0];
 
     if (!table || ["disabled", "occupied"].includes(table.status)) {
-      throw httpError(400, "Shiree zahialah bolomjgui baina");
+      throw httpError(400, "Энэ ширээг захиалах боломжгүй байна.");
     }
 
     if (data.guestCount > table.capacity) {
-      throw httpError(400, "Zochnii too shireenii suudlaas ih baina");
+      throw httpError(400, "Зочдын тоо ширээний суудлаас их байна.");
+    }
+
+    const organization = await tx.organization.findUnique({
+      where: { id: data.organizationId },
+      select: { openingTime: true, closingTime: true },
+    });
+
+    if (!organization) {
+      throw httpError(404, "Байгууллага олдсонгүй.");
+    }
+
+    data.endTime = calculateReservationEndTime({
+      reservationDate: data.reservationDateRaw,
+      startTime: data.startTimeRaw,
+      openingTime: organization.openingTime,
+      closingTime: organization.closingTime,
+    });
+
+    if (data.startTime >= data.endTime) {
+      throw httpError(400, "Захиалгын эхлэх цаг ажлын цагт багтахгүй байна.");
     }
 
     const overlappingReservation = await tx.reservation.findFirst({
@@ -156,7 +217,7 @@ async function createReservation(payload) {
     });
 
     if (overlappingReservation) {
-      throw httpError(409, "Ene tsagt shiree zahialgatai baina");
+      throw httpError(409, "Энэ цагт ширээ аль хэдийн захиалгатай байна.");
     }
 
     const createdReservation = await tx.reservation.create({
@@ -206,7 +267,7 @@ async function verifyReservationOtp({ email, code, reservationId }) {
   const parsedReservationId = Number(reservationId);
 
   if (!normalizedEmail || !code || !Number.isInteger(parsedReservationId)) {
-    throw httpError(400, "Email, code bolon zahialgiin id shaardlagatai");
+    throw httpError(400, "Имэйл, код болон захиалгын ID шаардлагатай.");
   }
 
   const reservation = await prisma.$transaction(async (tx) => {
@@ -222,7 +283,7 @@ async function verifyReservationOtp({ email, code, reservationId }) {
     });
 
     if (!verificationCode) {
-      throw httpError(400, "OTP code buruu esvel hugatsaa duussan baina");
+      throw httpError(400, "Баталгаажуулах код буруу эсвэл хугацаа дууссан байна.");
     }
 
     const existingReservation = await tx.reservation.findUnique({
@@ -230,7 +291,7 @@ async function verifyReservationOtp({ email, code, reservationId }) {
     });
 
     if (!existingReservation || existingReservation.status !== "pending") {
-      throw httpError(400, "Zahialgiig batalgaajuulah bolomjgui");
+      throw httpError(400, "Энэ захиалгыг баталгаажуулах боломжгүй байна.");
     }
 
     const lockedTables = await tx.$queryRaw`
@@ -242,7 +303,7 @@ async function verifyReservationOtp({ email, code, reservationId }) {
     `;
 
     if (!lockedTables[0]) {
-      throw httpError(400, "Shiree zahialah bolomjgui baina");
+      throw httpError(400, "Энэ ширээг захиалах боломжгүй байна.");
     }
 
     const overlappingReservation = await tx.reservation.findFirst({
@@ -257,7 +318,7 @@ async function verifyReservationOtp({ email, code, reservationId }) {
     });
 
     if (overlappingReservation) {
-      throw httpError(409, "Ene tsagt shiree batalgaajsan zahialgatai baina");
+      throw httpError(409, "Энэ цагт баталгаажсан захиалга байна.");
     }
 
     await tx.verificationCode.update({
@@ -281,13 +342,13 @@ async function updateOwnerReservationStatus({ reservationId, organizationId, sta
   const parsedReservationId = Number(reservationId);
 
   if (!Number.isInteger(parsedReservationId)) {
-    throw httpError(400, "Zahialgiin id buruu baina");
+    throw httpError(400, "Захиалгын ID буруу байна.");
   }
 
   const allowedStatuses = ["confirmed", "cancelled", "completed"];
 
   if (!allowedStatuses.includes(status)) {
-    throw httpError(400, "Zahialgiin tuluv buruu baina");
+    throw httpError(400, "Захиалгын төлөв буруу байна.");
   }
 
   const reservation = await prisma.$transaction(async (tx) => {
@@ -299,7 +360,7 @@ async function updateOwnerReservationStatus({ reservationId, organizationId, sta
     });
 
     if (!existingReservation) {
-      throw httpError(404, "Zahialga oldsongui");
+      throw httpError(404, "Захиалга олдсонгүй.");
     }
 
     if (status === "confirmed") {
@@ -315,7 +376,7 @@ async function updateOwnerReservationStatus({ reservationId, organizationId, sta
       });
 
       if (overlappingReservation) {
-        throw httpError(409, "Ene tsagt shiree batalgaajsan zahialgatai baina");
+        throw httpError(409, "Энэ цагт баталгаажсан захиалга байна.");
       }
     }
 

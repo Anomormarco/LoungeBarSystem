@@ -146,7 +146,7 @@ export default function TableManagement() {
       case 'available':
         return (
           <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">
-            Сул (Available)
+            Сул
           </span>
         );
       case 'reserved':
@@ -164,7 +164,7 @@ export default function TableManagement() {
       case 'disabled':
         return (
           <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-slate-500 border border-slate-700">
-            Идэвхгүй (Disabled)
+            Идэвхгүй
           </span>
         );
       default:
@@ -313,17 +313,17 @@ export default function TableManagement() {
               </div>
 
               <div>
-                <label className="block text-slate-300 text-xs font-semibold uppercase mb-2">Төлөв (Status Mapping)</label>
+                <label className="block text-slate-300 text-xs font-semibold uppercase mb-2">Төлөв</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                   className="w-full px-4 py-2.5 bg-slate-850 border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 text-slate-200 text-sm"
                   disabled={submitting}
                 >
-                  <option value="available">Сул (Available)</option>
+                  <option value="available">Сул</option>
                   <option value="reserved">Захиалгатай (Reserved)</option>
                   <option value="occupied">Хүнтэй (Occupied)</option>
-                  <option value="disabled">Идэвхгүй (Disabled)</option>
+                  <option value="disabled">Идэвхгүй</option>
                   <option value="custom">Өөрчилсөн нэршил (Custom Status)</option>
                 </select>
               </div>

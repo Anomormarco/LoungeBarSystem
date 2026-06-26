@@ -5,7 +5,7 @@ async function getOrganizationTables(id) {
   const organizationId = Number(id);
 
   if (!Number.isInteger(organizationId)) {
-    throw httpError(400, "Baiguullagiin id buruu baina");
+    throw httpError(400, "Байгууллагын ID буруу байна.");
   }
 
   return prisma.table.findMany({

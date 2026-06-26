@@ -14,10 +14,10 @@ async function emitToOrganization(organizationId, eventName, payload) {
       }),
     });
     if (!response.ok) {
-      console.error(`[reservation-service-socket] Failed to forward event to notification service: ${response.statusText}`);
+      console.error(`[reservation-service-socket] Мэдэгдлийн сервис рүү event дамжуулахад алдаа гарлаа: ${response.statusText}`);
     }
   } catch (error) {
-    console.error("[reservation-service-socket] Error communicating with notification service:", error.message);
+    console.error("[reservation-service-socket] Мэдэгдлийн сервистэй холбогдоход алдаа гарлаа:", error.message);
   }
 }
 

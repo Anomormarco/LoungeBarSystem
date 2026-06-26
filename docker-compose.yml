@@ -69,6 +69,9 @@ services:
       - DATABASE_URL=postgresql://loungebar_user:loungebar_password@db:5432/loungebar
       - JWT_SECRET=supersecretjwtkey
       - JWT_EXPIRES_IN=7d
+      - TZ=Asia/Ulaanbaatar
+      - RESERVATION_DURATION_MINUTES=${RESERVATION_DURATION_MINUTES:-120}
+      - RESERVATION_EXPIRE_JOB_INTERVAL_MS=${RESERVATION_EXPIRE_JOB_INTERVAL_MS:-60000}
       - NOTIFICATION_SERVICE_URL=http://notification-service:3005
     depends_on:
       - db
@@ -104,6 +107,13 @@ services:
       - DATABASE_URL=postgresql://loungebar_user:loungebar_password@db:5432/loungebar
       - JWT_SECRET=supersecretjwtkey
       - JWT_EXPIRES_IN=7d
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
+      - STRIPE_PRICE_ID=${STRIPE_PRICE_ID:-}
+      - STRIPE_CURRENCY=${STRIPE_CURRENCY:-usd}
+      - STRIPE_SUCCESS_URL=${STRIPE_SUCCESS_URL:-http://localhost:5173/subscription?success=true}
+      - STRIPE_CANCEL_URL=${STRIPE_CANCEL_URL:-http://localhost:5173/subscription?cancelled=true}
+      - STRIPE_PORTAL_RETURN_URL=${STRIPE_PORTAL_RETURN_URL:-http://localhost:5173/subscription}
     depends_on:
       - db
 

@@ -307,7 +307,7 @@ export default function MenuManagement() {
                   disabled={submitting}
                 />
                 <label htmlFor="isAvailable" className="text-slate-300 text-sm font-semibold select-none cursor-pointer">
-                  Захиалах боломжтой (Available)
+                  Захиалах боломжтой
                 </label>
               </div>
 

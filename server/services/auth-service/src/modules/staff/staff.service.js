@@ -4,7 +4,7 @@ const httpError = require("../../utils/httpError");
 
 function parseId(id, label) {
   const parsed = Number(id);
-  if (!Number.isInteger(parsed)) throw httpError(400, `${label} buruu baina`);
+  if (!Number.isInteger(parsed)) throw httpError(400, `${label} буруу байна.`);
   return parsed;
 }
 
@@ -23,11 +23,11 @@ async function createOwnerStaff(organizationId, payload) {
   const email = normalizeEmail(payload.email);
 
   if (!payload.name || !email || !payload.role) {
-    throw httpError(400, "Ner, email bolon erh shaardlagatai");
+    throw httpError(400, "Нэр, имэйл болон эрх шаардлагатай.");
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw httpError(400, "Email buruu baina");
+    throw httpError(400, "Имэйл хаяг буруу байна.");
   }
 
   const password = payload.password ? await bcrypt.hash(payload.password, 10) : undefined;
@@ -55,7 +55,7 @@ async function updateOwnerStaff(organizationId, staffId, payload) {
   if (payload.email !== undefined) {
     const email = normalizeEmail(payload.email);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      throw httpError(400, "Email buruu baina");
+      throw httpError(400, "Имэйл хаяг буруу байна.");
     }
     data.email = email;
   }
@@ -86,11 +86,11 @@ async function deleteOwnerStaff(organizationId, staffId) {
 
 async function changeOwnerPassword(user, payload) {
   if (!payload.currentPassword || !payload.newPassword) {
-    throw httpError(400, "Odoogiin password bolon shine password shaardlagatai");
+    throw httpError(400, "Одоогийн нууц үг болон шинэ нууц үг шаардлагатай.");
   }
 
   if (String(payload.newPassword).length < 8) {
-    throw httpError(400, "Shine password 8 temdegt ees urt baih yostoi");
+    throw httpError(400, "Шинэ нууц үг хамгийн багадаа 8 тэмдэгттэй байх ёстой.");
   }
 
   const staff = await prisma.staff.findFirst({
@@ -101,12 +101,12 @@ async function changeOwnerPassword(user, payload) {
   });
 
   if (!staff || !staff.password) {
-    throw httpError(404, "Owner burtgel oldsongui");
+    throw httpError(404, "Owner бүртгэл олдсонгүй.");
   }
 
   const passwordMatches = await bcrypt.compare(payload.currentPassword, staff.password);
   if (!passwordMatches) {
-    throw httpError(401, "Odoogiin password buruu baina");
+    throw httpError(401, "Одоогийн нууц үг буруу байна.");
   }
 
   const password = await bcrypt.hash(payload.newPassword, 10);

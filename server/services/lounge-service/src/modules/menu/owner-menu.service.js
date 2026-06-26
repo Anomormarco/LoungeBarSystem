@@ -3,7 +3,7 @@ const httpError = require("../../utils/httpError");
 
 function parseId(id, label) {
   const parsed = Number(id);
-  if (!Number.isInteger(parsed)) throw httpError(400, `${label} buruu baina`);
+  if (!Number.isInteger(parsed)) throw httpError(400, `${label} буруу байна.`);
   return parsed;
 }
 
@@ -18,7 +18,7 @@ async function createOwnerMenuItem(organizationId, payload) {
   const price = Number(payload.price);
 
   if (!payload.category || !payload.name || !Number.isFinite(price)) {
-    throw httpError(400, "Angilal, ner bolon une shaardlagatai");
+    throw httpError(400, "Ангилал, нэр болон үнэ шаардлагатай.");
   }
 
   return prisma.menuItem.create({
@@ -35,7 +35,7 @@ async function createOwnerMenuItem(organizationId, payload) {
 }
 
 async function updateOwnerMenuItem(organizationId, menuItemId, payload) {
-  const id = parseId(menuItemId, "Menu item id");
+  const id = parseId(menuItemId, "Меню item ID");
   const data = {};
 
   for (const field of ["category", "name", "description", "image", "isAvailable"]) {
@@ -54,7 +54,7 @@ async function updateOwnerMenuItem(organizationId, menuItemId, payload) {
 }
 
 async function deleteOwnerMenuItem(organizationId, menuItemId) {
-  const id = parseId(menuItemId, "Menu item id");
+  const id = parseId(menuItemId, "Меню item ID");
 
   await prisma.menuItem.delete({
     where: {

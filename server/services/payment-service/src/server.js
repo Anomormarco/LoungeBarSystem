@@ -8,5 +8,5 @@ const server = http.createServer(app);
 startSubscriptionExpireJob();
 
 server.listen(PORT, () => {
-  console.log(`Payment Service listening on port ${PORT}`);
+  console.log(`Төлбөрийн сервис ${PORT} порт дээр аслаа.`);
 });

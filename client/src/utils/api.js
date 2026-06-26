@@ -114,6 +114,11 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ amount, planType, successUrl, cancelUrl }),
     }),
+  createStripePortal: (returnUrl) =>
+    request('/payments/stripe/customer-portal', {
+      method: 'POST',
+      body: JSON.stringify({ returnUrl }),
+    }),
   createQpayInvoice: (amount, planType) =>
     request('/payments/qpay/create-invoice', {
       method: 'POST',

@@ -5,5 +5,5 @@ const PORT = process.env.PORT || 3001;
 const server = http.createServer(app);
 
 server.listen(PORT, () => {
-  console.log(`Auth Service listening on port ${PORT}`);
+  console.log(`Auth сервис ${PORT} порт дээр аслаа.`);
 });

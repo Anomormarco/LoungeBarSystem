@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import UserLayout from '../../components/UserLayout';
 import ReservationModal from '../../components/ReservationModal';
+import LoungeMap from '../../components/LoungeMap';
 import { publicApi } from '../../utils/api';
 import {
   AlertCircle,
@@ -99,6 +100,7 @@ function getTableStatusCounts(tables) {
 
 export default function Home() {
   const detailRequestRef = useRef(0);
+  const tableListRef = useRef(null);
   const [location, setLocation] = useState({ lat: DEFAULT_LOCATION.lat, lng: DEFAULT_LOCATION.lng });
   const [locationLabel, setLocationLabel] = useState(DEFAULT_LOCATION.label);
   const [locationError, setLocationError] = useState('');
@@ -115,12 +117,18 @@ export default function Home() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailOverlayOpen, setDetailOverlayOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState(null);
+  const [tableViewFilter, setTableViewFilter] = useState('all');
 
   const selectedSummary = organizations.find((org) => org.id === selectedOrgId);
   const mapBounds = UB_MAP_BOUNDS;
   const tables = selectedDetail?.tables || [];
   const menuItems = selectedDetail?.menuItems || [];
   const tableStatusCounts = getTableStatusCounts(tables);
+  const filteredTables = tables.filter((table) => {
+    if (tableViewFilter === 'available') return table.status === 'available';
+    if (tableViewFilter === 'vip') return table.type === 'vip';
+    return true;
+  });
   const exteriorImages = selectedDetail?.exteriorImages || selectedSummary?.exteriorImages || [];
   const interiorImages = selectedDetail?.interiorImages || selectedSummary?.interiorImages || [];
   const previewImages = [...exteriorImages.slice(0, 2), ...interiorImages.slice(0, 2)];
@@ -130,12 +138,24 @@ export default function Home() {
   const selectedClosingTime = selectedDetail?.closingTime || selectedSummary?.closing_time;
 
   const openLoungeDetail = () => {
+    setTableViewFilter('all');
     setDetailOverlayOpen(true);
   };
 
   const closeLoungeDetail = () => {
     setDetailOverlayOpen(false);
     setSelectedTable(null);
+    setTableViewFilter('all');
+  };
+
+  const hideOrganizationPreview = () => {
+    if (detailOverlayOpen) return;
+    clearOrganizationPreview();
+  };
+
+  const showTableGroup = (filter) => {
+    setTableViewFilter(filter);
+    tableListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const refreshSelectedTables = async () => {
@@ -306,88 +326,29 @@ export default function Home() {
                   УБ төвөөр хайх
                 </button>
               </div>
+
             </div>
 
             <div
               className="relative mt-4 overflow-hidden rounded-2xl border border-lounge-border bg-white"
-              style={{ height: 720, minHeight: 720 }}
+              style={{ height: 600, minHeight: 600 }}
               onClick={clearOrganizationPreview}
             >
-              <iframe
-                title="Google map"
-                src={getGoogleMapUrl(location)}
-                className="block h-full w-full border-0 bg-white"
-                style={{ height: 720, minHeight: 720, pointerEvents: 'none' }}
-                loading="lazy"
-                allowFullScreen
+              <LoungeMap
+                location={location}
+                locationLabel={locationLabel}
+                organizations={organizations}
+                selectedOrgId={selectedOrgId}
+                onOrganizationSelect={previewOrganization}
+                onOrganizationClear={hideOrganizationPreview}
               />
-
-              <div className="pointer-events-none absolute inset-0 z-30">
-                {location && (
-                  <div
-                    className="absolute -translate-x-1/2 -translate-y-1/2"
-                    style={getMarkerPosition(location, mapBounds)}
-                    title={locationLabel || 'Таны байршил'}
-                  >
-                    <div className="relative">
-                      <div className="w-5 h-5 rounded-full bg-blue-400 border-2 border-white shadow-lg" />
-                      <div className="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-30" />
-                    </div>
-                  </div>
-                )}
-
-                {organizations.map((org) => {
-                  const active = org.id === selectedOrgId;
-                  return (
-                    <button
-                      key={org.id}
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        previewOrganization(org);
-                      }}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter' || event.key === ' ') {
-                          event.preventDefault();
-                          event.stopPropagation();
-                          previewOrganization(org);
-                        }
-                      }}
-                      className={`pointer-events-auto absolute -translate-x-1/2 -translate-y-full flex h-10 w-10 items-end justify-center pb-1 transition-transform duration-200 ease-out ${
-                        active
-                          ? 'scale-110 z-40'
-                          : 'hover:scale-110'
-                      } cursor-pointer`}
-                      style={getMarkerPosition(org, mapBounds)}
-                      title={org.name}
-                    >
-                      <span
-                        className={`relative flex h-5 w-5 rotate-45 items-center justify-center rounded-full rounded-br-sm border border-lounge-black/80 shadow-md ${
-                          active
-                            ? 'bg-[#d97706] shadow-[#d97706]/45'
-                            : 'bg-[#eab308] shadow-[#ca8a04]/35'
-                        }`}
-                      >
-                        <span className="h-2 w-2 -rotate-45 rounded-full bg-lounge-black/70 ring-1 ring-lounge-black/20" />
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="absolute left-4 top-4 z-20 px-3 py-2 rounded-xl bg-lounge-black/85 border border-lounge-border">
-                <p className="text-xs font-semibold text-lounge-yellow">Google Map</p>
-                <p className="text-[11px] text-lounge-muted">{organizations.length} lounge marker</p>
-              </div>
-
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${location?.lat || DEFAULT_LOCATION.lat},${location?.lng || DEFAULT_LOCATION.lng}`}
+                href={`https://www.openstreetmap.org/?mlat=${location?.lat || DEFAULT_LOCATION.lat}&mlon=${location?.lng || DEFAULT_LOCATION.lng}#map=15/${location?.lat || DEFAULT_LOCATION.lat}/${location?.lng || DEFAULT_LOCATION.lng}`}
                 target="_blank"
                 rel="noreferrer"
-                className="absolute right-4 top-4 z-20 px-3 py-2 rounded-xl bg-lounge-black/85 border border-lounge-border text-[11px] font-bold text-lounge-yellow hover:border-lounge-yellow/50"
+                className="absolute bottom-4 left-4 z-20 rounded-xl bg-white px-3 py-2 text-xs font-bold text-neutral-700 shadow-xl shadow-black/15 hover:text-lounge-black"
               >
-                Google Maps нээх
-              </a>
+                {organizations.length} lounges</a>
 
               {loading && (
                 <div className="absolute inset-0 z-30 bg-lounge-black/70 flex flex-col items-center justify-center gap-3">
@@ -399,6 +360,8 @@ export default function Home() {
                 <div
                   className="absolute bottom-4 right-4 z-40 w-[min(380px,calc(100%-2rem))] rounded-2xl bg-lounge-card border border-lounge-border shadow-2xl overflow-hidden"
                   onClick={(event) => event.stopPropagation()}
+                  onMouseEnter={() => selectedSummary && previewOrganization(selectedSummary)}
+                  onMouseLeave={hideOrganizationPreview}
                 >
                   <div className="relative h-32">
                     <img
@@ -649,18 +612,34 @@ export default function Home() {
               )}
 
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                <button
+                  type="button"
+                  onClick={() => showTableGroup('available')}
+                  className={`rounded-xl border p-4 text-left transition-all hover:border-lounge-yellow hover:bg-lounge-card ${
+                    tableViewFilter === 'available'
+                      ? 'border-lounge-yellow bg-lounge-yellow/10 shadow-lg shadow-lounge-yellow/10'
+                      : 'border-lounge-border bg-lounge-black'
+                  }`}
+                >
                   <p className="text-xs text-lounge-muted">Сул ширээ</p>
                   <p className="mt-1 text-2xl font-extrabold text-lounge-yellow">
                     {selectedSummary.availableTableCount ?? tableStatusCounts.available ?? 0}
                   </p>
-                </div>
-                <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                </button>
+                <button
+                  type="button"
+                  onClick={() => showTableGroup('vip')}
+                  className={`rounded-xl border p-4 text-left transition-all hover:border-lounge-yellow hover:bg-lounge-card ${
+                    tableViewFilter === 'vip'
+                      ? 'border-lounge-yellow bg-lounge-yellow/10 shadow-lg shadow-lounge-yellow/10'
+                      : 'border-lounge-border bg-lounge-black'
+                  }`}
+                >
                   <p className="text-xs text-lounge-muted">VIP</p>
                   <p className="mt-1 text-2xl font-extrabold text-lounge-yellow">
                     {selectedSummary.vipTableCount ?? tables.filter((table) => table.type === 'vip').length}
                   </p>
-                </div>
+                </button>
                 <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
                   <p className="text-xs text-lounge-muted">Зай</p>
                   <p className="mt-1 text-2xl font-extrabold text-lounge-yellow">
@@ -712,6 +691,63 @@ export default function Home() {
                       ))}
                     </div>
                   </div>
+
+                  <div ref={tableListRef} className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                    <h3 className="mb-2 flex items-center gap-2 text-sm font-extrabold text-lounge-yellow">
+                      <Table2 className="h-4 w-4" />
+                      Ширээнүүд
+                    </h3>
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <p className="text-xs text-lounge-muted">
+                        {tableViewFilter === 'available'
+                          ? 'Сул ширээнүүд'
+                          : tableViewFilter === 'vip'
+                          ? 'VIP ширээнүүд'
+                          : 'Сул ширээн дээр дарж захиалга өгнө.'}
+                      </p>
+                      {tableViewFilter !== 'all' && (
+                        <button
+                          type="button"
+                          onClick={() => setTableViewFilter('all')}
+                          className="shrink-0 rounded-lg border border-lounge-border px-2 py-1 text-[11px] font-bold text-lounge-yellow hover:bg-lounge-yellow/10"
+                        >
+                          Бүгд
+                        </button>
+                      )}
+                    </div>
+                    <div className="grid max-h-[28rem] grid-cols-2 gap-2 overflow-auto pr-1 sm:grid-cols-3">
+                      {filteredTables.map((table) => {
+                        const isAvailable = table.status === 'available';
+                        return (
+                          <button
+                            key={table.id}
+                            type="button"
+                            disabled={!isAvailable}
+                            onClick={() => isAvailable && setSelectedTable(table)}
+                            className={`rounded-xl border p-3 text-left transition-all ${
+                              isAvailable
+                                ? 'border-lounge-border bg-lounge-card hover:border-lounge-yellow hover:shadow-lg hover:shadow-lounge-yellow/10'
+                                : 'cursor-not-allowed border-lounge-border/50 bg-lounge-card/40 opacity-60'
+                            }`}
+                          >
+                            <div className="mb-2 flex items-center justify-between gap-2">
+                              <span className="text-base font-extrabold">#{table.tableNumber}</span>
+                              {table.type === 'vip' && <Crown className="h-4 w-4 text-lounge-yellow" />}
+                            </div>
+                            <p className="mb-2 text-xs text-lounge-muted">{table.capacity} хүн</p>
+                            <span className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold ${getStatusColor(table)}`}>
+                              {getStatusLabel(table)}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {filteredTables.length === 0 && (
+                      <div className="rounded-lg border border-lounge-border bg-lounge-card px-3 py-3 text-sm text-lounge-muted">
+                        {detailLoading ? 'Ширээнүүд ачаалж байна...' : 'Тохирох ширээ алга.'}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -730,7 +766,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                  <div className="hidden rounded-xl border border-lounge-border bg-lounge-black p-4">
                     <h3 className="mb-2 flex items-center gap-2 text-sm font-extrabold text-lounge-yellow">
                       <Table2 className="h-4 w-4" />
                       Захиалга өгөх ширээ
@@ -777,10 +813,10 @@ export default function Home() {
                       <UtensilsCrossed className="h-4 w-4" />
                       Menu
                     </h3>
-                    <div className="space-y-2">
+                    <div className="max-h-[34rem] space-y-2 overflow-auto pr-1">
                       {menuItems.length > 0 ? (
-                        menuItems.slice(0, 6).map((item) => (
-                          <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-lounge-border bg-lounge-card px-3 py-2">
+                        menuItems.slice(0, 12).map((item) => (
+                          <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-lounge-border bg-lounge-card px-3 py-3">
                             <p className="truncate text-sm font-semibold">{item.name}</p>
                             <span className="shrink-0 text-sm font-extrabold text-lounge-yellow">
                               {Number(item.price).toLocaleString()} ₮

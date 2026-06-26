@@ -12,7 +12,7 @@ app.get("/health", (req, res) => {
 app.post("/internal/emit", (req, res) => {
   const { organizationId, eventName, payload } = req.body;
   if (!organizationId || !eventName) {
-    return res.status(400).json({ error: "organizationId and eventName are required" });
+    return res.status(400).json({ error: "organizationId болон eventName шаардлагатай." });
   }
   emitToOrganization(organizationId, eventName, payload);
   res.json({ success: true });
@@ -20,7 +20,7 @@ app.post("/internal/emit", (req, res) => {
 
 app.use((err, req, res, next) => {
   console.error("[notification-service-error]", err);
-  res.status(500).json({ error: err.message || "Internal Server Error" });
+  res.status(500).json({ error: err.message || "Сервер дээр алдаа гарлаа." });
 });
 
 module.exports = app;

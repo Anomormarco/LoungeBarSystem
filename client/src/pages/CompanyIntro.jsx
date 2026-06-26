@@ -18,24 +18,24 @@ import {
 const PLANS = [
   {
     id: 'starter',
-    name: 'Starter Plan',
+    name: 'Старт багц',
     amount: 50000,
     label: '50,000 ₮',
     description: '30 хоногийн үндсэн эрх. Жижиг lounge болон pub-д тохиромжтой.',
   },
   {
     id: 'pro',
-    name: 'Pro Pack',
+    name: 'Про багц',
     amount: 120000,
     label: '120,000 ₮',
-    description: '30 хоногийн бүрэн эрх. Илүү олон ширээ, staff, тайлантай.',
+    description: '30 хоногийн бүрэн эрх. Илүү олон ширээ, ажилтан, тайлантай.',
   },
   {
     id: 'annual',
-    name: 'Annual Pro',
+    name: 'Жилийн про багц',
     amount: 990000,
     label: '990,000 ₮',
-    description: 'Жилийн төлбөрийн багц. Backend дээр төлөлт бүр 30 хоногоор сунгана.',
+    description: 'Жилийн төлбөрийн багц. Систем дээр төлөлт бүрээр эрх сунгагдана.',
   },
 ];
 
@@ -138,7 +138,7 @@ export default function CompanyIntro() {
         }
 
         await api.simulateQpayPayment(res.data.payment.id, 'success');
-        setSuccess('Dev mode: Stripe төлбөр амжилттай гэж дуурайлгаж, 30 хоногийн эрх идэвхжүүллээ.');
+        setSuccess('Туршилтын горим: Stripe төлбөр амжилттай гэж тэмдэглэгдэж, 30 хоногийн эрх идэвхжлээ.');
         await fetchSubscription();
       } else {
         const res = await api.createQpayInvoice(selectedPlan.amount, selectedPlan.name);
@@ -176,9 +176,9 @@ export default function CompanyIntro() {
       await api.changePassword(currentPassword, newPassword);
       setCurrentPassword('');
       setNewPassword('');
-      setSuccess('Password амжилттай солигдлоо.');
+      setSuccess('Нууц үг амжилттай солигдлоо.');
     } catch (err) {
-      setError(err.message || 'Password солиход алдаа гарлаа.');
+      setError(err.message || 'Нууц үг солиход алдаа гарлаа.');
     } finally {
       setPasswordLoading(false);
     }
@@ -198,7 +198,7 @@ export default function CompanyIntro() {
         </Link>
         <div className="flex items-center gap-2">
           <Link to="/" className="px-3 py-2 text-xs font-semibold text-lounge-muted hover:text-lounge-yellow">
-            User page
+            Хэрэглэгчийн нүүр
           </Link>
           {owner && (
             <button
@@ -223,12 +223,12 @@ export default function CompanyIntro() {
               </h1>
               <p className="mt-4 text-lounge-muted leading-relaxed">
                 Subscription амжилттай бол тухайн байгууллагын эрх 30 хоног идэвхжинэ. Хугацаа дуусвал owner dashboard, ширээ, меню,
-                staff, захиалга, статистикийн API ашиглах эрх түр хаагдана.
+                ажилтан, захиалга, статистикийн API ашиглах эрх түр хаагдана.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
-              {['Owner login required', '30 хоногийн эрх', 'Expired бол API off'].map((item) => (
+              {['Owner нэвтрэх шаардлагатай', '30 хоногийн эрх', 'Хугацаа дуусвал API хаагдана'].map((item) => (
                 <div key={item} className="rounded-xl border border-lounge-border bg-lounge-card p-4 text-sm font-bold text-lounge-yellow">
                   {item}
                 </div>
@@ -295,7 +295,7 @@ export default function CompanyIntro() {
                     onClick={() => navigate('/dashboard')}
                     className="rounded-xl border border-lounge-yellow/40 px-4 py-2 text-sm font-bold text-lounge-yellow hover:bg-lounge-yellow/10"
                   >
-                    Dashboard
+                    Хянах самбар
                     <ArrowRight className="ml-1 inline h-4 w-4" />
                   </button>
                 </div>
@@ -329,8 +329,8 @@ export default function CompanyIntro() {
 
                 <form onSubmit={handleChangePassword} className="rounded-xl border border-lounge-border bg-lounge-black p-4 space-y-3">
                   <div>
-                    <h3 className="font-extrabold text-lounge-yellow">Password солих</h3>
-                    <p className="text-xs text-lounge-muted">Admin өгсөн анхны password-г owner дараа нь өөрөө сольж болно.</p>
+                    <h3 className="font-extrabold text-lounge-yellow">Нууц үг солих</h3>
+                    <p className="text-xs text-lounge-muted">Admin өгсөн анхны нууц үгийг owner дараа нь өөрөө сольж болно.</p>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <input
@@ -338,7 +338,7 @@ export default function CompanyIntro() {
                       value={currentPassword}
                       onChange={(event) => setCurrentPassword(event.target.value)}
                       className="rounded-xl border border-lounge-border bg-lounge-card px-3 py-2 text-sm outline-none focus:border-lounge-yellow"
-                      placeholder="Одоогийн password"
+                      placeholder="Одоогийн нууц үг"
                       required
                     />
                     <input
@@ -346,7 +346,7 @@ export default function CompanyIntro() {
                       value={newPassword}
                       onChange={(event) => setNewPassword(event.target.value)}
                       className="rounded-xl border border-lounge-border bg-lounge-card px-3 py-2 text-sm outline-none focus:border-lounge-yellow"
-                      placeholder="Шинэ password"
+                      placeholder="Шинэ нууц үг"
                       minLength={8}
                       required
                     />
@@ -356,7 +356,7 @@ export default function CompanyIntro() {
                     disabled={passwordLoading}
                     className="rounded-xl border border-lounge-yellow/40 px-4 py-2 text-xs font-bold text-lounge-yellow hover:bg-lounge-yellow/10 disabled:opacity-60"
                   >
-                    {passwordLoading ? 'Сольж байна...' : 'Password солих'}
+                    {passwordLoading ? 'Сольж байна...' : 'Нууц үг солих'}
                   </button>
                 </form>
 
@@ -462,7 +462,7 @@ export default function CompanyIntro() {
                           <span>{payment.planType}</span>
                           <span className="font-bold text-lounge-yellow">{Number(payment.amount).toLocaleString()} ₮</span>
                           <span className={payment.paymentStatus === 'success' ? 'text-green-400' : 'text-lounge-muted'}>
-                            {payment.paymentStatus}
+                            {payment.paymentStatus === 'success' ? 'Амжилттай' : payment.paymentStatus === 'pending' ? 'Хүлээгдэж байна' : 'Амжилтгүй'}
                           </span>
                         </div>
                       ))}
@@ -472,7 +472,7 @@ export default function CompanyIntro() {
 
                 <div className="flex items-center gap-2 rounded-xl border border-lounge-border bg-lounge-black p-3 text-xs text-lounge-muted">
                   <CheckCircle className="h-4 w-4 text-lounge-yellow" />
-                  Token авсан owner л Stripe/QPay subscription үүсгэнэ. OrganizationId backend дээр token-оос авна.
+                  Token авсан owner Stripe/QPay subscription үүсгэнэ. OrganizationId backend дээр token-оос автоматаар авна.
                 </div>
               </div>
             )}

@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   createStripeCheckoutSession,
+  createStripeCustomerPortalSession,
   handleStripeWebhook,
   createQpayInvoice,
   handleQpayWebhook,
@@ -17,6 +18,18 @@ router.post("/payments/stripe/create-checkout-session", ownerGuard, express.json
       ...req.body,
       organizationId: req.user.organizationId,
       periodDays: 30,
+    });
+    res.status(201).json({ data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/payments/stripe/customer-portal", ownerGuard, express.json(), async (req, res, next) => {
+  try {
+    const data = await createStripeCustomerPortalSession({
+      ...req.body,
+      organizationId: req.user.organizationId,
     });
     res.status(201).json({ data });
   } catch (error) {

@@ -6,7 +6,7 @@ function parseOrganizationId(id) {
   const organizationId = Number(id);
 
   if (!Number.isInteger(organizationId)) {
-    throw httpError(400, "Baiguullagiin id buruu baina");
+    throw httpError(400, "Байгууллагын ID буруу байна.");
   }
 
   return organizationId;
@@ -56,6 +56,21 @@ async function getOrganizations() {
         select: { id: true, name: true, email: true, phone: true, role: true },
         take: 1,
       },
+      payments: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          id: true,
+          planType: true,
+          amount: true,
+          currency: true,
+          paymentMethod: true,
+          paymentStatus: true,
+          paidAt: true,
+          periodEnd: true,
+          stripeCheckoutSessionId: true,
+        },
+      },
     },
   });
 }
@@ -64,17 +79,17 @@ async function createOrganization(payload) {
   const data = organizationData(payload);
 
   if (!data.name || !data.address || data.latitude === undefined || data.longitude === undefined || !data.openingTime || !data.closingTime) {
-    throw httpError(400, "Ner, hayag, latitude, longitude, neeh tsag, haah tsag shaardlagatai");
+    throw httpError(400, "Нэр, хаяг, latitude, longitude, нээх цаг, хаах цаг шаардлагатай.");
   }
 
   const ownerEmail = normalizeEmail(payload.ownerEmail);
 
   if (!payload.ownerName || !ownerEmail || !payload.ownerPassword) {
-    throw httpError(400, "Owner ner, email bolon anhnii password shaardlagatai");
+    throw httpError(400, "Owner нэр, имэйл болон анхны нууц үг шаардлагатай.");
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ownerEmail)) {
-    throw httpError(400, "Owner email buruu baina");
+    throw httpError(400, "Owner имэйл хаяг буруу байна.");
   }
 
   const existingOwner = await prisma.staff.findFirst({
@@ -85,7 +100,7 @@ async function createOrganization(payload) {
   });
 
   if (existingOwner) {
-    throw httpError(409, "Ene owner email ali hediin burtgeltei baina");
+    throw httpError(409, "Энэ owner имэйл аль хэдийн бүртгэлтэй байна.");
   }
 
   const password = await bcrypt.hash(payload.ownerPassword, 10);

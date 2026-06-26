@@ -3,7 +3,7 @@ async function createReservationNotification(tx, { organizationId, guestName, ta
     data: {
       organizationId,
       title: "Shine zahialga",
-      message: `${guestName} ni ${tableNumber} shireend zahialga uusgesen baina.`,
+      message: `${guestName} ширээ ${tableNumber} дээр захиалга үүсгэсэн байна.`,
     },
   });
 }

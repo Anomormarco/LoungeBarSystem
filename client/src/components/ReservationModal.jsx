@@ -25,7 +25,6 @@ export default function ReservationModal({ organization, table, onClose, onSucce
   const [form, setForm] = useState({
     reservationDate: today,
     startTime: '18:00',
-    endTime: '20:00',
     guestCount: Math.min(2, table?.capacity || 2),
     guestName: '',
     guestPhone: '',
@@ -59,7 +58,6 @@ export default function ReservationModal({ organization, table, onClose, onSucce
         guestEmail: form.guestEmail,
         reservationDate: form.reservationDate,
         startTime: form.startTime,
-        endTime: form.endTime,
         guestCount: Number(form.guestCount),
       });
 
@@ -87,10 +85,10 @@ export default function ReservationModal({ organization, table, onClose, onSucce
 
     try {
       await publicApi.verifyOtp(form.guestEmail, otpCode, reservationId);
-      setSuccessMessage('Захиалга амжилттай баталгаажлаа');
+      setSuccessMessage('Захиалга амжилттай баталгаажлаа.');
       onSuccess?.();
     } catch (err) {
-      setError(err.message || 'OTP баталгаажуулалт амжилтгүй.');
+      setError(err.message || 'Баталгаажуулах код буруу эсвэл хугацаа дууссан байна.');
     } finally {
       setLoading(false);
     }
@@ -159,31 +157,20 @@ export default function ReservationModal({ organization, table, onClose, onSucce
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-lounge-muted uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5" /> Эхлэх
-                  </label>
-                  <input
-                    type="time"
-                    value={form.startTime}
-                    onChange={(e) => updateForm('startTime', e.target.value)}
-                    className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-lounge-muted uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5" /> Дуусах
-                  </label>
-                  <input
-                    type="time"
-                    value={form.endTime}
-                    onChange={(e) => updateForm('endTime', e.target.value)}
-                    className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="text-xs text-lounge-muted uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" /> Эхлэх цаг
+                </label>
+                <input
+                  type="time"
+                  value={form.startTime}
+                  onChange={(e) => updateForm('startTime', e.target.value)}
+                  className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                  required
+                />
+                <p className="mt-1.5 text-xs text-lounge-muted">
+                  Дуусах цагийг lounge-ийн ажиллах цагийн дагуу автоматаар тооцно.
+                </p>
               </div>
 
               <div className="border-t border-lounge-border pt-4 space-y-3">
@@ -219,7 +206,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lounge-muted" />
                   <input
                     type="email"
-                    placeholder="Email"
+                    placeholder="Имэйл"
                     value={form.guestEmail}
                     onChange={(e) => updateForm('guestEmail', e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
@@ -233,7 +220,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
                 disabled={loading}
                 className="w-full py-3.5 bg-lounge-yellow hover:bg-lounge-yellow-dark text-lounge-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'OTP код илгээх'}
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Баталгаажуулах код илгээх'}
               </button>
             </form>
           )}
@@ -266,22 +253,6 @@ export default function ReservationModal({ organization, table, onClose, onSucce
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Баталгаажуулах'}
               </button>
             </form>
-          )}
-
-          {step === 3 && (
-            <div className="text-center py-6 space-y-4">
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
-              <h3 className="text-xl font-bold">Захиалга баталгаажлаа!</h3>
-              <p className="text-sm text-lounge-muted">
-                Таны захиалга амжилттай бүртгэгдлээ. Lounge эзэмшигчид мэдэгдэл илгээгдсэн.
-              </p>
-              <button
-                onClick={onClose}
-                className="px-6 py-3 bg-lounge-yellow text-lounge-black font-bold rounded-xl"
-              >
-                Хаах
-              </button>
-            </div>
           )}
         </div>
       </div>

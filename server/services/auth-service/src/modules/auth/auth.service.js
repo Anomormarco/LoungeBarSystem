@@ -10,7 +10,7 @@ async function ownerLogin({ email, password }) {
   const normalizedEmail = normalizeEmail(email);
 
   if (!normalizedEmail || !password) {
-    throw httpError(400, "Email bolon password shaardlagatai");
+    throw httpError(400, "Имэйл болон нууц үг шаардлагатай.");
   }
 
   const staff = await prisma.staff.findFirst({
@@ -24,7 +24,7 @@ async function ownerLogin({ email, password }) {
   });
 
   if (!staff || !(await verifyPassword(password, staff.password))) {
-    throw httpError(401, "Email esvel password buruu baina");
+    throw httpError(401, "Имэйл эсвэл нууц үг буруу байна.");
   }
 
   const token = signToken({
@@ -51,7 +51,7 @@ async function adminLogin({ email, password }) {
   const normalizedEmail = normalizeEmail(email);
 
   if (!normalizedEmail || !password) {
-    throw httpError(400, "Email bolon password shaardlagatai");
+    throw httpError(400, "Имэйл болон нууц үг шаардлагатай.");
   }
 
   const admin = await prisma.admin.findFirst({
@@ -61,7 +61,7 @@ async function adminLogin({ email, password }) {
   });
 
   if (!admin || !(await verifyPassword(password, admin.password))) {
-    throw httpError(401, "Email esvel password buruu baina");
+    throw httpError(401, "Имэйл эсвэл нууц үг буруу байна.");
   }
 
   const token = signToken({

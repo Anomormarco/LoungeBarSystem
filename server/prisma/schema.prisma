@@ -194,14 +194,25 @@ model Payment {
   organizationId Int           @map("organization_id")
   planType       String        @map("plan_type") @db.VarChar(50)
   amount         Decimal       @db.Decimal(10, 2)
+  currency       String        @default("usd") @db.VarChar(10)
   paymentMethod  PaymentMethod @map("payment_method")
   paymentStatus  PaymentStatus @default(pending) @map("payment_status")
+  stripeCheckoutSessionId String? @map("stripe_checkout_session_id") @db.VarChar(191)
+  stripePaymentIntentId   String? @map("stripe_payment_intent_id") @db.VarChar(191)
+  stripeSubscriptionId    String? @map("stripe_subscription_id") @db.VarChar(191)
+  stripeCustomerId        String? @map("stripe_customer_id") @db.VarChar(191)
+  stripeInvoiceId         String? @map("stripe_invoice_id") @db.VarChar(191)
+  paidAt         DateTime?     @map("paid_at")
+  failureReason  String?       @map("failure_reason") @db.Text
   periodStart    DateTime      @map("period_start")
   periodEnd      DateTime      @map("period_end")
   createdAt      DateTime      @default(now()) @map("created_at")
   organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([organizationId, paymentStatus])
+  @@index([stripeCheckoutSessionId])
+  @@index([stripePaymentIntentId])
+  @@index([stripeSubscriptionId])
   @@map("subscriptions")
 }
 

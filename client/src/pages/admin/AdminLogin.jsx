@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminApi } from '../../utils/api';
-import { Shield, Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2, Lock, Mail, Shield } from 'lucide-react';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -36,7 +36,7 @@ export default function AdminLogin() {
           <div className="inline-flex p-3 rounded-2xl bg-lounge-yellow/10 text-lounge-yellow border border-lounge-yellow/20 mb-4">
             <Shield className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold">Админ хянах самбар</h1>
           <p className="text-lounge-muted text-sm mt-1">Платформын удирдлага</p>
         </div>
 

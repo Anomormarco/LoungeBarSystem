@@ -50,7 +50,7 @@ async function sendEmail({ to, subject, text, html }) {
   const transporter = createTransporter();
 
   if (!transporter) {
-    const error = new Error("Email service tohiruulagdaagui baina. SMTP_USER/SMTP_PASS esvel SENDGRID_API_KEY shaardlagatai.");
+    const error = new Error("Имэйл үйлчилгээ тохируулагдаагүй байна. SMTP_USER/SMTP_PASS эсвэл SENDGRID_API_KEY шаардлагатай.");
     error.statusCode = 503;
     throw error;
   }

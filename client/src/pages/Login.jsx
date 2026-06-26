@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../utils/api';
-import { Lock, Mail, Loader2, ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2, Lock, Mail } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -27,7 +27,6 @@ export default function Login() {
       localStorage.setItem('owner_token', token);
       localStorage.setItem('owner_user', JSON.stringify(owner));
 
-      // Trigger page refresh to re-init socket connection
       window.location.href = '/dashboard';
     } catch (err) {
       setError(err.message || 'Нэвтрэхэд алдаа гарлаа. Мэдээллээ шалгана уу.');
@@ -37,7 +36,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center px-4 relative overflow-hidden">
-      {/* Background gradients for premium feeling */}
       <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-amber-500/10 blur-[120px]" />
       <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-violet-600/10 blur-[120px]" />
 
@@ -46,7 +44,7 @@ export default function Login() {
           <div className="inline-flex p-3 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 mb-4">
             <Lock className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Эзэмшигчийн Нэвтрэх хэсэг</h1>
+          <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Эзэмшигчийн нэвтрэх хэсэг</h1>
           <p className="text-slate-400 text-sm mt-1">Lounge/Restaurant удирдлагын систем</p>
         </div>
 
@@ -102,12 +100,12 @@ export default function Login() {
             )}
           </button>
         </form>
-        
+
         <div className="mt-8 text-center border-t border-slate-800/60 pt-6">
           <p className="text-slate-500 text-xs">
-            Платформд шинээр бүртгүүлэх эсвэл сурталчилгаа харах бол{' '}
+            Платформд шинээр бүртгүүлэх эсвэл мэдээлэл авах бол{' '}
             <a href="/for-owners" className="text-lounge-yellow hover:underline">
-              Энд дарна уу
+              энд дарна уу
             </a>.
           </p>
         </div>

@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useSocket } from '../context/SocketContext';
 import { api } from '../utils/api';
-import { 
-  LayoutDashboard, 
-  Table2, 
-  UtensilsCrossed, 
-  Users, 
-  BarChart3, 
-  CreditCard, 
-  LogOut, 
-  Bell, 
-  Wifi, 
-  WifiOff, 
+import {
   AlertTriangle,
+  BarChart3,
+  Bell,
+  CreditCard,
+  LayoutDashboard,
+  LogOut,
   Menu,
-  X
+  Table2,
+  Users,
+  UtensilsCrossed,
+  Wifi,
+  WifiOff,
+  X,
 } from 'lucide-react';
 
 export default function Layout({ children }) {
@@ -30,14 +30,9 @@ export default function Layout({ children }) {
   const orgName = user.organization?.name || 'Миний Lounge';
 
   useEffect(() => {
-    // Fetch subscription details on load to show warnings if expiring
     api.getSubscription()
-      .then(res => {
-        setSubscription(res.data.organization);
-      })
-      .catch(err => {
-        console.error('Subscription error:', err);
-      });
+      .then((res) => setSubscription(res.data.organization))
+      .catch((err) => console.error('Subscription мэдээлэл авахад алдаа гарлаа:', err));
   }, [location.pathname]);
 
   const handleLogout = () => {
@@ -46,36 +41,30 @@ export default function Layout({ children }) {
     window.location.href = '/login';
   };
 
-  // Determine if subscription is expiring soon (less than 3 days)
   const isExpiringSoon = () => {
-    if (!subscription || !subscription.subscriptionExpiry) return false;
+    if (!subscription?.subscriptionExpiry) return false;
     const expiry = new Date(subscription.subscriptionExpiry);
-    const now = new Date();
-    const diffTime = expiry - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
     return subscription.subscriptionStatus === 'active' && diffDays >= 0 && diffDays <= 3;
   };
 
   const daysToExpiry = () => {
-    if (!subscription || !subscription.subscriptionExpiry) return 0;
+    if (!subscription?.subscriptionExpiry) return 0;
     const expiry = new Date(subscription.subscriptionExpiry);
-    const now = new Date();
-    const diffTime = expiry - now;
-    return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    return Math.max(0, Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24)));
   };
 
   const navItems = [
-    { name: 'Хянах Самбар', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Ширээний Удирдлага', path: '/tables', icon: Table2 },
-    { name: 'Меню Удирдлага', path: '/menu', icon: UtensilsCrossed },
-    { name: 'Ажилтны Удирдлага', path: '/staff', icon: Users },
-    { name: 'Статистик & Тайлан', path: '/statistics', icon: BarChart3 },
+    { name: 'Хянах самбар', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Ширээний удирдлага', path: '/tables', icon: Table2 },
+    { name: 'Меню удирдлага', path: '/menu', icon: UtensilsCrossed },
+    { name: 'Ажилтны удирдлага', path: '/staff', icon: Users },
+    { name: 'Статистик & тайлан', path: '/statistics', icon: BarChart3 },
     { name: 'Subscription / Төлбөр', path: '/subscription', icon: CreditCard },
   ];
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex">
-      {/* Sidebar for desktop */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 border-r border-slate-800 flex flex-col transform transition-transform duration-300 lg:translate-x-0 lg:static ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 border-b border-slate-800 flex justify-between items-center">
           <div className="flex items-center gap-3">
@@ -84,7 +73,7 @@ export default function Layout({ children }) {
             </div>
             <div>
               <span className="font-bold text-slate-100 text-lg tracking-tight block">Lounge Platform</span>
-              <span className="text-xs text-slate-500">Owner Dashboard</span>
+              <span className="text-xs text-slate-500">Owner хянах самбар</span>
             </div>
           </div>
           <button className="lg:hidden p-1 text-slate-400 hover:text-slate-100" onClick={() => setSidebarOpen(false)}>
@@ -99,10 +88,10 @@ export default function Layout({ children }) {
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={({ isActive }) => 
+                className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all ${
-                    isActive 
-                      ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/10' 
+                    isActive
+                      ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/10'
                       : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
                   }`
                 }
@@ -125,9 +114,7 @@ export default function Layout({ children }) {
         </div>
       </aside>
 
-      {/* Main content wrapper */}
       <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden relative">
-        {/* Header */}
         <header className="h-20 bg-slate-900 border-b border-slate-800 px-6 flex justify-between items-center shrink-0 z-40">
           <div className="flex items-center gap-4">
             <button className="lg:hidden p-2 text-slate-400 hover:text-slate-200" onClick={() => setSidebarOpen(true)}>
@@ -136,25 +123,23 @@ export default function Layout({ children }) {
             <div>
               <h2 className="text-xl font-bold text-slate-100 tracking-tight">{orgName}</h2>
               <div className="flex items-center gap-2 mt-0.5">
-                {/* Subscription Status Badge */}
                 {subscription?.subscriptionStatus === 'active' ? (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">
-                    Идэвхтэй (Expiry: {new Date(subscription.subscriptionExpiry).toLocaleDateString()})
+                    Идэвхтэй: {new Date(subscription.subscriptionExpiry).toLocaleDateString()}
                   </span>
                 ) : (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20 animate-pulse">
-                    Хаагдсан (Subscription expired)
+                    Хаагдсан
                   </span>
                 )}
-                
-                {/* Connection Status Indicator */}
+
                 {connected ? (
                   <span className="inline-flex items-center gap-1 text-[10px] text-green-500">
-                    <Wifi className="w-3.5 h-3.5" /> Real-time
+                    <Wifi className="w-3.5 h-3.5" /> Шууд холболттой
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 text-[10px] text-red-500">
-                    <WifiOff className="w-3.5 h-3.5" /> Холболт тасарлаа
+                    <WifiOff className="w-3.5 h-3.5" /> Холболт тасарсан
                   </span>
                 )}
               </div>
@@ -162,7 +147,6 @@ export default function Layout({ children }) {
           </div>
 
           <div className="flex items-center gap-3 relative">
-            {/* Notification Badge Button */}
             <button
               onClick={() => {
                 setShowNotifications(!showNotifications);
@@ -178,7 +162,6 @@ export default function Layout({ children }) {
               )}
             </button>
 
-            {/* Notifications Dropdown */}
             {showNotifications && (
               <div className="absolute right-0 top-14 w-80 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-4 z-50 text-sm">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-3 mb-3">
@@ -193,17 +176,21 @@ export default function Layout({ children }) {
                   {notifications.length === 0 ? (
                     <p className="text-slate-500 text-center py-4 text-xs">Мэдэгдэл байхгүй байна.</p>
                   ) : (
-                    notifications.map((n) => (
-                      <div key={n.id} className="p-3 rounded-xl bg-slate-800/40 border border-slate-800 flex flex-col gap-1">
+                    notifications.map((notification) => (
+                      <div key={notification.id} className="p-3 rounded-xl bg-slate-800/40 border border-slate-800 flex flex-col gap-1">
                         <div className="flex justify-between items-start">
                           <span className={`font-semibold text-xs ${
-                            n.type === 'success' ? 'text-green-400' : n.type === 'error' ? 'text-red-400' : 'text-amber-400'
-                          }`}>{n.title}</span>
+                            notification.type === 'success'
+                              ? 'text-green-400'
+                              : notification.type === 'error'
+                                ? 'text-red-400'
+                                : 'text-amber-400'
+                          }`}>{notification.title}</span>
                           <span className="text-[10px] text-slate-500">
-                            {new Date(n.time).toLocaleTimeString()}
+                            {new Date(notification.time).toLocaleTimeString()}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-300 leading-normal">{n.message}</p>
+                        <p className="text-xs text-slate-300 leading-normal">{notification.message}</p>
                       </div>
                     ))
                   )}
@@ -213,13 +200,12 @@ export default function Layout({ children }) {
           </div>
         </header>
 
-        {/* Global expiring subscription warning banner */}
         {isExpiringSoon() && (
           <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-3 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
               <p className="text-xs text-amber-400 leading-normal">
-                <strong>Анхаар:</strong> Таны subscription хугацаа {daysToExpiry()} хоногийн дараа дуусах тул та төлбөрөө урьдчилан хийж үйлчилгээгээ сунгана уу. Хугацаа дуусвал танай байгууллага хайлтын жагсаалтаас автоматаар хасагдах болно.
+                <strong>Анхаар:</strong> Таны subscription {daysToExpiry()} хоногийн дараа дуусна. Үйлчилгээгээ тасалдуулахгүй байхын тулд төлбөрөө урьдчилан сунгана уу.
               </p>
             </div>
             <button
@@ -231,7 +217,6 @@ export default function Layout({ children }) {
           </div>
         )}
 
-        {/* Content area */}
         <main className="flex-1 p-6 overflow-y-auto">
           {children}
         </main>

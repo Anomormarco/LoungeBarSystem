@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 import { adminApi } from '../../utils/api';
 import {
@@ -18,6 +19,7 @@ const STATUS_LABELS = {
 };
 
 export default function AdminOrganizations() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -38,6 +40,18 @@ export default function AdminOrganizations() {
     ownerPhone: '',
     ownerPassword: '',
   });
+  const orgFilter = searchParams.get('filter') || 'all';
+  const filteredOrganizations = organizations.filter((org) => {
+    if (orgFilter === 'active') return org.isApproved && org.subscriptionStatus === 'active';
+    if (orgFilter === 'inactive') return !org.isApproved || org.subscriptionStatus !== 'active';
+    if (orgFilter === 'expired') return org.subscriptionStatus === 'expired';
+    if (orgFilter === 'disabled') return org.subscriptionStatus === 'disabled';
+    return true;
+  });
+
+  const setOrgFilter = (filter) => {
+    setSearchParams(filter === 'all' ? {} : { filter });
+  };
 
   const fetchOrgs = async () => {
     try {
@@ -150,6 +164,29 @@ export default function AdminOrganizations() {
           </button>
         </div>
 
+        <div className="flex flex-wrap gap-2">
+          {[
+            ['all', 'Бүгд'],
+            ['active', 'Идэвхтэй'],
+            ['inactive', 'Идэвхгүй'],
+            ['expired', 'Хугацаа дууссан'],
+            ['disabled', 'Хаагдсан'],
+          ].map(([filter, label]) => (
+            <button
+              key={filter}
+              type="button"
+              onClick={() => setOrgFilter(filter)}
+              className={`rounded-xl border px-3 py-2 text-xs font-bold transition-colors ${
+                orgFilter === filter
+                  ? 'border-lounge-yellow bg-lounge-yellow text-lounge-black'
+                  : 'border-lounge-border bg-lounge-card text-lounge-muted hover:text-white'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         {error && (
           <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>
         )}
@@ -253,16 +290,47 @@ export default function AdminOrganizations() {
                   <th className="text-left p-4">Нэр</th>
                   <th className="text-left p-4 hidden md:table-cell">Хаяг</th>
                   <th className="text-left p-4">Subscription</th>
+                  <th className="text-left p-4 hidden lg:table-cell">Subscription Payment</th>
                   <th className="text-left p-4">Approved</th>
                   <th className="text-right p-4">Үйлдэл</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-lounge-border">
-                {organizations.map((org) => (
+                {filteredOrganizations.map((org) => (
                   <tr key={org.id} className="hover:bg-lounge-card/50">
                     <td className="p-4 font-semibold">{org.name}</td>
                     <td className="p-4 text-lounge-muted hidden md:table-cell truncate max-w-xs">
                       {org.address}
+                    </td>
+                    <td className="p-4 hidden lg:table-cell">
+                      {org.payments?.[0] ? (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold uppercase text-lounge-yellow">
+                              {org.payments[0].paymentMethod}
+                            </span>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                                org.payments[0].paymentStatus === 'success'
+                                  ? 'bg-green-500/10 text-green-400'
+                                  : org.payments[0].paymentStatus === 'pending'
+                                  ? 'bg-lounge-yellow/10 text-lounge-yellow'
+                                  : 'bg-red-500/10 text-red-400'
+                              }`}
+                            >
+                              {org.payments[0].paymentStatus}
+                            </span>
+                          </div>
+                          <p className="text-xs text-lounge-muted">
+                            {Number(org.payments[0].amount).toLocaleString()} {String(org.payments[0].currency || '').toUpperCase()}
+                          </p>
+                          <p className="text-[11px] text-lounge-muted">
+                            End: {new Date(org.payments[0].periodEnd).toLocaleDateString()}
+                          </p>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-lounge-muted">No payment</span>
+                      )}
                     </td>
                     <td className="p-4">
                       <span
@@ -326,6 +394,13 @@ export default function AdminOrganizations() {
                     </td>
                   </tr>
                 ))}
+                {filteredOrganizations.length === 0 && (
+                  <tr>
+                    <td className="p-6 text-center text-lounge-muted" colSpan={6}>
+                      No organizations in this filter.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

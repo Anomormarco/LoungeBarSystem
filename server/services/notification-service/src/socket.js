@@ -15,7 +15,7 @@ function initSocket(server) {
   });
 
   io.on("connection", (socket) => {
-    console.log(`Client connected: ${socket.id}`);
+    console.log(`Клиент холбогдлоо: ${socket.id}`);
 
     socket.on("organization:join", (organizationId) => {
       if (!organizationId) return;
@@ -30,7 +30,7 @@ function initSocket(server) {
     });
 
     socket.on("disconnect", () => {
-      console.log(`Client disconnected: ${socket.id}`);
+      console.log(`Клиент саллаа: ${socket.id}`);
     });
   });
 

@@ -8,5 +8,5 @@ const server = http.createServer(app);
 initSocket(server);
 
 server.listen(PORT, () => {
-  console.log(`Notification Service listening on port ${PORT}`);
+  console.log(`Мэдэгдлийн сервис ${PORT} порт дээр аслаа.`);
 });

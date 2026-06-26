@@ -69,3 +69,36 @@ Quick check:
 ```bash
 docker exec lounge_reservation_service node -e "console.log({SMTP_USER:!!process.env.SMTP_USER, SMTP_PASS:!!process.env.SMTP_PASS})"
 ```
+
+## Stripe Subscription
+
+Set these in the root `.env` next to `docker-compose.yml`:
+
+```env
+STRIPE_SECRET_KEY=sk_test_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+STRIPE_PRICE_ID=price_xxx
+STRIPE_CURRENCY=usd
+STRIPE_SUCCESS_URL=http://localhost:5173/subscription?success=true
+STRIPE_CANCEL_URL=http://localhost:5173/subscription?cancelled=true
+STRIPE_PORTAL_RETURN_URL=http://localhost:5173/subscription
+```
+
+If `STRIPE_PRICE_ID` is set, Checkout uses Stripe subscription mode. If it is empty, the app falls back to one-time Checkout and activates 30 days after Stripe webhook confirms payment.
+
+Webhook endpoint:
+
+```bash
+http://localhost:3000/payments/webhook/stripe
+```
+
+Stripe events to enable:
+
+```text
+checkout.session.completed
+checkout.session.expired
+payment_intent.succeeded
+payment_intent.payment_failed
+customer.subscription.updated
+customer.subscription.deleted
+```

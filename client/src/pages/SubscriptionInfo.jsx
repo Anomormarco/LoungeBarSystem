@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { api } from '../utils/api';
-import { 
-  CreditCard, 
-  QrCode, 
-  Loader2, 
-  CheckCircle, 
-  XCircle, 
-  Calendar, 
-  DollarSign, 
-  Clock,
+import {
+  Calendar,
+  CheckCircle,
+  CreditCard,
   ExternalLink,
-  ShieldCheck
+  Loader2,
+  QrCode,
+  ShieldCheck,
+  XCircle,
 } from 'lucide-react';
 
 export default function SubscriptionInfo() {
@@ -23,9 +21,9 @@ export default function SubscriptionInfo() {
   const [submitting, setSubmitting] = useState(false);
 
   const plans = [
-    { name: 'Starter Plan', amount: 50000, description: '30 хоногийн эрх (50,000 ₮)' },
-    { name: 'Pro Pack', amount: 120000, description: '30 хоногийн эрх (120,000 ₮)' },
-    { name: 'Annual Pro', amount: 990000, description: 'Бүтэн жилийн эрх (990,000 ₮)' }
+    { name: 'Старт багц', amount: 50000, description: '30 хоногийн эрх (50,000 ₮)' },
+    { name: 'Про багц', amount: 120000, description: '30 хоногийн эрх (120,000 ₮)' },
+    { name: 'Жилийн про багц', amount: 990000, description: 'Бүтэн жилийн эрх (990,000 ₮)' },
   ];
 
   const fetchSubscription = async () => {
@@ -33,7 +31,7 @@ export default function SubscriptionInfo() {
       const res = await api.getSubscription();
       setData(res.data);
     } catch (err) {
-      console.error('Subscription fetch error:', err);
+      console.error('Subscription мэдээлэл авахад алдаа гарлаа:', err);
     } finally {
       setLoading(false);
     }
@@ -48,9 +46,6 @@ export default function SubscriptionInfo() {
     setSubmitting(true);
     setPaymentSuccess(false);
 
-    const user = JSON.parse(localStorage.getItem('owner_user') || '{}');
-    const orgId = user.organizationId || 1;
-
     try {
       if (paymentMethod === 'stripe') {
         const successUrl = `${window.location.origin}/subscription?success=true`;
@@ -60,7 +55,7 @@ export default function SubscriptionInfo() {
         if (res.data.checkoutUrl) {
           window.location.href = res.data.checkoutUrl;
         } else {
-          alert('Dev Mode: Stripe Checkout session simulated successfully.');
+          alert('Туршилтын горим: Stripe төлбөр амжилттай үүссэн гэж тэмдэглэгдлээ.');
           await api.simulateQpayPayment(res.data.payment.id, 'success');
           setPaymentSuccess(true);
           fetchSubscription();
@@ -85,7 +80,21 @@ export default function SubscriptionInfo() {
       setInvoice(null);
       fetchSubscription();
     } catch (err) {
-      alert(err.message || 'Simulate failed');
+      alert(err.message || 'QPay төлбөр баталгаажуулахад алдаа гарлаа.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleManageStripeBilling = async () => {
+    setSubmitting(true);
+    try {
+      const res = await api.createStripePortal(window.location.href);
+      if (res.data.portalUrl) {
+        window.location.href = res.data.portalUrl;
+      }
+    } catch (err) {
+      alert(err.message || 'Stripe төлбөрийн удирдлага нээхэд алдаа гарлаа.');
     } finally {
       setSubmitting(false);
     }
@@ -93,10 +102,9 @@ export default function SubscriptionInfo() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Title */}
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-100">Subscription / Төлбөр тооцоо</h1>
-        <p className="text-slate-400 text-sm">Платформын ашиглах хугацаа болон төлбөрийн түүх хянах</p>
+        <p className="text-slate-400 text-sm">Платформын ашиглах хугацаа болон төлбөрийн түүхээ хянах хэсэг</p>
       </div>
 
       {loading ? (
@@ -109,22 +117,21 @@ export default function SubscriptionInfo() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          {/* Active status */}
           <div className="lg:col-span-2 space-y-6">
             <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
               <h3 className="font-bold text-slate-200 text-base">Идэвхтэй багцын мэдээлэл</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div className="p-4 rounded-xl bg-slate-950 border border-slate-850 space-y-1">
                   <span className="text-slate-500 text-xs font-semibold block uppercase">Платформын төлөв</span>
                   <div className="flex items-center gap-2">
                     {data.organization.subscriptionStatus === 'active' ? (
                       <span className="text-green-400 font-bold flex items-center gap-1">
-                        <ShieldCheck className="w-5 h-5 text-green-400" /> Идэвхтэй (Active)
+                        <ShieldCheck className="w-5 h-5 text-green-400" /> Идэвхтэй
                       </span>
                     ) : (
                       <span className="text-red-400 font-bold flex items-center gap-1">
-                        <XCircle className="w-5 h-5 text-red-400" /> Хугацаа дууссан (Expired)
+                        <XCircle className="w-5 h-5 text-red-400" /> Хугацаа дууссан
                       </span>
                     )}
                   </div>
@@ -135,20 +142,29 @@ export default function SubscriptionInfo() {
                   <div className="flex items-center gap-2 text-slate-200 font-semibold">
                     <Calendar className="w-4 h-4 text-slate-500" />
                     <span>
-                      {data.organization.subscriptionExpiry 
+                      {data.organization.subscriptionExpiry
                         ? new Date(data.organization.subscriptionExpiry).toLocaleDateString()
-                        : 'Тохируулаагүй'
-                      }
+                        : 'Тохируулаагүй'}
                     </span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Payment history */}
+            {data.payments.some((payment) => payment.paymentMethod === 'stripe' && payment.stripeCustomerId) && (
+              <button
+                type="button"
+                onClick={handleManageStripeBilling}
+                disabled={submitting}
+                className="w-full rounded-xl border border-lounge-yellow/40 px-4 py-3 text-sm font-extrabold text-lounge-yellow hover:bg-lounge-yellow/10 disabled:opacity-60"
+              >
+                Stripe төлбөрийн удирдлага нээх
+              </button>
+            )}
+
             <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
               <h3 className="font-bold text-slate-200 text-base">Төлбөр төлөлтийн түүх</h3>
-              
+
               {data.payments.length === 0 ? (
                 <p className="text-slate-500 text-xs italic py-6 text-center">Төлбөрийн түүх байхгүй байна.</p>
               ) : (
@@ -164,24 +180,30 @@ export default function SubscriptionInfo() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800 text-slate-300">
-                      {data.payments.map((p) => (
-                        <tr key={p.id}>
-                          <td className="py-3.5 px-2 font-semibold text-slate-200">{p.planType}</td>
-                          <td className="py-3.5 px-2 uppercase">{p.paymentMethod}</td>
-                          <td className="py-3.5 px-2 font-bold text-amber-500">{parseFloat(p.amount).toLocaleString()} ₮</td>
+                      {data.payments.map((payment) => (
+                        <tr key={payment.id}>
+                          <td className="py-3.5 px-2 font-semibold text-slate-200">{payment.planType}</td>
+                          <td className="py-3.5 px-2 uppercase">{payment.paymentMethod}</td>
+                          <td className="py-3.5 px-2 font-bold text-amber-500">
+                            {Number(payment.amount).toLocaleString()} ₮
+                          </td>
                           <td className="py-3.5 px-2">
                             <span className={`inline-flex px-2 py-0.5 rounded-full font-bold text-[10px] ${
-                              p.paymentStatus === 'success' 
-                                ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
-                                : p.paymentStatus === 'pending'
-                                ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse'
-                                : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                              payment.paymentStatus === 'success'
+                                ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                                : payment.paymentStatus === 'pending'
+                                  ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse'
+                                  : 'bg-red-500/10 text-red-400 border border-red-500/20'
                             }`}>
-                              {p.paymentStatus === 'success' ? 'Амжилттай' : p.paymentStatus === 'pending' ? 'Хүлээгдэж буй' : 'Амжилтгүй'}
+                              {payment.paymentStatus === 'success'
+                                ? 'Амжилттай'
+                                : payment.paymentStatus === 'pending'
+                                  ? 'Хүлээгдэж байна'
+                                  : 'Амжилтгүй'}
                             </span>
                           </td>
                           <td className="py-3.5 px-2 text-slate-500">
-                            {new Date(p.createdAt).toLocaleDateString()}
+                            {new Date(payment.createdAt).toLocaleDateString()}
                           </td>
                         </tr>
                       ))}
@@ -192,16 +214,15 @@ export default function SubscriptionInfo() {
             </div>
           </div>
 
-          {/* Pricing activation tool */}
           <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-5">
             <h3 className="font-bold text-slate-200 text-base">Үйлчилгээ сунгах / Идэвхжүүлэх</h3>
-            
+
             {paymentSuccess ? (
               <div className="p-5 bg-green-500/10 border border-green-500/20 rounded-xl text-center space-y-3">
                 <CheckCircle className="w-10 h-10 text-green-500 mx-auto" />
                 <h4 className="font-bold text-sm text-slate-100">Төлбөр амжилттай баталгаажлаа!</h4>
                 <p className="text-slate-400 text-[11px] leading-relaxed">
-                  Сунгалт амжилттай хийгдлээ. Хянах самбараас ширээний статусыг шалгана уу.
+                  Сунгалт амжилттай хийгдлээ. Хянах самбараас ширээний төлөвөө шалгана уу.
                 </p>
                 <button
                   onClick={() => setPaymentSuccess(false)}
@@ -216,15 +237,15 @@ export default function SubscriptionInfo() {
                   <label className="block text-slate-400 text-xs font-semibold mb-2">Багц сонгох</label>
                   <select
                     onChange={(e) => {
-                      const p = plans.find(plan => plan.name === e.target.value);
-                      setSelectedPlan(p || null);
+                      const plan = plans.find((item) => item.name === e.target.value);
+                      setSelectedPlan(plan || null);
                       setInvoice(null);
                     }}
                     className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-slate-300 focus:outline-none focus:border-amber-500"
                   >
                     <option value="">Багц сонгох...</option>
-                    {plans.map(p => (
-                      <option key={p.name} value={p.name}>{p.description}</option>
+                    {plans.map((plan) => (
+                      <option key={plan.name} value={plan.name}>{plan.description}</option>
                     ))}
                   </select>
                 </div>
@@ -235,6 +256,7 @@ export default function SubscriptionInfo() {
                       <label className="block text-slate-400 text-xs font-semibold mb-2">Төлбөрийн хэлбэр</label>
                       <div className="grid grid-cols-2 gap-3">
                         <button
+                          type="button"
                           onClick={() => { setPaymentMethod('stripe'); setInvoice(null); }}
                           className={`py-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all ${
                             paymentMethod === 'stripe'
@@ -246,6 +268,7 @@ export default function SubscriptionInfo() {
                           <span className="font-bold text-[9px] uppercase tracking-wider">Stripe</span>
                         </button>
                         <button
+                          type="button"
                           onClick={() => { setPaymentMethod('qpay'); setInvoice(null); }}
                           className={`py-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all ${
                             paymentMethod === 'qpay'
@@ -262,13 +285,14 @@ export default function SubscriptionInfo() {
                     {invoice && (
                       <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl flex flex-col items-center space-y-3">
                         <div className="p-2 bg-white rounded-xl">
-                          <img 
-                            src={`https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${encodeURIComponent(invoice.qrText)}`} 
-                            alt="QPay QR" 
+                          <img
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${encodeURIComponent(invoice.qrText)}`}
+                            alt="QPay QR"
                             className="w-28 h-28"
                           />
                         </div>
                         <button
+                          type="button"
                           onClick={handleMockQpaySuccess}
                           className="w-full py-2 bg-green-500 hover:bg-green-600 text-slate-950 font-bold rounded-lg text-xs"
                           disabled={submitting}
@@ -280,6 +304,7 @@ export default function SubscriptionInfo() {
 
                     {!invoice && (
                       <button
+                        type="button"
                         onClick={handlePay}
                         className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs flex justify-center items-center gap-2"
                         disabled={submitting || !paymentMethod}

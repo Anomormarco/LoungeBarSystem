@@ -11,6 +11,118 @@ body {
   color: #fafafa;
 }
 
+.leaflet-container {
+  z-index: 0;
+  background: #f6f5f0;
+  font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #111111;
+  color: #fafafa;
+  border: 1px solid #2a2a2a;
+}
+
+.leaflet-popup-content {
+  margin: 10px 12px;
+}
+
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.86) !important;
+  color: #525252 !important;
+  border-radius: 999px 0 0 0;
+  padding: 2px 8px !important;
+}
+
+.leaflet-control-attribution a {
+  color: #334155 !important;
+}
+
+.leaflet-control-zoom {
+  overflow: hidden;
+  border: 0 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16);
+}
+
+.leaflet-control-zoom a {
+  width: 36px !important;
+  height: 36px !important;
+  border: 0 !important;
+  background: #ffffff !important;
+  color: #3f3f46 !important;
+  line-height: 36px !important;
+}
+
+.leaflet-control-zoom a + a {
+  border-top: 1px solid #e5e7eb !important;
+}
+
+.lounge-pin {
+  position: relative;
+  display: flex;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(10, 10, 10, 0.85);
+  border-radius: 999px 999px 999px 4px;
+  background: #eab308;
+  box-shadow: 0 8px 18px rgba(202, 138, 4, 0.38);
+  transform: rotate(-45deg);
+}
+
+.lounge-pin.is-active {
+  background: #d97706;
+  box-shadow: 0 10px 22px rgba(217, 119, 6, 0.48);
+}
+
+.lounge-pin span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.72);
+  transform: rotate(45deg);
+}
+
+.lounge-user-dot {
+  position: relative;
+  display: flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+  border-radius: 999px;
+  background: #60a5fa;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.lounge-user-dot::after {
+  position: absolute;
+  inset: -7px;
+  content: '';
+  border-radius: 999px;
+  background: rgba(96, 165, 250, 0.22);
+  animation: lounge-ping 1.3s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.lounge-user-dot span {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #1d4ed8;
+}
+
+@keyframes lounge-ping {
+  75%,
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
 @layer utilities {
   .text-gradient-yellow {
     @apply bg-gradient-to-r from-lounge-yellow-light via-lounge-yellow to-lounge-yellow-dark bg-clip-text text-transparent;

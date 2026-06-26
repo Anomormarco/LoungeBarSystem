@@ -4,7 +4,7 @@ const { emitToOrganization } = require("../../socket");
 
 function parseId(id, label) {
   const parsed = Number(id);
-  if (!Number.isInteger(parsed)) throw httpError(400, `${label} buruu baina`);
+  if (!Number.isInteger(parsed)) throw httpError(400, `${label} буруу байна.`);
   return parsed;
 }
 
@@ -19,7 +19,7 @@ async function createOwnerTable(organizationId, payload) {
   const capacity = Number(payload.capacity);
 
   if (!payload.tableNumber || !Number.isInteger(capacity)) {
-    throw httpError(400, "Shireenii dugaar bolon suudal shaardlagatai");
+    throw httpError(400, "Ширээний дугаар болон суудлын тоо шаардлагатай.");
   }
 
   const table = await prisma.table.create({
@@ -38,7 +38,7 @@ async function createOwnerTable(organizationId, payload) {
 }
 
 async function updateOwnerTable(organizationId, tableId, payload) {
-  const id = parseId(tableId, "Shireenii id");
+  const id = parseId(tableId, "Ширээний ID");
   const data = {};
 
   for (const field of ["tableNumber", "type", "status", "customStatusLabel"]) {
@@ -64,7 +64,7 @@ async function updateOwnerTable(organizationId, tableId, payload) {
 }
 
 async function deleteOwnerTable(organizationId, tableId) {
-  const id = parseId(tableId, "Shireenii id");
+  const id = parseId(tableId, "Ширээний ID");
 
   await prisma.table.delete({
     where: {

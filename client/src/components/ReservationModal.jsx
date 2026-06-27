@@ -96,12 +96,12 @@ export default function ReservationModal({ organization, table, onClose, onSucce
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-full sm:max-w-lg bg-lounge-card border border-lounge-border rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-lounge-card border-b border-lounge-border px-6 py-4 flex items-center justify-between">
+      <div className="relative w-full sm:max-w-lg bg-lounge-card border border-lounge-primary/30 rounded-t-3xl sm:rounded-3xl shadow-[0_0_30px_rgba(249,115,22,0.25)] max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-lounge-card/95 border-b border-lounge-border/60 px-6 py-4 flex items-center justify-between">
           <div>
-            <h2 className="font-bold text-lg">Ширээ захиалах</h2>
+            <h2 className="font-extrabold text-lg text-white">Ширээ захиалах</h2>
             <p className="text-xs text-lounge-muted">
               Ширээ #{table?.tableNumber} · {table?.capacity} хүн
             </p>
@@ -120,7 +120,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
 
           {successMessage && (
             <div className="mb-4 p-3 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 shrink-0" />
+              <CheckCircle className="w-5 h-5 shrink-0 text-green-400" />
               {successMessage}
             </div>
           )}
@@ -130,20 +130,20 @@ export default function ReservationModal({ organization, table, onClose, onSucce
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-lounge-muted uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5" /> Огноо
+                    <Calendar className="w-3.5 h-3.5 text-lounge-accent" /> Огноо
                   </label>
                   <input
                     type="date"
                     value={form.reservationDate}
                     min={today}
                     onChange={(e) => updateForm('reservationDate', e.target.value)}
-                    className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-accent focus:shadow-[0_0_8px_rgba(6,182,212,0.15)] transition-all"
                     required
                   />
                 </div>
                 <div>
                   <label className="text-xs text-lounge-muted uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                    <Users className="w-3.5 h-3.5" /> Зочдын тоо
+                    <Users className="w-3.5 h-3.5 text-lounge-accent" /> Зочдын тоо
                   </label>
                   <input
                     type="number"
@@ -151,7 +151,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
                     max={table?.capacity}
                     value={form.guestCount}
                     onChange={(e) => updateForm('guestCount', e.target.value)}
-                    className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-accent focus:shadow-[0_0_8px_rgba(6,182,212,0.15)] transition-all"
                     required
                   />
                 </div>
@@ -159,13 +159,13 @@ export default function ReservationModal({ organization, table, onClose, onSucce
 
               <div>
                 <label className="text-xs text-lounge-muted uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" /> Эхлэх цаг
+                  <Clock className="w-3.5 h-3.5 text-lounge-accent" /> Эхлэх цаг
                 </label>
                 <input
                   type="time"
                   value={form.startTime}
                   onChange={(e) => updateForm('startTime', e.target.value)}
-                  className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                  className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-accent focus:shadow-[0_0_8px_rgba(6,182,212,0.15)] transition-all"
                   required
                 />
                 <p className="mt-1.5 text-xs text-lounge-muted">
@@ -173,8 +173,8 @@ export default function ReservationModal({ organization, table, onClose, onSucce
                 </p>
               </div>
 
-              <div className="border-t border-lounge-border pt-4 space-y-3">
-                <p className="text-xs font-semibold text-lounge-yellow uppercase tracking-wider">
+              <div className="border-t border-lounge-border/60 pt-4 space-y-3">
+                <p className="text-xs font-semibold text-lounge-accent uppercase tracking-wider">
                   Холбоо барих мэдээлэл
                 </p>
 
@@ -185,7 +185,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
                     placeholder="Нэр"
                     value={form.guestName}
                     onChange={(e) => updateForm('guestName', e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    className="w-full pl-10 pr-4 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-accent focus:shadow-[0_0_8px_rgba(6,182,212,0.15)] transition-all"
                     required
                   />
                 </div>
@@ -197,7 +197,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
                     placeholder="Утасны дугаар"
                     value={form.guestPhone}
                     onChange={(e) => updateForm('guestPhone', e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    className="w-full pl-10 pr-4 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-accent focus:shadow-[0_0_8px_rgba(6,182,212,0.15)] transition-all"
                     required
                   />
                 </div>
@@ -209,7 +209,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
                     placeholder="Имэйл"
                     value={form.guestEmail}
                     onChange={(e) => updateForm('guestEmail', e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    className="w-full pl-10 pr-4 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-accent focus:shadow-[0_0_8px_rgba(6,182,212,0.15)] transition-all"
                     required
                   />
                 </div>
@@ -218,9 +218,9 @@ export default function ReservationModal({ organization, table, onClose, onSucce
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-lounge-yellow hover:bg-lounge-yellow-dark text-lounge-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-3.5 bg-gradient-to-r from-lounge-primary to-lounge-accent text-white font-extrabold rounded-xl hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Баталгаажуулах код илгээх'}
+                {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Баталгаажуулах код илгээх'}
               </button>
             </form>
           )}
@@ -228,7 +228,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
           {step === 2 && !successMessage && (
             <form onSubmit={handleVerifyOtp} className="space-y-5">
               <div className="text-center py-4">
-                <Shield className="w-12 h-12 text-lounge-yellow mx-auto mb-3" />
+                <Shield className="w-12 h-12 text-lounge-accent mx-auto mb-3 filter drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
                 <p className="text-sm text-lounge-muted">
                   <strong className="text-white">{form.guestEmail}</strong> хаяг руу 6 оронтой код илгээлээ.
                 </p>
@@ -241,16 +241,16 @@ export default function ReservationModal({ organization, table, onClose, onSucce
                 placeholder="000000"
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full px-4 py-4 bg-lounge-black border border-lounge-border rounded-xl text-center text-2xl font-mono tracking-[0.5em] focus:outline-none focus:border-lounge-yellow"
+                className="w-full px-4 py-4 bg-lounge-black border border-lounge-border rounded-xl text-center text-2xl font-mono tracking-[0.5em] focus:outline-none focus:border-lounge-accent focus:shadow-[0_0_12px_rgba(6,182,212,0.2)] transition-all"
                 required
               />
 
               <button
                 type="submit"
                 disabled={loading || otpCode.length !== 6}
-                className="w-full py-3.5 bg-lounge-yellow hover:bg-lounge-yellow-dark text-lounge-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-3.5 bg-gradient-to-r from-lounge-primary to-lounge-accent text-white font-extrabold rounded-xl hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Баталгаажуулах'}
+                {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Баталгаажуулах'}
               </button>
             </form>
           )}

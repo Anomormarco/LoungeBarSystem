@@ -110,7 +110,7 @@ function LoungeDetailContent() {
     return (
       <UserLayout>
         <div className="flex flex-col items-center justify-center py-32 gap-3">
-          <Loader2 className="w-10 h-10 text-lounge-yellow animate-spin" />
+          <Loader2 className="w-10 h-10 text-lounge-accent animate-spin" />
           <p className="text-lounge-muted text-sm">Ачаалж байна...</p>
         </div>
       </UserLayout>
@@ -124,7 +124,7 @@ function LoungeDetailContent() {
           <p className="text-red-400 mb-4">{error || 'Lounge олдсонгүй.'}</p>
           <button
             onClick={() => navigate('/')}
-            className="px-4 py-2 bg-lounge-yellow text-lounge-black font-bold rounded-lg"
+            className="px-6 py-2.5 bg-gradient-to-r from-lounge-primary to-lounge-accent text-white font-extrabold rounded-lg hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300"
           >
             Буцах
           </button>
@@ -147,22 +147,22 @@ function LoungeDetailContent() {
       >
         <button
           onClick={closeDetail}
-          className="flex items-center gap-2 text-sm text-lounge-muted hover:text-lounge-yellow mb-6 transition-colors"
+          className="flex items-center gap-2 text-sm text-lounge-muted hover:text-lounge-accent mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Буцах
         </button>
 
         {/* Hero gallery */}
-        <div className="rounded-2xl overflow-hidden border border-lounge-border mb-8">
-          <div className="flex border-b border-lounge-border">
+        <div className="rounded-2xl overflow-hidden border border-lounge-border/60 mb-8">
+          <div className="flex border-b border-lounge-border/60">
             {['exterior', 'interior'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setGalleryTab(tab)}
                 className={`flex-1 py-3 text-sm font-semibold transition-colors ${
                   galleryTab === tab
-                    ? 'bg-lounge-yellow text-lounge-black'
+                    ? 'bg-lounge-primary text-white shadow-[0_0_10px_rgba(249,115,22,0.3)]'
                     : 'bg-lounge-card text-lounge-muted hover:text-white'
                 }`}
               >
@@ -190,23 +190,23 @@ function LoungeDetailContent() {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-extrabold mb-2">{organization.name}</h1>
+              <h1 className="text-3xl font-extrabold mb-2 text-white">{organization.name}</h1>
               {organization.description && (
                 <p className="text-lounge-muted text-sm mb-3 max-w-2xl">{organization.description}</p>
               )}
               <div className="flex flex-wrap gap-4 text-sm text-lounge-muted">
                 <span className="flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-lounge-yellow" />
+                  <MapPin className="w-4 h-4 text-lounge-accent" />
                   {organization.address}
                 </span>
                 {organization.phone && (
                   <span className="flex items-center gap-1.5">
-                    <Phone className="w-4 h-4 text-lounge-yellow" />
+                    <Phone className="w-4 h-4 text-lounge-accent" />
                     {organization.phone}
                   </span>
                 )}
                 <span className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-lounge-yellow" />
+                  <Clock className="w-4 h-4 text-lounge-accent" />
                   {organization.openingTime} – {organization.closingTime}
                 </span>
               </div>
@@ -216,11 +216,11 @@ function LoungeDetailContent() {
               {connected ? (
                 <>
                   <Wifi className="w-4 h-4 text-green-400" />
-                  <span className="text-green-400">Real-time</span>
+                  <span className="text-green-400 font-bold">Real-time</span>
                 </>
               ) : (
                 <>
-                  <WifiOff className="w-4 h-4 text-red-400" />
+                  <WifiOff className="w-4 h-4 text-red-400 animate-pulse" />
                   <span className="text-red-400">Холбогдож байна...</span>
                 </>
               )}
@@ -229,7 +229,7 @@ function LoungeDetailContent() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-lounge-border pb-px">
+        <div className="flex gap-2 mb-6 border-b border-lounge-border/60 pb-px">
           {[
             { id: 'tables', label: 'Ширээний зураг', icon: Table2 },
             { id: 'menu', label: 'Меню', icon: UtensilsCrossed },
@@ -239,7 +239,7 @@ function LoungeDetailContent() {
               onClick={() => setActiveTab(tabId)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-colors -mb-px ${
                 activeTab === tabId
-                  ? 'border-lounge-yellow text-lounge-yellow'
+                  ? 'border-lounge-accent text-lounge-accent font-extrabold'
                   : 'border-transparent text-lounge-muted hover:text-white'
               }`}
             >
@@ -265,14 +265,14 @@ function LoungeDetailContent() {
                     onClick={() => isAvailable && setSelectedTable(table)}
                     className={`p-4 rounded-2xl border text-left transition-all ${
                       isAvailable
-                        ? 'bg-lounge-card border-lounge-border hover:border-lounge-yellow hover:shadow-lg hover:shadow-lounge-yellow/10 cursor-pointer'
+                        ? 'bg-lounge-card border-lounge-border hover:border-lounge-accent hover:shadow-[0_0_15px_rgba(249,115,22,0.25)] cursor-pointer'
                         : 'bg-lounge-black/50 border-lounge-border/50 opacity-60 cursor-not-allowed'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-bold text-lg">#{table.tableNumber}</span>
+                      <span className="font-extrabold text-lg text-white">#{table.tableNumber}</span>
                       {table.type === 'vip' && (
-                        <Crown className="w-4 h-4 text-lounge-yellow" />
+                        <Crown className="w-4 h-4 text-lounge-primary" />
                       )}
                     </div>
                     <p className="text-xs text-lounge-muted mb-2">{table.capacity} хүн</p>
@@ -295,14 +295,14 @@ function LoungeDetailContent() {
           <div className="space-y-8">
             {Object.entries(menuByCategory).map(([category, items]) => (
               <div key={category}>
-                <h3 className="text-lg font-bold text-lounge-yellow mb-4 border-b border-lounge-border pb-2">
+                <h3 className="text-lg font-bold text-lounge-accent mb-4 border-b border-lounge-border/60 pb-2">
                   {category}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex gap-4 p-4 rounded-2xl bg-lounge-card border border-lounge-border"
+                      className="flex gap-4 p-4 rounded-2xl bg-lounge-card border border-lounge-border/60"
                     >
                       {item.image && (
                         <img
@@ -313,8 +313,8 @@ function LoungeDetailContent() {
                       )}
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start gap-2">
-                          <h4 className="font-semibold">{item.name}</h4>
-                          <span className="text-lounge-yellow font-bold shrink-0">
+                          <h4 className="font-semibold text-white">{item.name}</h4>
+                          <span className="text-lounge-accent font-bold shrink-0">
                             {Number(item.price).toLocaleString()} ₮
                           </span>
                         </div>

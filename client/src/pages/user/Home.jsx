@@ -45,11 +45,11 @@ const STATUS_LABELS = {
 };
 
 const STATUS_CONFIG = {
-  available: { label: 'Сул', color: 'bg-green-500/20 text-green-400 border-green-500/30' },
-  reserved: { label: 'Захиалгатай', color: 'bg-lounge-yellow/20 text-lounge-yellow border-lounge-yellow/30' },
-  occupied: { label: 'Дүүрсэн', color: 'bg-red-500/20 text-red-400 border-red-500/30' },
-  disabled: { label: 'Идэвхгүй', color: 'bg-neutral-500/20 text-neutral-400 border-neutral-500/30' },
-  custom: { label: 'Тусгай', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
+  available: { label: 'Сул', color: 'bg-lounge-success/20 text-lounge-success border-lounge-success/30' },
+  reserved: { label: 'Захиалгатай', color: 'bg-lounge-warning/20 text-lounge-warning border-lounge-warning/30' },
+  occupied: { label: 'Дүүрсэн', color: 'bg-lounge-danger/20 text-lounge-danger border-lounge-danger/30' },
+  disabled: { label: 'Идэвхгүй', color: 'bg-lounge-primary/15 text-lounge-primary border-lounge-primary/30' },
+  custom: { label: 'Тусгай', color: 'bg-lounge-accent/20 text-lounge-accent border-lounge-accent/30' },
 };
 
 function getStatusLabel(table) {
@@ -278,7 +278,7 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="mb-6">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-            Ойролцоо <span className="text-gradient-yellow">Lounge</span> олох
+            Ойролцоо <span className="text-gradient-neon font-black drop-shadow-[0_0_15px_rgba(255,168,0,0.3)]">Lounge</span> олох
           </h1>
           <p className="text-lounge-muted text-sm max-w-xl">
             Байршлаа зөвшөөрөөд ойр байгаа lounge-уудыг Google Map дээрээс сонгоно.
@@ -286,7 +286,7 @@ export default function Home() {
         </div>
 
         {error && (
-          <div className="mb-5 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
+          <div className="mb-5 p-4 rounded-xl bg-lounge-danger/10 border border-lounge-danger/20 text-lounge-danger text-sm flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             {error}
           </div>
@@ -296,18 +296,18 @@ export default function Home() {
           <div className="p-4 border-b border-lounge-border">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-lounge-yellow/10 text-lounge-yellow">
+                <div className="p-2 rounded-lg bg-lounge-accent/10 text-lounge-accent shadow-[0_0_10px_rgba(255,168,0,0.15)]">
                   <Navigation className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">Таны байршил</p>
+                  <p className="text-sm font-semibold text-white">Таны байршил</p>
                   {loadingLocation ? (
                     <p className="text-xs text-lounge-muted flex items-center gap-2 mt-1">
                       <Loader2 className="w-3.5 h-3.5 animate-spin" /> Байршил татаж байна...
                     </p>
                   ) : location ? (
                     <div className="mt-1 space-y-1">
-                      <p className="text-xs text-lounge-yellow font-semibold">
+                      <p className="text-xs text-lounge-accent font-bold">
                         {locationLabel || 'Сонгосон байршил'}
                       </p>
                       <p className="text-xs text-lounge-muted">
@@ -315,7 +315,7 @@ export default function Home() {
                       </p>
                     </div>
                   ) : (
-                    <p className="text-xs text-red-400 mt-1">{locationError}</p>
+                    <p className="text-xs text-lounge-danger mt-1">{locationError}</p>
                   )}
                 </div>
               </div>
@@ -323,13 +323,13 @@ export default function Home() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={requestLocation}
-                  className="px-4 py-2 text-xs font-bold bg-lounge-yellow text-lounge-black rounded-lg hover:bg-lounge-yellow-dark transition-colors"
+                  className="px-4 py-2 text-xs font-bold bg-lounge-primary text-white rounded-lg hover:bg-lounge-accent hover:shadow-[0_0_12px_rgba(255,168,0,0.35)] transition-all duration-300"
                 >
                   Байршил шинэчлэх
                 </button>
                 <button
                   onClick={useDefaultLocation}
-                  className="px-4 py-2 text-xs font-bold bg-lounge-black text-lounge-yellow border border-lounge-border rounded-lg hover:border-lounge-yellow/50 transition-colors"
+                  className="px-4 py-2 text-xs font-bold bg-lounge-black text-lounge-accent border border-lounge-border/80 rounded-lg hover:border-lounge-accent hover:shadow-[0_0_10px_rgba(255,168,0,0.25)] hover:text-white transition-all duration-300"
                 >
                   УБ төвөөр хайх
                 </button>
@@ -338,7 +338,7 @@ export default function Home() {
             </div>
 
             <div
-              className="relative mt-4 overflow-hidden rounded-2xl border border-lounge-border bg-white"
+              className="relative mt-4 overflow-hidden rounded-2xl border border-lounge-border/60 bg-lounge-black shadow-[0_0_25px_rgba(0,0,0,0.5)]"
               style={{ height: 600, minHeight: 600 }}
               onClick={clearOrganizationPreview}
             >
@@ -354,22 +354,20 @@ export default function Home() {
                 href={`https://www.openstreetmap.org/?mlat=${location?.lat || DEFAULT_LOCATION.lat}&mlon=${location?.lng || DEFAULT_LOCATION.lng}#map=15/${location?.lat || DEFAULT_LOCATION.lat}/${location?.lng || DEFAULT_LOCATION.lng}`}
                 target="_blank"
                 rel="noreferrer"
-                className="absolute bottom-4 left-4 z-20 rounded-xl bg-white px-3 py-2 text-xs font-bold text-neutral-700 shadow-xl shadow-black/15 hover:text-lounge-black"
+                className="absolute bottom-4 left-4 z-20 rounded-xl bg-lounge-card/90 border border-lounge-border px-3 py-2 text-xs font-bold text-white shadow-xl shadow-black/30 hover:bg-lounge-primary/20 hover:text-lounge-accent transition-all"
               >
                 {organizations.length} lounges</a>
 
               {loading && (
-                <div className="absolute inset-0 z-30 bg-lounge-black/70 flex flex-col items-center justify-center gap-3">
-                  <Loader2 className="w-10 h-10 text-lounge-yellow animate-spin" />
+                <div className="absolute inset-0 z-30 bg-lounge-black/85 flex flex-col items-center justify-center gap-3 backdrop-blur-sm">
+                  <Loader2 className="w-10 h-10 text-lounge-accent animate-spin" />
                   <p className="text-sm text-lounge-muted">Ойролцоох lounge хайж байна...</p>
                 </div>
               )}
               {selectedSummary && (
                 <div
-                  className="absolute bottom-4 right-4 z-40 w-[min(380px,calc(100%-2rem))] rounded-2xl bg-lounge-card border border-lounge-border shadow-2xl overflow-hidden"
+                  className="absolute bottom-4 right-4 z-40 w-[min(380px,calc(100%-2rem))] rounded-2xl bg-lounge-card/95 border border-lounge-primary/30 shadow-[0_0_25px_rgba(255,168,0,0.24)] backdrop-blur-md overflow-hidden"
                   onClick={(event) => event.stopPropagation()}
-                  onMouseEnter={() => selectedSummary && previewOrganization(selectedSummary)}
-                  onMouseLeave={hideOrganizationPreview}
                 >
                   <div className="relative h-32">
                     <img
@@ -377,7 +375,7 @@ export default function Home() {
                       alt={selectedSummary.name}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-lounge-black/90 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-lounge-black/95 to-transparent" />
                     <button
                       type="button"
                       onClick={() => {
@@ -389,9 +387,9 @@ export default function Home() {
                       <X className="w-4 h-4" />
                     </button>
                     <div className="absolute left-4 right-4 bottom-3">
-                      <h2 className="font-extrabold">{selectedSummary.name}</h2>
+                      <h2 className="font-extrabold text-white">{selectedSummary.name}</h2>
                       <p className="text-xs text-lounge-muted flex items-center gap-1 mt-1">
-                        <MapPin className="w-3.5 h-3.5 text-lounge-yellow" />
+                        <MapPin className="w-3.5 h-3.5 text-lounge-accent" />
                         {selectedSummary.address}
                       </p>
                     </div>
@@ -399,7 +397,7 @@ export default function Home() {
 
                   <div className="p-4 space-y-3 max-h-[420px] overflow-auto">
                     {detailLoading && (
-                      <div className="flex items-center gap-2 text-xs text-lounge-yellow">
+                      <div className="flex items-center gap-2 text-xs text-lounge-accent">
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         Дэлгэрэнгүй мэдээлэл ачаалж байна...
                       </div>
@@ -407,19 +405,19 @@ export default function Home() {
 
                         <div className="grid grid-cols-3 gap-2 text-center">
                           <div className="p-2 rounded-xl bg-lounge-black border border-lounge-border">
-                            <p className="font-extrabold text-lounge-yellow">
+                            <p className="font-extrabold text-lounge-success">
                               {selectedSummary.availableTableCount ?? tableStatusCounts.available ?? 0}
                             </p>
                             <p className="text-[10px] text-lounge-muted">сул</p>
                           </div>
                           <div className="p-2 rounded-xl bg-lounge-black border border-lounge-border">
-                            <p className="font-extrabold text-lounge-yellow">
+                            <p className="font-extrabold text-lounge-primary">
                               {selectedSummary.vipTableCount ?? tables.filter((table) => table.type === 'vip').length}
                             </p>
                             <p className="text-[10px] text-lounge-muted">VIP</p>
                           </div>
                           <div className="p-2 rounded-xl bg-lounge-black border border-lounge-border">
-                            <p className="font-extrabold text-lounge-yellow">
+                            <p className="font-extrabold text-lounge-accent">
                               {formatDistance(Number(selectedSummary.distanceMeters))}
                             </p>
                             <p className="text-[10px] text-lounge-muted">зай</p>
@@ -449,7 +447,7 @@ export default function Home() {
                         </div>
 
                         <div>
-                          <h3 className="text-xs font-bold text-lounge-yellow flex items-center gap-2 mb-2">
+                          <h3 className="text-xs font-bold text-lounge-accent flex items-center gap-2 mb-2">
                             <ImageIcon className="w-3.5 h-3.5" />
                             Interior / Exterior
                           </h3>
@@ -466,7 +464,7 @@ export default function Home() {
                         </div>
 
                         <div>
-                          <h3 className="text-xs font-bold text-lounge-yellow flex items-center gap-2 mb-2">
+                          <h3 className="text-xs font-bold text-lounge-accent flex items-center gap-2 mb-2">
                             <Table2 className="w-3.5 h-3.5" />
                             Төлөв
                           </h3>
@@ -474,14 +472,14 @@ export default function Home() {
                             {Object.entries(STATUS_LABELS).map(([status, label]) => (
                               <div key={status} className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-lounge-black border border-lounge-border text-[11px]">
                                 <span className="text-lounge-muted">{label}</span>
-                                <span className="font-bold text-lounge-yellow">{tableStatusCounts[status] || 0}</span>
+                                <span className="font-bold text-lounge-accent">{tableStatusCounts[status] || 0}</span>
                               </div>
                             ))}
                           </div>
                         </div>
 
                         <div>
-                          <h3 className="text-xs font-bold text-lounge-yellow flex items-center gap-2 mb-2">
+                          <h3 className="text-xs font-bold text-lounge-accent flex items-center gap-2 mb-2">
                             <UtensilsCrossed className="w-3.5 h-3.5" />
                             Menu
                           </h3>
@@ -490,7 +488,7 @@ export default function Home() {
                               menuItems.slice(0, 3).map((item) => (
                                 <div key={item.id} className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg bg-lounge-black border border-lounge-border">
                                   <p className="text-xs font-semibold truncate">{item.name}</p>
-                                  <span className="text-[11px] font-bold text-lounge-yellow shrink-0">
+                                  <span className="text-[11px] font-bold text-lounge-accent shrink-0">
                                     {Number(item.price).toLocaleString()} ₮
                                   </span>
                                 </div>
@@ -506,7 +504,7 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={openLoungeDetail}
-                          className="w-full py-2.5 rounded-xl bg-lounge-yellow text-lounge-black text-sm font-extrabold hover:bg-lounge-yellow-dark transition-colors flex items-center justify-center gap-2"
+                          className="w-full py-2.5 rounded-xl bg-gradient-to-r from-lounge-primary to-lounge-accent text-white text-sm font-extrabold hover:shadow-[0_0_15px_rgba(255,168,0,0.35)] transition-all duration-300 flex items-center justify-center gap-2"
                         >
                           Дэлгэрэнгүй захиалах
                           <ChevronRight className="w-4 h-4" />
@@ -517,45 +515,55 @@ export default function Home() {
             </div>
 
             <div className="mt-4 space-y-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-lounge-yellow">
+              <div className="flex items-center gap-2 text-sm font-semibold text-lounge-accent">
                 <SlidersHorizontal className="w-4 h-4" />
                 Шүүлтүүр
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lounge-muted" />
-                  <input
-                    type="text"
-                    placeholder="Нэр, хаягаар хайх..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
-                  />
+                {/* Search */}
+                <div className="flex flex-col">
+                  <label className="text-xs text-lounge-muted mb-1 block h-4">
+                    Нэр, хаяг
+                  </label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lounge-muted" />
+                    <input
+                      type="text"
+                      placeholder="Нэр, хаягаар хайх..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 h-[42px] bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-accent focus:shadow-[0_0_10px_rgba(255,168,0,0.15)] transition-all duration-300"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="text-xs text-lounge-muted mb-1 block">
+                {/* Radius */}
+                <div className="flex flex-col">
+                  <label className="text-xs text-lounge-muted mb-1 block h-4">
                     Радиус: {radius} км
                   </label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="50"
-                    value={radius}
-                    onChange={(e) => setRadius(Number(e.target.value))}
-                    className="w-full accent-lounge-yellow"
-                  />
+                  <div className="flex items-center px-3 bg-lounge-black border border-lounge-border rounded-xl h-[42px]">
+                    <input
+                      type="range"
+                      min="1"
+                      max="50"
+                      value={radius}
+                      onChange={(e) => setRadius(Number(e.target.value))}
+                      className="w-full accent-lounge-primary bg-transparent cursor-pointer"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="text-xs text-lounge-muted mb-1 block">
+                {/* Table Type */}
+                <div className="flex flex-col">
+                  <label className="text-xs text-lounge-muted mb-1 block h-4">
                     Ширээний төрөл
                   </label>
                   <select
                     value={tableType}
                     onChange={(e) => setTableType(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
+                    className="w-full px-3 h-[42px] bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-primary cursor-pointer"
                   >
                     <option value="all">Бүгд</option>
                     <option value="normal">Normal</option>
@@ -563,15 +571,21 @@ export default function Home() {
                   </select>
                 </div>
 
-                <label className="flex items-center gap-3 px-3 py-2.5 bg-lounge-black border border-lounge-border rounded-xl text-sm cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={availableOnly}
-                    onChange={(e) => setAvailableOnly(e.target.checked)}
-                    className="w-4 h-4 accent-lounge-yellow"
-                  />
-                  <span>Зөвхөн сул ширээтэй</span>
-                </label>
+                {/* Status Checkbox */}
+                <div className="flex flex-col">
+                  <label className="text-xs text-lounge-muted mb-1 block h-4">
+                    Төлөв
+                  </label>
+                  <label className="flex items-center gap-3 px-3 h-[42px] bg-lounge-black border border-lounge-border rounded-xl text-sm cursor-pointer hover:border-lounge-accent/50 transition-all duration-300 select-none">
+                    <input
+                      type="checkbox"
+                      checked={availableOnly}
+                      onChange={(e) => setAvailableOnly(e.target.checked)}
+                      className="w-4 h-4 accent-lounge-accent cursor-pointer"
+                    />
+                    <span>Зөвхөн сул ширээтэй</span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
@@ -580,11 +594,11 @@ export default function Home() {
 
       {detailOverlayOpen && selectedSummary && (
         <div
-          className="fixed inset-0 z-50 overflow-y-auto bg-lounge-black/80 px-4 py-6 sm:py-10"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/90 backdrop-blur-sm px-4 py-6 sm:py-10"
           onClick={closeLoungeDetail}
         >
           <div
-            className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-lounge-border bg-lounge-card shadow-2xl"
+            className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-lounge-primary/30 bg-lounge-card shadow-[0_0_30px_rgba(255,168,0,0.22)]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="relative h-56 sm:h-72">
@@ -593,7 +607,7 @@ export default function Home() {
                 alt={selectedSummary.name}
                 className="h-full w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-lounge-black via-lounge-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-lounge-black via-lounge-black/60 to-transparent" />
               <button
                 type="button"
                 onClick={closeLoungeDetail}
@@ -603,9 +617,9 @@ export default function Home() {
                 <X className="h-5 w-5" />
               </button>
               <div className="absolute bottom-5 left-5 right-16">
-                <h2 className="text-2xl font-extrabold sm:text-3xl">{selectedSummary.name}</h2>
+                <h2 className="text-2xl font-extrabold sm:text-3xl text-white">{selectedSummary.name}</h2>
                 <p className="mt-2 flex items-center gap-2 text-sm text-lounge-muted">
-                  <MapPin className="h-4 w-4 shrink-0 text-lounge-yellow" />
+                  <MapPin className="h-4 w-4 shrink-0 text-lounge-accent" />
                   <span className="line-clamp-2">{selectedSummary.address}</span>
                 </p>
               </div>
@@ -613,7 +627,7 @@ export default function Home() {
 
             <div className="space-y-6 p-5 sm:p-6">
               {detailLoading && (
-                <div className="flex items-center gap-2 rounded-xl border border-lounge-border bg-lounge-black px-4 py-3 text-sm text-lounge-yellow">
+                <div className="flex items-center gap-2 rounded-xl border border-lounge-primary/20 bg-lounge-black px-4 py-3 text-sm text-lounge-accent">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Дэлгэрэнгүй мэдээлэл ачаалж байна...
                 </div>
@@ -623,34 +637,34 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => showTableGroup('available')}
-                  className={`rounded-xl border p-4 text-left transition-all hover:border-lounge-yellow hover:bg-lounge-card ${
+                  className={`rounded-xl border p-4 text-left transition-all hover:border-lounge-accent hover:bg-lounge-card ${
                     tableViewFilter === 'available'
-                      ? 'border-lounge-yellow bg-lounge-yellow/10 shadow-lg shadow-lounge-yellow/10'
+                      ? 'border-lounge-accent bg-lounge-accent/10 shadow-lg shadow-lounge-accent/10'
                       : 'border-lounge-border bg-lounge-black'
                   }`}
                 >
                   <p className="text-xs text-lounge-muted">Сул ширээ</p>
-                  <p className="mt-1 text-2xl font-extrabold text-lounge-yellow">
+                  <p className="mt-1 text-2xl font-extrabold text-lounge-success">
                     {selectedSummary.availableTableCount ?? tableStatusCounts.available ?? 0}
                   </p>
                 </button>
                 <button
                   type="button"
                   onClick={() => showTableGroup('vip')}
-                  className={`rounded-xl border p-4 text-left transition-all hover:border-lounge-yellow hover:bg-lounge-card ${
+                  className={`rounded-xl border p-4 text-left transition-all hover:border-lounge-primary hover:bg-lounge-card ${
                     tableViewFilter === 'vip'
-                      ? 'border-lounge-yellow bg-lounge-yellow/10 shadow-lg shadow-lounge-yellow/10'
+                      ? 'border-lounge-primary bg-lounge-primary/10 shadow-lg shadow-lounge-primary/10'
                       : 'border-lounge-border bg-lounge-black'
                   }`}
                 >
                   <p className="text-xs text-lounge-muted">VIP</p>
-                  <p className="mt-1 text-2xl font-extrabold text-lounge-yellow">
+                  <p className="mt-1 text-2xl font-extrabold text-lounge-primary">
                     {selectedSummary.vipTableCount ?? tables.filter((table) => table.type === 'vip').length}
                   </p>
                 </button>
                 <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
                   <p className="text-xs text-lounge-muted">Зай</p>
-                  <p className="mt-1 text-2xl font-extrabold text-lounge-yellow">
+                  <p className="mt-1 text-2xl font-extrabold text-lounge-accent">
                     {formatDistance(Number(selectedSummary.distanceMeters)) || '-'}
                   </p>
                 </div>
@@ -667,7 +681,7 @@ export default function Home() {
               <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
                 <div className="space-y-4">
                   <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
-                    <h3 className="mb-2 text-sm font-extrabold text-lounge-yellow">Мэдээлэл</h3>
+                    <h3 className="mb-2 text-sm font-extrabold text-lounge-accent">Мэдээлэл</h3>
                     <p className="text-sm leading-relaxed text-lounge-muted">
                       {selectedDescription || 'Тайлбар бүртгэгдээгүй байна.'}
                     </p>
@@ -684,7 +698,7 @@ export default function Home() {
                   </div>
 
                   <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
-                    <h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-lounge-yellow">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-lounge-accent">
                       <ImageIcon className="h-4 w-4" />
                       Interior / Exterior
                     </h3>
@@ -701,7 +715,7 @@ export default function Home() {
                   </div>
 
                   <div ref={tableListRef} className="rounded-xl border border-lounge-border bg-lounge-black p-4">
-                    <h3 className="mb-2 flex items-center gap-2 text-sm font-extrabold text-lounge-yellow">
+                    <h3 className="mb-2 flex items-center gap-2 text-sm font-extrabold text-lounge-accent">
                       <Table2 className="h-4 w-4" />
                       Ширээнүүд
                     </h3>
@@ -717,7 +731,7 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={() => setTableViewFilter('all')}
-                          className="shrink-0 rounded-lg border border-lounge-border px-2 py-1 text-[11px] font-bold text-lounge-yellow hover:bg-lounge-yellow/10"
+                          className="shrink-0 rounded-lg border border-lounge-border px-2 py-1 text-[11px] font-bold text-lounge-accent hover:bg-lounge-accent/15"
                         >
                           Бүгд
                         </button>
@@ -734,13 +748,13 @@ export default function Home() {
                             onClick={() => isAvailable && setSelectedTable(table)}
                             className={`rounded-xl border p-3 text-left transition-all ${
                               isAvailable
-                                ? 'border-lounge-border bg-lounge-card hover:border-lounge-yellow hover:shadow-lg hover:shadow-lounge-yellow/10'
+                                ? 'border-lounge-border bg-lounge-card hover:border-lounge-accent hover:shadow-[0_0_12px_rgba(255,168,0,0.22)]'
                                 : 'cursor-not-allowed border-lounge-border/50 bg-lounge-card/40 opacity-60'
                             }`}
                           >
                             <div className="mb-2 flex items-center justify-between gap-2">
                               <span className="text-base font-extrabold">#{table.tableNumber}</span>
-                              {table.type === 'vip' && <Crown className="h-4 w-4 text-lounge-yellow" />}
+                              {table.type === 'vip' && <Crown className="h-4 w-4 text-lounge-primary shadow-[0_0_8px_rgba(255,168,0,0.3)]" />}
                             </div>
                             <p className="mb-2 text-xs text-lounge-muted">{table.capacity} хүн</p>
                             <span className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold ${getStatusColor(table)}`}>
@@ -760,7 +774,7 @@ export default function Home() {
 
                 <div className="space-y-4">
                   <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
-                    <h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-lounge-yellow">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-lounge-accent">
                       <Table2 className="h-4 w-4" />
                       Ширээний төлөв
                     </h3>
@@ -768,7 +782,7 @@ export default function Home() {
                       {Object.entries(STATUS_LABELS).map(([status, label]) => (
                         <div key={status} className="flex items-center justify-between rounded-lg border border-lounge-border bg-lounge-card px-3 py-2 text-sm">
                           <span className="text-lounge-muted">{label}</span>
-                          <span className="font-extrabold text-lounge-yellow">{tableStatusCounts[status] || 0}</span>
+                          <span className="font-extrabold text-lounge-accent">{tableStatusCounts[status] || 0}</span>
                         </div>
                       ))}
                     </div>
@@ -793,13 +807,13 @@ export default function Home() {
                             onClick={() => isAvailable && setSelectedTable(table)}
                             className={`rounded-xl border p-3 text-left transition-all ${
                               isAvailable
-                                ? 'border-lounge-border bg-lounge-card hover:border-lounge-yellow hover:shadow-lg hover:shadow-lounge-yellow/10'
+                                ? 'border-lounge-border bg-lounge-card hover:border-lounge-accent hover:shadow-[0_0_12px_rgba(255,168,0,0.22)]'
                                 : 'cursor-not-allowed border-lounge-border/50 bg-lounge-card/40 opacity-60'
                             }`}
                           >
                             <div className="mb-2 flex items-center justify-between gap-2">
                               <span className="text-base font-extrabold">#{table.tableNumber}</span>
-                              {table.type === 'vip' && <Crown className="h-4 w-4 text-lounge-yellow" />}
+                              {table.type === 'vip' && <Crown className="h-4 w-4 text-lounge-primary" />}
                             </div>
                             <p className="mb-2 text-xs text-lounge-muted">{table.capacity} хүн</p>
                             <span className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold ${getStatusColor(table)}`}>
@@ -817,7 +831,7 @@ export default function Home() {
                   </div>
 
                   <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
-                    <h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-lounge-yellow">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-lounge-accent">
                       <UtensilsCrossed className="h-4 w-4" />
                       Menu
                     </h3>
@@ -825,8 +839,8 @@ export default function Home() {
                       {menuItems.length > 0 ? (
                         menuItems.slice(0, 12).map((item) => (
                           <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-lounge-border bg-lounge-card px-3 py-3">
-                            <p className="truncate text-sm font-semibold">{item.name}</p>
-                            <span className="shrink-0 text-sm font-extrabold text-lounge-yellow">
+                            <p className="truncate text-sm font-semibold text-white">{item.name}</p>
+                            <span className="shrink-0 text-sm font-extrabold text-lounge-accent">
                               {Number(item.price).toLocaleString()} ₮
                             </span>
                           </div>

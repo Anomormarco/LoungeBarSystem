@@ -62,17 +62,13 @@ export default function LoungeMap({
         ) : (
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           />
         )}
         <RecenterMap center={center} />
 
         {location?.lat && location?.lng && (
-          <Marker position={[Number(location.lat), Number(location.lng)]} icon={userIcon}>
-            <Tooltip direction="top" offset={[0, -8]}>
-              {locationLabel || 'Таны байршил'}
-            </Tooltip>
-          </Marker>
+          <Marker position={[Number(location.lat), Number(location.lng)]} icon={userIcon} />
         )}
 
         {organizations.map((org) => {
@@ -91,22 +87,14 @@ export default function LoungeMap({
                   event.originalEvent?.stopPropagation?.();
                   onOrganizationSelect?.(org, { source: 'click' });
                 },
-                mouseover: () => onOrganizationSelect?.(org, { source: 'hover' }),
-                mouseout: () => onOrganizationClear?.({ source: 'mouseout', organizationId: org.id }),
+
               }}
-            >
-              <Popup>
-                <div className="min-w-44">
-                  <strong>{org.name}</strong>
-                  {org.address && <p className="mt-1 text-xs">{org.address}</p>}
-                </div>
-              </Popup>
-            </Marker>
+            />
           );
         })}
       </MapContainer>
 
-      <div className="absolute bottom-4 right-4 z-[500] flex overflow-hidden rounded-xl bg-white shadow-xl shadow-black/20">
+      <div className="absolute bottom-4 right-4 z-[500] flex overflow-hidden rounded-xl bg-lounge-card border border-lounge-border shadow-xl shadow-black/40">
         {[
           ['map', 'Газрын зураг'],
           ['satellite', 'Хиймэл дагуул'],
@@ -118,10 +106,10 @@ export default function LoungeMap({
               event.stopPropagation();
               setMapStyle(value);
             }}
-            className={`px-3 py-2 text-xs font-extrabold transition-colors ${
+            className={`px-3 py-2 text-xs font-extrabold transition-all duration-200 ${
               mapStyle === value
-                ? 'bg-lounge-yellow text-lounge-black'
-                : 'bg-white text-neutral-700 hover:bg-neutral-100'
+                ? 'bg-lounge-primary text-white shadow-[0_0_10px_rgba(255,168,0,0.25)]'
+                : 'bg-lounge-black/90 text-lounge-muted hover:text-white hover:bg-lounge-card'
             }`}
           >
             {label}

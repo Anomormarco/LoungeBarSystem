@@ -124,13 +124,19 @@ async function sendWithSendGridApi({ from, to, subject, text, html }) {
 }
 
 async function sendEmail({ to, subject, text, html }) {
-  const from = hasResendConfig()
-    ? "onboarding@resend.dev"
-    : process.env.EMAIL_FROM || process.env.SMTP_USER;
-
   if (hasResendConfig()) {
+    const from = process.env.EMAIL_FROM;
+
+    if (!from || from === "onboarding@resend.dev" || from.endsWith("@gmail.com")) {
+      const error = new Error("Resend ашиглан бүх хэрэглэгч рүү код илгээхийн тулд verified domain sender хэрэгтэй. Render дээр EMAIL_FROM=noreply@your-domain.mn гэж Resend дээр баталгаажсан domain-ийн email тавина уу.");
+      error.statusCode = 503;
+      throw error;
+    }
+
     return sendWithResend({ from, to, subject, text, html });
   }
+
+  const from = process.env.EMAIL_FROM || process.env.SMTP_USER;
 
   if (hasSendGridConfig()) {
     return sendWithSendGridApi({ from, to, subject, text, html });

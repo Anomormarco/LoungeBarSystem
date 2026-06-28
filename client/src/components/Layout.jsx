@@ -174,12 +174,21 @@ export default function Layout({ children }) {
                 setShowNotifications(!showNotifications);
                 markAllAsRead();
               }}
-              className="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-slate-100 transition-colors relative border border-slate-700/50"
+              className={`p-3 rounded-xl transition-all relative border ${
+                unreadCount > 0
+                  ? 'bg-red-600 text-white border-red-400 shadow-lg shadow-red-500/30 animate-pulse'
+                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-slate-100 border-slate-700/50'
+              }`}
+              title={unreadCount > 0 ? `${unreadCount} шинэ мэдэгдэл` : 'Мэдэгдэл'}
             >
-              <Bell className="w-5 h-5" />
+              {unreadCount > 0 ? (
+                <BellRing className="w-5 h-5 fill-white" />
+              ) : (
+                <Bell className="w-5 h-5" />
+              )}
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5.5 h-5.5 bg-red-500 text-slate-100 font-bold text-[10px] rounded-full flex items-center justify-center animate-bounce">
-                  {unreadCount}
+                <span className="absolute -top-2 -right-2 min-w-6 h-6 px-1.5 bg-red-500 text-white font-black text-[11px] rounded-full flex items-center justify-center border-2 border-slate-900">
+                  {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
             </button>

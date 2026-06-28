@@ -77,7 +77,10 @@ export const SocketProvider = ({ children }) => {
     };
 
     const newSocket = io(SOCKET_URL, {
-      transports: ['websocket'],
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1200,
     });
 
     newSocket.on('connect', () => {
@@ -87,6 +90,11 @@ export const SocketProvider = ({ children }) => {
 
     newSocket.on('disconnect', () => {
       setConnected(false);
+    });
+
+    newSocket.on('connect_error', (error) => {
+      setConnected(false);
+      console.error('Socket холболт амжилтгүй боллоо:', error.message);
     });
 
     newSocket.on('reservation:new', (reservation) => {

@@ -14,7 +14,12 @@ export function UserSocketProvider({ organizationId, children }) {
   useEffect(() => {
     if (!organizationId) return undefined;
 
-    const newSocket = io(SOCKET_URL, { transports: ['websocket'] });
+    const newSocket = io(SOCKET_URL, {
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1200,
+    });
 
     newSocket.on('connect', () => {
       setConnected(true);
@@ -22,6 +27,10 @@ export function UserSocketProvider({ organizationId, children }) {
     });
 
     newSocket.on('disconnect', () => setConnected(false));
+    newSocket.on('connect_error', (error) => {
+      setConnected(false);
+      console.error('Socket холболт амжилтгүй боллоо:', error.message);
+    });
 
     newSocket.on('table:status_changed', (payload) => {
       setTableUpdates(payload);

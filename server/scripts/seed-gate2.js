@@ -21,7 +21,7 @@ const interiorImages = [
   "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=1200&q=80",
 ];
 
-const tables = [
+const baseTables = [
   ["01", 2, "normal", "available"],
   ["02", 2, "normal", "available"],
   ["03", 4, "normal", "available"],
@@ -36,10 +36,10 @@ const tables = [
   ["BAR-01", 2, "normal", "available"],
 ];
 
-const menuItems = [
+const baseMenuItems = [
   ["Coffee & Tea", "Signature Americano", "Fresh espresso with clean bitter finish", 8500],
   ["Coffee & Tea", "Honey Ginger Tea", "Hot tea with honey and ginger", 7500],
-  ["Drinks", "Gate2 Berry Mocktail", "Berry, citrus and soda signature mocktail", 15500],
+  ["Drinks", "Berry Mocktail", "Berry, citrus and soda signature mocktail", 15500],
   ["Drinks", "Classic Mojito", "Mint, lime and sparkling soda", 18000],
   ["Main", "Grilled Chicken Bowl", "Chicken, rice and seasonal vegetables", 28500],
   ["Main", "Beef Tenderloin", "Tender beef with potato mash and house sauce", 52000],
@@ -48,51 +48,91 @@ const menuItems = [
   ["Snack", "Chicken Wings", "Spicy glazed wings with dip", 24500],
   ["Dessert", "Chocolate Lava Cake", "Warm chocolate cake with soft center", 16500],
   ["Dessert", "Cheesecake", "Creamy cheesecake with berry sauce", 14500],
-  ["VIP Set", "Gate2 VIP Platter", "Shared meat, snack and dessert platter", 98000],
+  ["VIP Set", "VIP Platter", "Shared meat, snack and dessert platter", 98000],
 ];
 
-const staff = [
-  ["Gate2 Manager", "gate2.manager@gmail.com", "manager", "99001122"],
-  ["Gate2 Waiter", "gate2.waiter@gmail.com", "waiter", "99001123"],
-  ["Gate2 Cashier", "gate2.cashier@gmail.com", "cashier", "99001124"],
+const lounges = [
+  {
+    name: "Gate1",
+    address: "Bagshiin Deed west side, Sukhbaatar District",
+    latitude: 47.9221,
+    longitude: 106.9272,
+    phone: "+976 99000011",
+    description:
+      "Gate1 is a central lounge near Bagshiin Deed with VIP tables, dinner menu, staff management and live reservations.",
+    ownerPassword: "Gate1@123",
+    staff: [
+      ["Gate1 Owner", "gate@gmail.com", "manager", "99000011"],
+      ["Gate1 Waiter", "gate1.waiter@gmail.com", "waiter", "99000012"],
+      ["Gate1 Cashier", "gate1.cashier@gmail.com", "cashier", "99000013"],
+    ],
+  },
+  {
+    name: "Gate2",
+    address: "Bagshiin Deed east side, Sukhbaatar District",
+    latitude: 47.9215,
+    longitude: 106.9298,
+    phone: "+976 99001122",
+    description:
+      "Gate2 is a modern central lounge with terrace seating, VIP tables, exterior/interior gallery and extended menu.",
+    ownerPassword: "Gate2@123",
+    staff: [
+      ["Gate2 Manager", "gate2.manager@gmail.com", "manager", "99001122"],
+      ["Gate2 Waiter", "gate2.waiter@gmail.com", "waiter", "99001123"],
+      ["Gate2 Cashier", "gate2.cashier@gmail.com", "cashier", "99001124"],
+    ],
+  },
 ];
 
-async function main() {
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is required");
-  }
+function subscriptionExpiry() {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1);
+  return date;
+}
 
-  const organization = await prisma.organization.findFirst({
-    where: { name: { equals: "Gate2", mode: "insensitive" } },
+async function upsertOrganization(lounge) {
+  const existing = await prisma.organization.findFirst({
+    where: { name: { equals: lounge.name, mode: "insensitive" } },
   });
 
-  if (!organization) {
-    throw new Error("Gate2 organization not found");
+  const data = {
+    name: lounge.name,
+    description: lounge.description,
+    address: lounge.address,
+    latitude: lounge.latitude,
+    longitude: lounge.longitude,
+    phone: lounge.phone,
+    exteriorImages,
+    interiorImages,
+    openingTime: "10:00",
+    closingTime: "23:00",
+    subscriptionStatus: "active",
+    subscriptionExpiry: subscriptionExpiry(),
+    isApproved: true,
+  };
+
+  if (existing) {
+    return prisma.organization.update({
+      where: { id: existing.id },
+      data,
+    });
   }
 
-  await prisma.organization.update({
-    where: { id: organization.id },
-    data: {
-      description:
-        "Gate2 нь хотын төвийн ойролцоох modern lounge, terrace seating, VIP ширээ болон оройн хоолны меню санал болгодог.",
-      exteriorImages,
-      interiorImages,
-      openingTime: organization.openingTime || "10:00",
-      closingTime: organization.closingTime || "23:00",
-    },
-  });
+  return prisma.organization.create({ data });
+}
 
-  for (const [tableNumber, capacity, type, status] of tables) {
+async function upsertTables(organizationId) {
+  for (const [tableNumber, capacity, type, status] of baseTables) {
     await prisma.table.upsert({
       where: {
         organizationId_tableNumber: {
-          organizationId: organization.id,
+          organizationId,
           tableNumber,
         },
       },
       update: { capacity, type, status },
       create: {
-        organizationId: organization.id,
+        organizationId,
         tableNumber,
         capacity,
         type,
@@ -100,10 +140,13 @@ async function main() {
       },
     });
   }
+}
 
-  for (const [category, name, description, price] of menuItems) {
+async function upsertMenuItems(organizationId, prefix) {
+  for (const [category, baseName, description, price] of baseMenuItems) {
+    const name = baseName.includes("VIP") || baseName.includes("Berry") ? `${prefix} ${baseName}` : baseName;
     const existing = await prisma.menuItem.findFirst({
-      where: { organizationId: organization.id, name },
+      where: { organizationId, name },
     });
 
     if (existing) {
@@ -114,7 +157,7 @@ async function main() {
     } else {
       await prisma.menuItem.create({
         data: {
-          organizationId: organization.id,
+          organizationId,
           category,
           name,
           description,
@@ -124,40 +167,62 @@ async function main() {
       });
     }
   }
+}
 
-  const password = await bcrypt.hash("Gate2@123", 10);
+async function upsertStaff(organizationId, staff, ownerPassword) {
+  const hashedPassword = await bcrypt.hash(ownerPassword, 10);
+
   for (const [name, email, role, phone] of staff) {
     await prisma.staff.upsert({
       where: {
         organizationId_email: {
-          organizationId: organization.id,
+          organizationId,
           email,
         },
       },
-      update: { name, phone, role },
+      update: { name, phone, role, password: hashedPassword },
       create: {
-        organizationId: organization.id,
+        organizationId,
         name,
         email,
         phone,
         role,
-        password,
+        password: hashedPassword,
       },
     });
   }
+}
 
-  const counts = await prisma.organization.findUnique({
-    where: { id: organization.id },
-    select: {
-      id: true,
-      name: true,
-      exteriorImages: true,
-      interiorImages: true,
-      _count: { select: { tables: true, menuItems: true, staff: true } },
-    },
-  });
+async function main() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL is required");
+  }
 
-  console.log(JSON.stringify(counts, null, 2));
+  const seeded = [];
+
+  for (const lounge of lounges) {
+    const organization = await upsertOrganization(lounge);
+    await upsertTables(organization.id);
+    await upsertMenuItems(organization.id, lounge.name);
+    await upsertStaff(organization.id, lounge.staff, lounge.ownerPassword);
+
+    const counts = await prisma.organization.findUnique({
+      where: { id: organization.id },
+      select: {
+        id: true,
+        name: true,
+        subscriptionStatus: true,
+        subscriptionExpiry: true,
+        isApproved: true,
+        _count: { select: { tables: true, menuItems: true, staff: true } },
+      },
+    });
+    seeded.push(counts);
+  }
+
+  console.log(JSON.stringify(seeded, null, 2));
+  console.log("Gate1 owner: gate@gmail.com / Gate1@123");
+  console.log("Gate2 owner: gate2.manager@gmail.com / Gate2@123");
 }
 
 main()

@@ -13,6 +13,9 @@ function createSendGridTransporter() {
     host: "smtp.sendgrid.net",
     port: 587,
     secure: false,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     auth: {
       user: "apikey",
       pass: process.env.SENDGRID_API_KEY,
@@ -27,6 +30,9 @@ function createSmtpTransporter() {
     host: process.env.SMTP_HOST || "smtp.gmail.com",
     port,
     secure: process.env.SMTP_SECURE === "true" || port === 465,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,

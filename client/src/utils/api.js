@@ -4,6 +4,9 @@ const SOCKET_URL = import.meta.env.VITE_API_URL || window.location.origin;
 export async function request(path, options = {}) {
   const tokenKey = options.tokenKey || 'owner_token';
   const token = localStorage.getItem(tokenKey);
+  const timeoutMs = options.timeoutMs || 30000;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -21,10 +24,16 @@ export async function request(path, options = {}) {
     response = await fetch(url, {
       ...options,
       headers,
+      signal: options.signal || controller.signal,
     });
   } catch (error) {
     console.error('API connection failed:', { url, error });
+    if (error.name === 'AbortError') {
+      throw new Error(`API server хариу өгөхгүй байна. ${url}`);
+    }
     throw new Error(`API server холбогдохгүй байна. ${url} (${error.message})`);
+  } finally {
+    clearTimeout(timeout);
   }
 
   if (!response.ok) {

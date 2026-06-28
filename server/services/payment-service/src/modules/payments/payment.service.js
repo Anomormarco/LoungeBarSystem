@@ -376,8 +376,10 @@ async function createQpayInvoice(payload) {
 
   return {
     payment,
+    mode: "dev",
     invoiceId: `qpay-dev-${payment.id}`,
-    qrText: `qpay://invoice/${payment.id}`,
+    qrText: `qpay://invoice/${payment.id}?amount=${payment.amount}&currency=${payment.currency}`,
+    message: "QPay merchant API тохируулагдаагүй тул энэ нь туршилтын QR байна. Жинхэнэ QPay ажиллуулахын тулд merchant эрх, API credential шаардлагатай.",
     callbackPayload: {
       paymentId: payment.id,
       status: "success",

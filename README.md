@@ -115,7 +115,9 @@ STRIPE_CANCEL_URL=http://localhost:5173/subscription?cancelled=true
 STRIPE_PORTAL_RETURN_URL=http://localhost:5173/subscription
 ```
 
-If `STRIPE_PRICE_ID` is set, Checkout uses Stripe subscription mode. If it is empty, the app falls back to one-time Checkout and activates 30 days after Stripe webhook confirms payment.
+If `STRIPE_PRICE_ID` is set, Checkout uses Stripe subscription mode. If it is empty, the app falls back to one-time Checkout and activates the selected plan period after Stripe webhook confirms payment.
+
+Card payments do not happen inside our UI. The owner clicks Stripe, the app creates a Stripe Checkout Session, and Stripe's hosted payment page collects the card. In Stripe test mode, use test card `4242 4242 4242 4242`, any future expiry date, and any 3 digit CVC.
 
 Webhook endpoint:
 
@@ -133,6 +135,22 @@ payment_intent.payment_failed
 customer.subscription.updated
 customer.subscription.deleted
 ```
+
+## QPay QR
+
+The current QPay flow creates a pending payment and shows a QR invoice in the owner subscription page. Without official QPay merchant API credentials, this runs in dev mode only and must be confirmed with the UI button.
+
+For real bank QR payments, request QPay merchant credentials and wire these values into `.env`:
+
+```env
+QPAY_CALLBACK_URL=http://localhost:3000/payments/webhook/qpay
+QPAY_MERCHANT_ID=your_merchant_id
+QPAY_USERNAME=your_qpay_username
+QPAY_PASSWORD=your_qpay_password
+QPAY_INVOICE_CODE=your_invoice_code
+```
+
+After real QPay API is connected, the QPay webhook should call `/payments/webhook/qpay`; only a paid/success webhook activates the organization subscription.
 
 ## Backup / Restore
 

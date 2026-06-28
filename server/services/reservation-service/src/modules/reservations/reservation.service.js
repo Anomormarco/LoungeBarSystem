@@ -210,7 +210,7 @@ async function createReservation(payload) {
       where: {
         tableId: data.tableId,
         reservationDate: data.reservationDate,
-        status: { in: ["pending", "confirmed"] },
+        status: "confirmed",
         startTime: { lt: data.endTime },
         endTime: { gt: data.startTime },
       },
@@ -238,25 +238,7 @@ async function createReservation(payload) {
       },
     });
 
-    await tx.table.update({
-      where: { id: data.tableId },
-      data: { status: "reserved" },
-    });
-
-    await createReservationNotification(tx, {
-      organizationId: data.organizationId,
-      guestName: data.guestName,
-      tableNumber: table.table_number,
-    });
-
     return createdReservation;
-  });
-
-  emitToOrganization(data.organizationId, "reservation:new", reservation);
-  emitToOrganization(data.organizationId, "table:status_changed", {
-    tableId: data.tableId,
-    status: "reserved",
-    reservationId: reservation.id,
   });
 
   return reservation;
@@ -326,6 +308,17 @@ async function verifyReservationOtp({ email, code, reservationId }) {
       data: { isUsed: true },
     });
 
+    await tx.table.update({
+      where: { id: existingReservation.tableId },
+      data: { status: "reserved" },
+    });
+
+    await createReservationNotification(tx, {
+      organizationId: existingReservation.organizationId,
+      guestName: existingReservation.guestName,
+      tableNumber: lockedTables[0].table_number,
+    });
+
     return tx.reservation.update({
       where: { id: existingReservation.id },
       data: { status: "confirmed" },
@@ -333,7 +326,12 @@ async function verifyReservationOtp({ email, code, reservationId }) {
     });
   });
 
-  emitToOrganization(reservation.organizationId, "reservation:confirmed", reservation);
+  emitToOrganization(reservation.organizationId, "reservation:new", reservation);
+  emitToOrganization(reservation.organizationId, "table:status_changed", {
+    tableId: reservation.tableId,
+    status: "reserved",
+    reservationId: reservation.id,
+  });
 
   return reservation;
 }

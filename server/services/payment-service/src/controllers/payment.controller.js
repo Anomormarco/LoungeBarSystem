@@ -5,11 +5,17 @@ function asyncHandler(handler) {
   return (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
 }
 
+function subscriptionPeriodDays(value) {
+  const days = Number(value || 30);
+  if (days === 365) return 365;
+  return 30;
+}
+
 async function createStripeCheckout(req, res) {
   const data = await paymentService.createStripeCheckoutSession({
     ...req.body,
     organizationId: req.user.organizationId,
-    periodDays: 30,
+    periodDays: subscriptionPeriodDays(req.body.periodDays),
   });
   res.status(201).json({ data });
 }
@@ -26,7 +32,7 @@ async function createQpayInvoice(req, res) {
   const data = await paymentService.createQpayInvoice({
     ...req.body,
     organizationId: req.user.organizationId,
-    periodDays: 30,
+    periodDays: subscriptionPeriodDays(req.body.periodDays),
   });
   res.status(201).json({ data });
 }

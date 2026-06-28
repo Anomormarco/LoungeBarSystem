@@ -109,20 +109,20 @@ export const api = {
   deleteStaff: (id) => request(`/owner/staff/${id}`, { method: 'DELETE' }),
   getStatistics: (range = '7d') => request(`/owner/statistics?range=${range}`),
   getSubscription: () => request('/owner/subscription'),
-  createStripeCheckout: (amount, planType, successUrl, cancelUrl) =>
+  createStripeCheckout: (amount, planType, successUrl, cancelUrl, periodDays = 30) =>
     request('/payments/stripe/create-checkout-session', {
       method: 'POST',
-      body: JSON.stringify({ amount, planType, successUrl, cancelUrl }),
+      body: JSON.stringify({ amount, planType, successUrl, cancelUrl, periodDays }),
     }),
   createStripePortal: (returnUrl) =>
     request('/payments/stripe/customer-portal', {
       method: 'POST',
       body: JSON.stringify({ returnUrl }),
     }),
-  createQpayInvoice: (amount, planType) =>
+  createQpayInvoice: (amount, planType, periodDays = 30) =>
     request('/payments/qpay/create-invoice', {
       method: 'POST',
-      body: JSON.stringify({ amount, planType }),
+      body: JSON.stringify({ amount, planType, periodDays }),
     }),
   simulateQpayPayment: (paymentId, status) =>
     request('/payments/webhook/qpay', {

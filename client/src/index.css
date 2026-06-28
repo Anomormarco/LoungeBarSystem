@@ -29,6 +29,23 @@ body {
   margin: 12px 16px;
 }
 
+.leaflet-tooltip.lounge-name-tooltip {
+  border: 0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #111827;
+  padding: 6px 10px;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.18);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.leaflet-tooltip-top.lounge-name-tooltip::before {
+  border-top-color: #ffffff;
+}
+
 .leaflet-control-attribution {
   background: rgba(44, 40, 36, 0.85) !important;
   color: #a89474 !important;
@@ -124,6 +141,40 @@ body {
   height: 7px;
   border-radius: 999px;
   background: #1ba64b;
+}
+
+@media (max-width: 640px) {
+  .leaflet-tooltip.lounge-name-tooltip {
+    max-width: min(180px, calc(100vw - 48px));
+    overflow: hidden;
+    padding: 5px 8px;
+    font-size: 11px;
+    text-overflow: ellipsis;
+  }
+
+  .lounge-map-style-switch {
+    left: 50%;
+    right: auto;
+    bottom: 10px;
+    max-width: calc(100vw - 24px);
+    transform: translateX(-50%);
+    border-radius: 999px;
+  }
+
+  .lounge-map-style-button {
+    min-width: 0;
+    max-width: 96px;
+    overflow: hidden;
+    padding: 8px 10px;
+    font-size: 10px;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .leaflet-control-attribution {
+    display: none;
+  }
 }
 
 @keyframes lounge-ping {

@@ -21,9 +21,9 @@ export default function SubscriptionInfo() {
   const [submitting, setSubmitting] = useState(false);
 
   const plans = [
-    { name: 'Старт багц', amount: 50000, description: '30 хоногийн эрх (50,000 ₮)' },
-    { name: 'Про багц', amount: 120000, description: '30 хоногийн эрх (120,000 ₮)' },
-    { name: 'Жилийн про багц', amount: 990000, description: 'Бүтэн жилийн эрх (990,000 ₮)' },
+    { name: 'Старт багц', amount: 50000, periodDays: 30, description: '30 хоногийн эрх (50,000 ₮)' },
+    { name: 'Про багц', amount: 120000, periodDays: 30, description: '30 хоногийн эрх (120,000 ₮)' },
+    { name: 'Жилийн про багц', amount: 990000, periodDays: 365, description: 'Бүтэн жилийн эрх (990,000 ₮)' },
   ];
 
   const fetchSubscription = async () => {
@@ -50,18 +50,21 @@ export default function SubscriptionInfo() {
       if (paymentMethod === 'stripe') {
         const successUrl = `${window.location.origin}/subscription?success=true`;
         const cancelUrl = window.location.href;
-        const res = await api.createStripeCheckout(selectedPlan.amount, selectedPlan.name, successUrl, cancelUrl);
+        const res = await api.createStripeCheckout(
+          selectedPlan.amount,
+          selectedPlan.name,
+          successUrl,
+          cancelUrl,
+          selectedPlan.periodDays,
+        );
 
         if (res.data.checkoutUrl) {
           window.location.href = res.data.checkoutUrl;
         } else {
-          alert('Туршилтын горим: Stripe төлбөр амжилттай үүссэн гэж тэмдэглэгдлээ.');
-          await api.simulateQpayPayment(res.data.payment.id, 'success');
-          setPaymentSuccess(true);
-          fetchSubscription();
+          alert(res.data.message || 'Stripe key тохируулагдаагүй байна. STRIPE_SECRET_KEY, STRIPE_PRICE_ID болон webhook тохируулсны дараа картын төлбөр ажиллана.');
         }
       } else if (paymentMethod === 'qpay') {
-        const res = await api.createQpayInvoice(selectedPlan.amount, selectedPlan.name);
+        const res = await api.createQpayInvoice(selectedPlan.amount, selectedPlan.name, selectedPlan.periodDays);
         setInvoice(res.data);
       }
     } catch (err) {
@@ -284,6 +287,11 @@ export default function SubscriptionInfo() {
 
                     {invoice && (
                       <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl flex flex-col items-center space-y-3">
+                        {invoice.message && (
+                          <p className="text-[11px] leading-relaxed text-center text-amber-300">
+                            {invoice.message}
+                          </p>
+                        )}
                         <div className="p-2 bg-white rounded-xl">
                           <img
                             src={`https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${encodeURIComponent(invoice.qrText)}`}
@@ -297,7 +305,7 @@ export default function SubscriptionInfo() {
                           className="w-full py-2 bg-green-500 hover:bg-green-600 text-slate-950 font-bold rounded-lg text-xs"
                           disabled={submitting}
                         >
-                          {submitting ? 'Хүлээж байна...' : 'Төлөгдсөн гэж тэмдэглэх'}
+                          {submitting ? 'Хүлээж байна...' : 'QR төлбөр баталгаажуулах'}
                         </button>
                       </div>
                     )}

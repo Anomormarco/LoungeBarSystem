@@ -338,8 +338,7 @@ export default function Home() {
             </div>
 
             <div
-              className="relative mt-4 overflow-hidden rounded-2xl border border-lounge-border/60 bg-lounge-black shadow-[0_0_25px_rgba(0,0,0,0.5)]"
-              style={{ height: 600, minHeight: 600 }}
+              className="relative mt-4 h-[420px] min-h-[420px] overflow-hidden rounded-2xl border border-lounge-border/60 bg-lounge-black shadow-[0_0_25px_rgba(0,0,0,0.5)] sm:h-[520px] sm:min-h-[520px] lg:h-[600px] lg:min-h-[600px]"
               onClick={clearOrganizationPreview}
             >
               <LoungeMap

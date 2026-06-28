@@ -1,4 +1,7 @@
+const dns = require("node:dns");
 const nodemailer = require("nodemailer");
+
+dns.setDefaultResultOrder("ipv4first");
 
 function hasResendConfig() {
   return Boolean(process.env.RESEND_API_KEY);
@@ -18,6 +21,7 @@ function createSendGridTransporter() {
     port: 587,
     secure: false,
     family: 4,
+    dnsTimeout: 10000,
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 15000,
@@ -36,6 +40,7 @@ function createSmtpTransporter() {
     port,
     secure: process.env.SMTP_SECURE === "true" || port === 465,
     family: 4,
+    dnsTimeout: 10000,
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 15000,

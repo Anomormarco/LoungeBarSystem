@@ -218,7 +218,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
               <button
                 type="submit"
                 disabled={loading}
-                className="sticky bottom-0 z-10 w-full touch-manipulation py-3.5 bg-gradient-to-r from-lounge-primary to-lounge-accent text-white font-extrabold rounded-xl hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
+                className="w-full touch-manipulation py-3.5 bg-gradient-to-r from-lounge-primary to-lounge-accent text-white font-extrabold rounded-xl hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Баталгаажуулах код илгээх'}
               </button>
@@ -250,7 +250,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
               <button
                 type="submit"
                 disabled={loading || otpCode.length !== 6}
-                className="sticky bottom-0 z-10 w-full touch-manipulation py-3.5 bg-gradient-to-r from-lounge-primary to-lounge-accent text-white font-extrabold rounded-xl hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
+                className="w-full touch-manipulation py-3.5 bg-gradient-to-r from-lounge-primary to-lounge-accent text-white font-extrabold rounded-xl hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Баталгаажуулах'}
               </button>

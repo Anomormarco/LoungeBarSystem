@@ -95,11 +95,11 @@ export default function ReservationModal({ organization, table, onClose, onSucce
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-full sm:max-w-lg bg-lounge-card border border-lounge-primary/30 rounded-t-3xl sm:rounded-3xl shadow-[0_0_30px_rgba(249,115,22,0.25)] max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-lounge-card/95 border-b border-lounge-border/60 px-6 py-4 flex items-center justify-between">
+      <div className="relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-lounge-primary/30 bg-lounge-card shadow-[0_0_30px_rgba(249,115,22,0.25)] sm:max-w-lg sm:rounded-3xl">
+        <div className="sticky top-0 z-10 bg-lounge-card/95 border-b border-lounge-border/60 px-6 py-4 flex items-center justify-between">
           <div>
             <h2 className="font-extrabold text-lg text-white">Ширээ захиалах</h2>
             <p className="text-xs text-lounge-muted">
@@ -111,7 +111,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="flex-1 overflow-y-auto p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
               {error}
@@ -218,7 +218,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-gradient-to-r from-lounge-primary to-lounge-accent text-white font-extrabold rounded-xl hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
+                className="sticky bottom-0 z-10 w-full touch-manipulation py-3.5 bg-gradient-to-r from-lounge-primary to-lounge-accent text-white font-extrabold rounded-xl hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Баталгаажуулах код илгээх'}
               </button>
@@ -237,6 +237,8 @@ export default function ReservationModal({ organization, table, onClose, onSucce
               <input
                 type="text"
                 inputMode="numeric"
+                autoComplete="one-time-code"
+                enterKeyHint="done"
                 maxLength={6}
                 placeholder="000000"
                 value={otpCode}
@@ -248,7 +250,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
               <button
                 type="submit"
                 disabled={loading || otpCode.length !== 6}
-                className="w-full py-3.5 bg-gradient-to-r from-lounge-primary to-lounge-accent text-white font-extrabold rounded-xl hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
+                className="sticky bottom-0 z-10 w-full touch-manipulation py-3.5 bg-gradient-to-r from-lounge-primary to-lounge-accent text-white font-extrabold rounded-xl hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Баталгаажуулах'}
               </button>

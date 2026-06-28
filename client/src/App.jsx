@@ -6,6 +6,9 @@ import Layout from './components/Layout';
 // User UI (Public)
 import Home from './pages/user/Home';
 import LoungeDetail from './pages/user/LoungeDetail';
+import About from './pages/user/About';
+import RestaurantsLounges from './pages/user/RestaurantsLounges';
+import Contact from './pages/user/Contact';
 
 // Company Intro
 import CompanyIntro from './pages/CompanyIntro';
@@ -50,6 +53,9 @@ function App() {
       <Routes>
         {/* User UI — login шаардлагагүй */}
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/restaurants-lounges" element={<RestaurantsLounges />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/lounge/:id" element={<LoungeDetail />} />
 
         {/* Company Introduction / Subscription */}
@@ -133,4 +139,3 @@ function App() {
 }
 
 export default App;
-

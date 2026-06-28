@@ -1,5 +1,9 @@
 const nodemailer = require("nodemailer");
 
+function hasResendConfig() {
+  return Boolean(process.env.RESEND_API_KEY);
+}
+
 function hasSendGridConfig() {
   return Boolean(process.env.SENDGRID_API_KEY);
 }
@@ -43,7 +47,7 @@ function createSmtpTransporter() {
 }
 
 function createTransporter() {
-  if (hasSendGridConfig()) {
+  if (hasSendGridConfig() && !hasResendConfig()) {
     return createSendGridTransporter();
   }
 
@@ -54,16 +58,78 @@ function createTransporter() {
   return null;
 }
 
-async function sendEmail({ to, subject, text, html }) {
-  const transporter = createTransporter();
+async function sendWithResend({ from, to, subject, text, html }) {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to,
+      subject,
+      text,
+      html,
+    }),
+  });
 
-  if (!transporter) {
-    const error = new Error("Имэйл үйлчилгээ тохируулагдаагүй байна. SMTP_USER/SMTP_PASS эсвэл SENDGRID_API_KEY шаардлагатай.");
-    error.statusCode = 503;
+  if (!response.ok) {
+    const body = await response.text();
+    const error = new Error(`Resend имэйл илгээхэд алдаа гарлаа: ${body}`);
+    error.statusCode = 502;
     throw error;
   }
 
+  return response.json();
+}
+
+async function sendWithSendGridApi({ from, to, subject, text, html }) {
+  const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      personalizations: [{ to: [{ email: to }] }],
+      from: { email: from },
+      subject,
+      content: [
+        { type: "text/plain", value: text },
+        { type: "text/html", value: html || text },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    const error = new Error(`SendGrid имэйл илгээхэд алдаа гарлаа: ${body}`);
+    error.statusCode = 502;
+    throw error;
+  }
+
+  return { accepted: [to] };
+}
+
+async function sendEmail({ to, subject, text, html }) {
   const from = process.env.EMAIL_FROM || process.env.SMTP_USER;
+
+  if (hasResendConfig()) {
+    return sendWithResend({ from, to, subject, text, html });
+  }
+
+  if (hasSendGridConfig()) {
+    return sendWithSendGridApi({ from, to, subject, text, html });
+  }
+
+  const transporter = createTransporter();
+
+  if (!transporter) {
+    const error = new Error("Имэйл үйлчилгээ тохируулагдаагүй байна. RESEND_API_KEY, SENDGRID_API_KEY эсвэл SMTP_USER/SMTP_PASS шаардлагатай.");
+    error.statusCode = 503;
+    throw error;
+  }
 
   return transporter.sendMail({
     from,

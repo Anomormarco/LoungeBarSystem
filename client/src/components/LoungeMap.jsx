@@ -107,7 +107,7 @@ export default function LoungeMap({
         })}
       </MapContainer>
 
-      <div className="lounge-map-style-switch absolute bottom-4 right-4 z-20 flex overflow-hidden rounded-xl bg-lounge-card border border-lounge-border shadow-xl shadow-black/40">
+      <div className="lounge-map-style-switch absolute bottom-4 left-1/2 right-auto z-20 flex -translate-x-1/2 overflow-hidden rounded-xl bg-lounge-card border border-lounge-border shadow-xl shadow-black/40">
         {[
           ['dark', 'Dark mode'],
           ['light', 'White mode'],

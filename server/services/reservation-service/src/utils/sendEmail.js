@@ -124,7 +124,9 @@ async function sendWithSendGridApi({ from, to, subject, text, html }) {
 }
 
 async function sendEmail({ to, subject, text, html }) {
-  const from = process.env.EMAIL_FROM || process.env.SMTP_USER;
+  const from = hasResendConfig()
+    ? process.env.RESEND_FROM || process.env.EMAIL_FROM || "onboarding@resend.dev"
+    : process.env.EMAIL_FROM || process.env.SMTP_USER;
 
   if (hasResendConfig()) {
     return sendWithResend({ from, to, subject, text, html });

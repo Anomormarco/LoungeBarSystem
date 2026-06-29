@@ -399,7 +399,7 @@ export default function Home() {
           </div>
         )}
 
-        <div className="mx-auto w-full max-w-[1280px] overflow-hidden px-4 sm:px-6 lg:px-16">
+        <div className="mx-auto w-full overflow-hidden px-4 sm:px-6 lg:px-8">
           <div className="space-y-16">
             <div className="grid gap-6 lg:grid-cols-12 lg:items-stretch">
               <div className="hidden">

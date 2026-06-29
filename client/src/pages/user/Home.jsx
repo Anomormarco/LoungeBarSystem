@@ -443,7 +443,7 @@ export default function Home() {
               </div>
 
             <div
-              className="relative h-[430px] min-h-[430px] overflow-hidden rounded-xl border border-[#3d372e] bg-[#1d1b17] shadow-[0_0_25px_rgba(0,0,0,0.5)] sm:h-[520px] sm:min-h-[520px] lg:col-span-8"
+              className="relative h-[380px] min-h-[380px] overflow-hidden rounded-xl border border-[#3d372e] bg-[#1d1b17] shadow-[0_0_25px_rgba(0,0,0,0.5)] sm:h-[470px] sm:min-h-[470px] lg:col-span-8"
               onClick={clearOrganizationPreview}
             >
               <LoungeMap
@@ -787,7 +787,7 @@ export default function Home() {
                     key={org.id}
                     className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#3d372e] bg-[#211f1b] text-left transition-all hover:border-[#d4af37]"
                   >
-                    <div className="relative h-56 overflow-hidden">
+                    <div className="relative h-48 overflow-hidden">
                       <img
                         src={org.image}
                         alt={org.name}
@@ -797,16 +797,16 @@ export default function Home() {
                         <span className="text-[#f2ca50]">★</span> {org.rating}
                       </div>
                     </div>
-                    <div className="flex flex-1 flex-col p-5">
-                      <h3 className="mb-2 text-xl font-semibold text-[#e8e1db] transition-colors group-hover:text-[#f2ca50]">
+                    <div className="flex flex-1 flex-col p-4">
+                      <h3 className="mb-1.5 text-lg font-semibold text-[#e8e1db] transition-colors group-hover:text-[#f2ca50]">
                         {org.name}
                       </h3>
-                      <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-[#d0c5af]">
+                      <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-[#d0c5af]">
                         {org.text}
                       </p>
                       <div className="mt-auto flex items-center justify-between border-t border-[#4d4635] pt-3">
-                        <span className="text-sm font-bold text-[#f2ca50]">{org.meta}</span>
-                        <span className="text-sm text-[#d0c5af]">{org.time}</span>
+                        <span className="text-xs font-bold text-[#f2ca50]">{org.meta}</span>
+                        <span className="text-xs text-[#d0c5af]">{org.time}</span>
                       </div>
                       <button
                         type="button"

@@ -94,15 +94,15 @@ export default function About() {
             <div className="mx-auto h-1 w-24 bg-[#f2ca50]" />
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
             {advantages.map(({ icon: Icon, title, text, className }) => (
-              <div key={title} className={`group relative overflow-hidden border border-[#3d372e] p-10 transition hover:border-[#d4af37] ${className}`}>
-                <div className="relative z-10 space-y-4">
-                  <Icon className="h-10 w-10 text-[#f2ca50]" />
-                  <h3 className="text-2xl font-semibold text-[#e8e1db]">{title}</h3>
-                  <p className="leading-7 text-[#d0c5af]">{text}</p>
+              <div key={title} className={`group relative overflow-hidden border border-[#3d372e] p-7 transition hover:border-[#d4af37] ${className}`}>
+                <div className="relative z-10 space-y-3">
+                  <Icon className="h-8 w-8 text-[#f2ca50]" />
+                  <h3 className="text-xl font-semibold text-[#e8e1db]">{title}</h3>
+                  <p className="text-sm leading-6 text-[#d0c5af]">{text}</p>
                 </div>
-                <Star className="absolute -bottom-10 -right-10 h-48 w-48 fill-current text-white/5 transition group-hover:text-white/10" />
+                <Star className="absolute -bottom-8 -right-8 h-36 w-36 fill-current text-white/5 transition group-hover:text-white/10" />
               </div>
             ))}
           </div>
@@ -122,15 +122,15 @@ export default function About() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {venues.map((venue, index) => (
-                <div key={venue.title} className="group relative aspect-[3/4] overflow-hidden border border-[#3d372e] transition hover:border-[#d4af37]">
+                <div key={venue.title} className="group relative aspect-[4/5] overflow-hidden border border-[#3d372e] transition hover:border-[#d4af37]">
                   <img
                     src={images.network[index]}
                     alt={venue.title}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/20 to-transparent p-8">
+                  <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/20 to-transparent p-6">
                     <span className="mb-2 text-sm font-bold uppercase tracking-[0.22em] text-[#f2ca50]">{venue.tag}</span>
                     <h4 className="text-2xl font-semibold text-white">{venue.title}</h4>
                     <p className="mt-2 text-sm text-[#d0c5af] opacity-0 transition-opacity group-hover:opacity-100">{venue.place}</p>

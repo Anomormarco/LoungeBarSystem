@@ -86,7 +86,7 @@ export default function RestaurantsLounges() {
                 state={{ fromHome: true }}
                 className="group overflow-hidden rounded-2xl border border-lounge-border bg-lounge-card transition-all hover:border-lounge-accent/60 hover:shadow-[0_0_24px_rgba(255,168,0,0.12)]"
               >
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative h-40 overflow-hidden">
                   <img
                     src={coverImage(org)}
                     alt={org.name}
@@ -96,7 +96,7 @@ export default function RestaurantsLounges() {
                     {org.availableTableCount ?? 0} сул ширээ
                   </span>
                 </div>
-                <div className="p-5">
+                <div className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <h2 className="text-lg font-black text-white">{org.name}</h2>
                     <span className="flex items-center gap-1 rounded-full bg-lounge-primary/15 px-2 py-1 text-xs font-black text-lounge-accent">

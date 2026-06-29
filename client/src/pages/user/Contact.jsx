@@ -52,12 +52,12 @@ export default function Contact() {
               {contactCards.map(({ icon: Icon, title, value, action, href }) => {
                 const content = (
                   <div className="h-full rounded-2xl border border-lounge-border bg-lounge-black/60 p-5 transition-all hover:border-lounge-accent/60 hover:shadow-[0_0_18px_rgba(255,168,0,0.16)]">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-lounge-accent/10 text-lounge-accent shadow-[0_0_18px_rgba(255,168,0,0.18)]">
-                      <Icon className="h-6 w-6" />
+                    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-lounge-accent/10 text-lounge-accent shadow-[0_0_18px_rgba(255,168,0,0.18)]">
+                      <Icon className="h-5 w-5" />
                     </div>
                     <h3 className="text-sm font-extrabold text-white">{title}</h3>
                     <p className="mt-2 min-h-10 text-xs leading-relaxed text-lounge-muted">{value}</p>
-                    <p className="mt-5 text-xs font-bold text-lounge-accent">{action}</p>
+                    <p className="mt-4 text-xs font-bold text-lounge-accent">{action}</p>
                   </div>
                 );
 

@@ -753,7 +753,7 @@ export default function Home() {
                 <span className="hidden text-xs font-bold text-lounge-muted sm:inline">Premium сонголтууд</span>
               </div>
 
-              <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-3">
                 {[
                   {
                     id: 'silk-road',
@@ -787,7 +787,7 @@ export default function Home() {
                     key={org.id}
                     className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#3d372e] bg-[#211f1b] text-left transition-all hover:border-[#d4af37]"
                   >
-                    <div className="relative h-64 overflow-hidden">
+                    <div className="relative h-56 overflow-hidden">
                       <img
                         src={org.image}
                         alt={org.name}
@@ -797,14 +797,14 @@ export default function Home() {
                         <span className="text-[#f2ca50]">★</span> {org.rating}
                       </div>
                     </div>
-                    <div className="flex flex-1 flex-col p-6">
-                      <h3 className="mb-2 text-2xl font-semibold text-[#e8e1db] transition-colors group-hover:text-[#f2ca50]">
+                    <div className="flex flex-1 flex-col p-5">
+                      <h3 className="mb-2 text-xl font-semibold text-[#e8e1db] transition-colors group-hover:text-[#f2ca50]">
                         {org.name}
                       </h3>
-                      <p className="mb-4 line-clamp-2 text-base leading-relaxed text-[#d0c5af]">
+                      <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-[#d0c5af]">
                         {org.text}
                       </p>
-                      <div className="mt-auto flex items-center justify-between border-t border-[#4d4635] pt-4">
+                      <div className="mt-auto flex items-center justify-between border-t border-[#4d4635] pt-3">
                         <span className="text-sm font-bold text-[#f2ca50]">{org.meta}</span>
                         <span className="text-sm text-[#d0c5af]">{org.time}</span>
                       </div>
@@ -836,7 +836,7 @@ export default function Home() {
                     Байршил шинэчлэх
                   </button>
                 </div>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {[
                     { id: 'mizu', name: 'Mizu Fusion', type: 'Япон хоол', price: '$$$', distance: '800м зайд', image: REFERENCE_IMAGES.restaurants[0] },
                     { id: 'italia', name: 'La Bella Italia', type: 'Итали хоол', price: '$$$', distance: '1.2км зайд', image: REFERENCE_IMAGES.restaurants[1] },
@@ -847,7 +847,7 @@ export default function Home() {
                       key={org.id}
                       className="group overflow-hidden rounded-xl bg-[#211f1b] text-left transition-all duration-300 hover:-translate-y-1"
                     >
-                      <div className="relative h-48 overflow-hidden">
+                      <div className="relative h-40 overflow-hidden">
                         <img
                           src={org.image}
                           alt={org.name}

@@ -122,12 +122,12 @@ function getTableStatusCounts(tables) {
 }
 
 const NEED_FILTERS = [
-  { id: 'all', label: 'Бүгд' },
-  { id: 'restaurant', label: 'Restaurant' },
-  { id: 'lounge', label: 'Lounge' },
-  { id: 'vip', label: 'VIP' },
-  { id: 'available', label: 'Сул ширээ' },
-  { id: 'near', label: 'Хамгийн ойр' },
+  { id: 'all', label: 'Бүгд', image: REFERENCE_IMAGES.featuredFood },
+  { id: 'restaurant', label: 'Restaurant', image: REFERENCE_IMAGES.restaurants[0] },
+  { id: 'lounge', label: 'Lounge', image: REFERENCE_IMAGES.lounges[0] },
+  { id: 'vip', label: 'VIP', image: REFERENCE_IMAGES.lounges[1] },
+  { id: 'available', label: 'Сул ширээ', image: REFERENCE_IMAGES.restaurants[2] },
+  { id: 'near', label: 'Хамгийн ойр', image: REFERENCE_IMAGES.lounges[2] },
 ];
 
 function getSearchText(org) {
@@ -809,34 +809,42 @@ export default function Home() {
                 <span className="hidden text-xs font-bold text-lounge-muted sm:inline">Premium сонголтууд</span>
               </div>
 
-              <div className="rounded-2xl border border-lounge-border bg-[#12110e]/70 p-3">
+              <div className="rounded-xl border border-lounge-border bg-[#12110e]/70 p-3">
                 <div className="mb-3 flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.18em] text-lounge-accent">
                   <SlidersHorizontal className="h-4 w-4" />
                   Таны хэрэгцээнд
                 </div>
-                <div className="flex gap-2 overflow-x-auto pb-1">
+                <div className="grid grid-cols-2 gap-3 md:flex md:overflow-x-auto md:pb-1">
                   {NEED_FILTERS.map((item) => (
                     <button
                       key={item.id}
                       type="button"
                       onClick={() => setActiveNeed(item.id)}
-                      className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-extrabold transition ${
+                      className={`group relative h-28 overflow-hidden rounded-lg border text-left transition active:scale-[0.98] md:h-auto md:shrink-0 md:px-3 md:py-2 ${
                         activeNeed === item.id
-                          ? 'border-lounge-accent bg-lounge-accent text-lounge-black'
+                          ? 'border-lounge-accent bg-lounge-accent text-lounge-black shadow-[0_0_18px_rgba(255,168,0,0.2)]'
                           : 'border-lounge-border bg-lounge-black text-lounge-muted hover:border-lounge-accent hover:text-white'
                       }`}
                     >
-                      {item.label}
+                      <img
+                        src={item.image}
+                        alt=""
+                        className="absolute inset-0 h-full w-full object-cover opacity-55 transition-transform duration-500 group-hover:scale-105 md:hidden"
+                      />
+                      <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent md:hidden" />
+                      <span className="relative z-10 flex h-full items-end p-3 text-xs font-extrabold text-white md:block md:h-auto md:p-0 md:text-inherit">
+                        {item.label}
+                      </span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:px-0 lg:grid-cols-3">
                 {recommendedOrganizations.map((org) => (
                   <div
                     key={org.id}
-                    className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#3d372e] bg-[#211f1b] text-left transition-all hover:border-[#d4af37]"
+                    className="group flex h-full min-w-[280px] snap-start flex-col overflow-hidden rounded-xl border border-[#3d372e] bg-[#211f1b] text-left transition-all hover:border-[#d4af37] sm:min-w-0"
                   >
                     <div className="relative h-36 overflow-hidden sm:h-40">
                       <img
@@ -965,11 +973,11 @@ export default function Home() {
                     Байршил шинэчлэх
                   </button>
                 </div>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:px-0 lg:grid-cols-4">
                   {nearbyOrganizations.map((org) => (
                     <div
                       key={org.id}
-                      className="group overflow-hidden rounded-xl bg-[#211f1b] text-left transition-all duration-300 hover:-translate-y-1"
+                      className="group min-w-[280px] snap-start overflow-hidden rounded-xl bg-[#211f1b] text-left transition-all duration-300 hover:-translate-y-1 sm:min-w-0"
                     >
                       <div className="relative h-32 overflow-hidden sm:h-36">
                         <img

@@ -5,16 +5,20 @@ import LoungeMap from '../../components/LoungeMap';
 import { publicApi } from '../../utils/api';
 import {
   AlertCircle,
+  Armchair,
   ChevronRight,
   Crown,
   Image as ImageIcon,
   Loader2,
   MapPin,
   Navigation,
+  Phone,
   Search,
   SlidersHorizontal,
   Table2,
   UtensilsCrossed,
+  Users,
+  Wifi,
   X,
 } from 'lucide-react';
 
@@ -354,9 +358,9 @@ export default function Home() {
 
   return (
     <UserLayout>
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-6">
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
+      <section className="w-full px-0 py-0 sm:px-0 sm:py-0">
+        <div className="mb-5 px-4 sm:px-6 lg:px-8">
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-3">
             Ойролцоо <span className="text-gradient-neon font-black drop-shadow-[0_0_15px_rgba(255,168,0,0.3)]">Lounge</span> олох
           </h1>
           <p className="text-lounge-muted text-sm max-w-xl">
@@ -365,16 +369,16 @@ export default function Home() {
         </div>
 
         {error && (
-          <div className="mb-5 p-4 rounded-xl bg-lounge-danger/10 border border-lounge-danger/20 text-lounge-danger text-sm flex items-center gap-2">
+          <div className="mx-4 mb-5 rounded-xl border border-lounge-danger/20 bg-lounge-danger/10 p-4 text-sm text-lounge-danger sm:mx-6 lg:mx-8 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             {error}
           </div>
         )}
 
-        <div className="rounded-2xl bg-lounge-card border border-lounge-border overflow-hidden">
-          <div className="p-4 border-b border-lounge-border">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div className="flex items-start gap-3">
+        <div className="w-full overflow-hidden border-y border-lounge-border bg-lounge-card/75 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur sm:border-x-0">
+          <div className="border-b border-lounge-border/70 p-4 sm:p-6 lg:px-8">
+            <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+              <div className="flex items-start gap-3 rounded-2xl border border-lounge-border bg-lounge-black/65 p-4 lg:col-start-1 lg:row-start-2">
                 <div className="p-2 rounded-lg bg-lounge-accent/10 text-lounge-accent shadow-[0_0_10px_rgba(255,168,0,0.15)]">
                   <Navigation className="w-5 h-5" />
                 </div>
@@ -399,25 +403,23 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 lg:col-start-1 lg:row-start-1">
                 <button
                   onClick={requestLocation}
-                  className="px-4 py-2 text-xs font-bold bg-lounge-primary text-white rounded-lg hover:bg-lounge-accent hover:shadow-[0_0_12px_rgba(255,168,0,0.35)] transition-all duration-300"
+                  className="rounded-lg bg-lounge-primary px-4 py-2.5 text-xs font-extrabold text-white shadow-[0_0_12px_rgba(255,168,0,0.25)] transition-all duration-300 hover:bg-lounge-accent"
                 >
-                  Байршил шинэчлэх
+                  Байршил ашиглах
                 </button>
                 <button
                   onClick={() => useDefaultLocation()}
-                  className="px-4 py-2 text-xs font-bold bg-lounge-black text-lounge-accent border border-lounge-border/80 rounded-lg hover:border-lounge-accent hover:shadow-[0_0_10px_rgba(255,168,0,0.25)] hover:text-white transition-all duration-300"
+                  className="rounded-lg border border-lounge-border bg-lounge-black px-4 py-2.5 text-xs font-extrabold text-lounge-muted transition-all duration-300 hover:border-lounge-accent hover:text-white"
                 >
-                  УБ төвөөр хайх
+                  Байршил оруулах
                 </button>
               </div>
 
-            </div>
-
             <div
-              className="relative mt-4 h-[420px] min-h-[420px] overflow-hidden rounded-2xl border border-lounge-border/60 bg-lounge-black shadow-[0_0_25px_rgba(0,0,0,0.5)] sm:h-[520px] sm:min-h-[520px] lg:h-[600px] lg:min-h-[600px]"
+              className="relative h-[260px] min-h-[260px] overflow-hidden rounded-2xl border border-lounge-border/60 bg-lounge-black shadow-[0_0_25px_rgba(0,0,0,0.5)] sm:h-[320px] sm:min-h-[320px] lg:col-start-2 lg:row-span-2 lg:row-start-1"
               onClick={clearOrganizationPreview}
             >
               <LoungeMap
@@ -590,6 +592,56 @@ export default function Home() {
                   </div>
                 </div>
               )}
+            </div>
+
+            </div>
+
+            <div className="mt-7 space-y-5">
+              <h2 className="text-center text-base font-extrabold text-white">Юу хүлээж байна вэ?</h2>
+              <div className="grid gap-3 md:grid-cols-3">
+                {[
+                  {
+                    icon: Armchair,
+                    title: 'Тав тухтай орчин',
+                    text: 'Тайван, тав тухтай орчинд ажиллаж, амарна.',
+                  },
+                  {
+                    icon: Wifi,
+                    title: 'Хурдан интернет',
+                    text: 'Өндөр хурдны WiFi-ээр тасралтгүй холбогдоно.',
+                  },
+                  {
+                    icon: Users,
+                    title: 'Уулзалт, арга хэмжээ',
+                    text: 'Уулзалт, арга хэмжээнд тохирох орчноо сонгоно.',
+                  },
+                ].map((item) => (
+                  <div key={item.title} className="rounded-2xl border border-lounge-border bg-lounge-black/60 p-4">
+                    <div className="mb-3 inline-flex rounded-2xl bg-lounge-accent/10 p-3 text-lounge-accent shadow-[0_0_18px_rgba(255,168,0,0.18)]">
+                      <item.icon className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-sm font-extrabold text-white">{item.title}</h3>
+                    <p className="mt-2 text-xs leading-relaxed text-lounge-muted">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid gap-4 rounded-2xl border border-lounge-border bg-lounge-black/55 p-4 md:grid-cols-[1fr_260px] md:items-center">
+                <div>
+                  <h2 className="text-base font-extrabold text-white">Холбоо барих</h2>
+                  <p className="mt-2 max-w-xl text-xs leading-relaxed text-lounge-muted">
+                    Асуулт, санал, тусламжтай холбоотой багтай холбогдоорой.
+                  </p>
+                  <a
+                    href="/contact"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg border border-lounge-border bg-lounge-card px-4 py-2 text-xs font-extrabold text-white transition-all hover:border-lounge-accent hover:text-lounge-accent"
+                  >
+                    <Phone className="h-3.5 w-3.5" />
+                    Холбоо барих
+                  </a>
+                </div>
+                <div className="hidden h-24 rounded-xl border border-lounge-border bg-[linear-gradient(135deg,rgba(255,168,0,0.14),rgba(255,255,255,0.04))] md:block" />
+              </div>
             </div>
 
             <div className="mt-4 space-y-4">

@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import UserLayout from '../../components/UserLayout';
-import { ArrowRight, CheckCircle, Clock, MapPin, ShieldCheck, UtensilsCrossed } from 'lucide-react';
+import { Clock, MapPin, ShieldCheck } from 'lucide-react';
 
 export default function About() {
   return (
@@ -17,21 +16,6 @@ export default function About() {
               UBLounge нь хэрэглэгчдэд ойролцоох ресторан, lounge-уудыг газрын зураг дээрээс сонгож,
               сул ширээг хараад email кодоор захиалгаа баталгаажуулах боломж өгдөг систем.
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link
-                to="/restaurants-lounges"
-                className="inline-flex items-center gap-2 rounded-xl bg-lounge-primary px-5 py-3 text-sm font-black text-white hover:bg-lounge-primary/90"
-              >
-                Газрууд харах
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/for-owners"
-                className="inline-flex items-center gap-2 rounded-xl border border-lounge-border bg-lounge-card px-5 py-3 text-sm font-black text-lounge-accent hover:border-lounge-accent/60"
-              >
-                Owner subscription
-              </Link>
-            </div>
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-lounge-border bg-lounge-card">
@@ -55,27 +39,6 @@ export default function About() {
               <p className="mt-2 text-sm leading-relaxed text-lounge-muted">{text}</p>
             </div>
           ))}
-        </div>
-
-        <div className="mt-8 rounded-2xl border border-lounge-border bg-lounge-card p-6">
-          <div className="flex items-start gap-4">
-            <UtensilsCrossed className="h-7 w-7 shrink-0 text-lounge-accent" />
-            <div>
-              <h2 className="text-xl font-black text-white">Owner талд</h2>
-              <p className="mt-2 text-sm leading-relaxed text-lounge-muted">
-                Байгууллага бүр ширээ, меню, ажилтан, захиалга, статистикаа dashboard-оос удирдана.
-                Subscription идэвхтэй үед үйлчилгээ нь public map дээр харагдаж, хэрэглэгч захиалга өгөх боломжтой.
-              </p>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                {['Ширээний төлөв real-time шинэчлэгдэнэ', 'Owner notification ирнэ', 'Меню зурагтай дэлгэрэнгүй харагдана', 'Stripe/QPay төлбөрийн эрхтэй'].map((item) => (
-                  <span key={item} className="flex items-center gap-2 text-sm font-bold text-white">
-                    <CheckCircle className="h-4 w-4 text-lounge-accent" />
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
       </section>
     </UserLayout>

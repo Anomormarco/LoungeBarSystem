@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
-import { SOCKET_URL } from '../utils/api';
+import { api, SOCKET_URL } from '../utils/api';
 
 const SocketContext = createContext(null);
 
@@ -38,15 +38,20 @@ export const SocketProvider = ({ children }) => {
   const [spotlightNotification, setSpotlightNotification] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [connected, setConnected] = useState(false);
+  const seenReservationIdsRef = useRef(new Set());
 
   useEffect(() => {
     const userJson = localStorage.getItem('owner_user');
     if (!userJson) return;
 
     const user = JSON.parse(userJson);
-    const orgId = user.organizationId;
+    const orgId = user.organizationId || user.organization?.id;
+    if (!orgId) return;
+
     const originalTitle = document.title;
     let titleTimer = null;
+    let pollTimer = null;
+    let active = true;
 
     const flashTitle = (message) => {
       let active = false;
@@ -76,6 +81,53 @@ export const SocketProvider = ({ children }) => {
       }
     };
 
+    const pushReservationNotification = (reservation, { silent = false } = {}) => {
+      if (!reservation?.id || seenReservationIdsRef.current.has(reservation.id)) return;
+      seenReservationIdsRef.current.add(reservation.id);
+
+      if (!silent) playNotificationSound();
+
+      const newNotif = {
+        id: `${reservation.id}-${Date.now()}`,
+        title: 'Шинэ захиалга ирлээ',
+        message: `${reservation.guestName} (${reservation.guestCount} хүн, ширээ ${reservation.table?.tableNumber || reservation.tableId || ''}) захиалга өглөө.`,
+        type: 'info',
+        time: new Date(),
+        data: reservation,
+      };
+
+      setNotifications((prev) => [newNotif, ...prev]);
+      setSpotlightNotification(newNotif);
+      setUnreadCount((prev) => prev + 1);
+      flashTitle('Шинэ захиалга!');
+      showBrowserNotification(newNotif);
+
+      window.setTimeout(() => {
+        setSpotlightNotification((current) => (current?.id === newNotif.id ? null : current));
+      }, 10000);
+    };
+
+    const syncReservationsAsFallback = async ({ initialize = false } = {}) => {
+      try {
+        const res = await api.getReservations();
+        const reservations = Array.isArray(res.data) ? res.data : [];
+
+        if (initialize) {
+          reservations.forEach((reservation) => {
+            if (reservation?.id) seenReservationIdsRef.current.add(reservation.id);
+          });
+          return;
+        }
+
+        const newestFirst = [...reservations].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        newestFirst.forEach((reservation) => {
+          pushReservationNotification(reservation, { silent: false });
+        });
+      } catch (error) {
+        console.error('Захиалгын fallback notification шалгахад алдаа гарлаа:', error.message);
+      }
+    };
+
     const newSocket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
       reconnection: true,
@@ -98,26 +150,7 @@ export const SocketProvider = ({ children }) => {
     });
 
     newSocket.on('reservation:new', (reservation) => {
-      playNotificationSound();
-
-      const newNotif = {
-        id: Date.now(),
-        title: 'Шинэ захиалга ирлээ',
-        message: `${reservation.guestName} (${reservation.guestCount} хүн, ширээ ${reservation.table?.tableNumber || reservation.tableId || ''}) захиалга өглөө.`,
-        type: 'info',
-        time: new Date(),
-        data: reservation,
-      };
-
-      setNotifications((prev) => [newNotif, ...prev]);
-      setSpotlightNotification(newNotif);
-      setUnreadCount((prev) => prev + 1);
-      flashTitle('Шинэ захиалга!');
-      showBrowserNotification(newNotif);
-
-      window.setTimeout(() => {
-        setSpotlightNotification((current) => (current?.id === newNotif.id ? null : current));
-      }, 10000);
+      pushReservationNotification(reservation);
     });
 
     newSocket.on('reservation:confirmed', (reservation) => {
@@ -147,9 +180,14 @@ export const SocketProvider = ({ children }) => {
     });
 
     setSocket(newSocket);
+    syncReservationsAsFallback({ initialize: true }).then(() => {
+      if (active) pollTimer = window.setInterval(() => syncReservationsAsFallback(), 12000);
+    });
 
     return () => {
+      active = false;
       clearInterval(titleTimer);
+      clearInterval(pollTimer);
       document.title = originalTitle;
       newSocket.emit('organization:leave', orgId);
       newSocket.disconnect();

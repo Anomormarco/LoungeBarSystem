@@ -148,6 +148,8 @@ export default function Home() {
   const selectedPhone = selectedDetail?.phone || selectedSummary?.phone;
   const selectedOpeningTime = selectedDetail?.openingTime || selectedSummary?.opening_time;
   const selectedClosingTime = selectedDetail?.closingTime || selectedSummary?.closing_time;
+  const featuredLounges = organizations.slice(0, 3);
+  const nearbyLounges = organizations.slice(3, 7);
 
   const getMenuItemImages = (item) => {
     const images = Array.isArray(item.images) ? item.images : [];
@@ -359,7 +361,7 @@ export default function Home() {
   return (
     <UserLayout>
       <section className="w-full px-0 py-0 sm:px-0 sm:py-0">
-        <div className="mb-5 px-4 sm:px-6 lg:px-8">
+        <div className="border-b border-lounge-border/40 bg-[#15130f] px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-3">
             Ойролцоо <span className="text-gradient-neon font-black drop-shadow-[0_0_15px_rgba(255,168,0,0.3)]">Lounge</span> олох
           </h1>
@@ -375,10 +377,10 @@ export default function Home() {
           </div>
         )}
 
-        <div className="w-full overflow-hidden border-y border-lounge-border bg-lounge-card/75 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur sm:border-x-0">
+        <div className="w-full overflow-hidden border-y border-lounge-border bg-[#171511] shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur sm:border-x-0">
           <div className="border-b border-lounge-border/70 p-4 sm:p-6 lg:px-8">
             <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-              <div className="flex items-start gap-3 rounded-2xl border border-lounge-border bg-lounge-black/65 p-4 lg:col-start-1 lg:row-start-2">
+              <div className="flex items-start gap-3 rounded-2xl border border-lounge-border bg-[#211e18]/75 p-4 lg:col-start-1 lg:row-start-2">
                 <div className="p-2 rounded-lg bg-lounge-accent/10 text-lounge-accent shadow-[0_0_10px_rgba(255,168,0,0.15)]">
                   <Navigation className="w-5 h-5" />
                 </div>
@@ -419,7 +421,7 @@ export default function Home() {
               </div>
 
             <div
-              className="relative h-[260px] min-h-[260px] overflow-hidden rounded-2xl border border-lounge-border/60 bg-lounge-black shadow-[0_0_25px_rgba(0,0,0,0.5)] sm:h-[320px] sm:min-h-[320px] lg:col-start-2 lg:row-span-2 lg:row-start-1"
+              className="relative h-[260px] min-h-[260px] overflow-hidden rounded-2xl border border-lounge-border/60 bg-lounge-black shadow-[0_0_25px_rgba(0,0,0,0.5)] sm:h-[340px] sm:min-h-[340px] lg:col-start-2 lg:row-span-2 lg:row-start-1"
               onClick={clearOrganizationPreview}
             >
               <LoungeMap
@@ -596,7 +598,7 @@ export default function Home() {
 
             </div>
 
-            <div className="mt-6 space-y-4 rounded-2xl border border-lounge-border bg-lounge-black/55 p-4">
+            <div className="mt-6 space-y-4 rounded-2xl border border-lounge-border bg-[#12110e]/70 p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-lounge-accent">
                 <SlidersHorizontal className="w-4 h-4" />
                 Шүүлтүүр
@@ -667,7 +669,91 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mt-7 space-y-5">
+            <div className="mt-8 space-y-5">
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-lounge-accent">Recommended</p>
+                  <h2 className="mt-1 text-xl font-extrabold text-white sm:text-2xl">Санал болгох lounge</h2>
+                </div>
+                <span className="hidden text-xs font-bold text-lounge-muted sm:inline">Premium сонголтууд</span>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                {(featuredLounges.length > 0
+                  ? featuredLounges
+                  : [
+                      { id: 'demo-1', name: 'Silk Road Lounge', address: 'Ulaanbaatar', distanceMeters: 1200 },
+                      { id: 'demo-2', name: 'Vista Rooftop', address: 'City center', distanceMeters: 1800 },
+                      { id: 'demo-3', name: 'Noir Jazz Club', address: 'Sukhbaatar', distanceMeters: 2300 },
+                    ]
+                ).map((org) => (
+                  <button
+                    key={org.id}
+                    type="button"
+                    onClick={() => org.id && !String(org.id).startsWith('demo-') && previewOrganization(org)}
+                    className="group overflow-hidden rounded-2xl border border-lounge-border bg-[#12110e] text-left transition-all hover:border-lounge-accent/70 hover:shadow-[0_0_24px_rgba(255,168,0,0.16)]"
+                  >
+                    <div className="aspect-[16/9] w-full overflow-hidden bg-lounge-card">
+                      <img
+                        src={getCoverImage(org)}
+                        alt={org.name}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="space-y-2 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="truncate text-sm font-extrabold text-white">{org.name}</h3>
+                        <span className="rounded-full bg-lounge-primary/15 px-2 py-1 text-[10px] font-extrabold text-lounge-accent">
+                          {formatDistance(Number(org.distanceMeters)) || 'VIP'}
+                        </span>
+                      </div>
+                      <p className="line-clamp-1 text-xs text-lounge-muted">{org.address}</p>
+                      <div className="flex items-center gap-2 text-[11px] font-bold text-lounge-accent">
+                        <Crown className="h-3.5 w-3.5" />
+                        <span>VIP · Lounge · Reserve</span>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-lounge-accent">Nearby</p>
+                    <h2 className="mt-1 text-xl font-extrabold text-white sm:text-2xl">Танд ойр байгаа restaurant</h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={requestLocation}
+                    className="hidden rounded-lg border border-lounge-border px-3 py-2 text-xs font-extrabold text-lounge-muted transition hover:border-lounge-accent hover:text-lounge-accent sm:inline-flex"
+                  >
+                    Байршил шинэчлэх
+                  </button>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {(nearbyLounges.length > 0 ? nearbyLounges : featuredLounges).slice(0, 4).map((org) => (
+                    <button
+                      key={`near-${org.id}`}
+                      type="button"
+                      onClick={() => previewOrganization(org)}
+                      className="group overflow-hidden rounded-xl border border-lounge-border bg-[#12110e] text-left transition-all hover:border-lounge-accent/60"
+                    >
+                      <div className="aspect-[4/3] w-full overflow-hidden bg-lounge-card">
+                        <img
+                          src={getCoverImage(org)}
+                          alt={org.name}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="p-3">
+                        <h3 className="truncate text-xs font-extrabold text-white">{org.name}</h3>
+                        <p className="mt-1 truncate text-[11px] text-lounge-muted">{org.address}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
               <h2 className="text-center text-base font-extrabold text-white">Юу хүлээж байна вэ?</h2>
               <div className="grid gap-3 md:grid-cols-3">
                 {[

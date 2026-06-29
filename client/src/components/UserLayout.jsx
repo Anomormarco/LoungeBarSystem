@@ -15,23 +15,17 @@ export default function UserLayout({ children }) {
   const navLinkClass = ({ isActive }) =>
     `rounded-lg px-3 py-2 text-xs font-extrabold transition-colors ${
       isActive
-        ? 'bg-lounge-primary text-white shadow-[0_0_12px_rgba(255,168,0,0.2)]'
-        : 'text-lounge-muted hover:bg-lounge-card hover:text-white'
+        ? 'bg-lounge-primary/15 text-lounge-accent shadow-[0_0_12px_rgba(255,168,0,0.18)]'
+        : 'text-lounge-muted hover:bg-lounge-card hover:text-lounge-accent'
     }`;
 
   return (
-    <div className="min-h-screen bg-lounge-black text-white">
-      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-lounge-primary/15 via-lounge-accent/5 to-transparent pointer-events-none" />
+    <div className="min-h-screen bg-[#12110e] text-white">
+      <div className="absolute top-0 left-0 w-full h-96 bg-[radial-gradient(circle_at_top,rgba(255,168,0,0.11),transparent_52%)] pointer-events-none" />
 
-      <header className="relative z-10 flex h-16 w-full items-center justify-between border-b border-lounge-border/40 px-4 sm:px-6 lg:px-8">
+      <header className="relative z-10 flex h-16 w-full items-center justify-between border-b border-lounge-border/40 bg-[#12110e]/88 px-4 backdrop-blur sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-lounge-primary to-lounge-accent flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(255,168,0,0.35)]">
-            L
-          </div>
-          <div>
-            <span className="font-bold tracking-tight block leading-none">UBLounge</span>
-
-          </div>
+          <div className="ub-script-logo">UBTable</div>
         </Link>
 
         <nav className="hidden md:flex items-center gap-2">
@@ -45,7 +39,7 @@ export default function UserLayout({ children }) {
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
-          className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-lounge-border bg-lounge-card text-white"
+          className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-lounge-border bg-lounge-card text-lounge-accent"
           aria-label="Цэс нээх"
         >
           <Menu className="h-5 w-5" />
@@ -60,13 +54,10 @@ export default function UserLayout({ children }) {
             onClick={() => setMobileOpen(false)}
             aria-label="Цэс хаах"
           />
-          <aside className="absolute right-0 top-0 h-full w-[min(82vw,320px)] border-l border-lounge-border bg-lounge-black p-5 shadow-2xl">
+          <aside className="absolute right-0 top-0 h-full w-[min(82vw,320px)] border-l border-lounge-border bg-[#12110e] p-5 shadow-2xl">
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-lounge-primary to-lounge-accent font-black text-white">
-                  L
-                </div>
-                <span className="font-black">UBLounge</span>
+                <div className="ub-script-logo ub-script-logo-sm">UBTable</div>
               </div>
               <button
                 type="button"

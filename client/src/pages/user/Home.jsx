@@ -596,6 +596,77 @@ export default function Home() {
 
             </div>
 
+            <div className="mt-6 space-y-4 rounded-2xl border border-lounge-border bg-lounge-black/55 p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-lounge-accent">
+                <SlidersHorizontal className="w-4 h-4" />
+                Шүүлтүүр
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                <div className="flex flex-col">
+                  <label className="mb-1 block h-4 text-xs text-lounge-muted">
+                    Нэр, хаяг
+                  </label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-lounge-muted" />
+                    <input
+                      type="text"
+                      placeholder="Нэр, хаягаар хайх..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="h-[42px] w-full rounded-xl border border-lounge-border bg-lounge-black pl-10 pr-4 text-sm transition-all duration-300 focus:border-lounge-accent focus:outline-none focus:shadow-[0_0_10px_rgba(255,168,0,0.15)]"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="mb-1 block h-4 text-xs text-lounge-muted">
+                    Радиус: {radius} км
+                  </label>
+                  <div className="flex h-[42px] items-center rounded-xl border border-lounge-border bg-lounge-black px-3">
+                    <input
+                      type="range"
+                      min="1"
+                      max="50"
+                      value={radius}
+                      onChange={(e) => setRadius(Number(e.target.value))}
+                      className="w-full cursor-pointer bg-transparent accent-lounge-primary"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="mb-1 block h-4 text-xs text-lounge-muted">
+                    Ширээний төрөл
+                  </label>
+                  <select
+                    value={tableType}
+                    onChange={(e) => setTableType(e.target.value)}
+                    className="h-[42px] w-full cursor-pointer rounded-xl border border-lounge-border bg-lounge-black px-3 text-sm focus:border-lounge-primary focus:outline-none"
+                  >
+                    <option value="all">Бүгд</option>
+                    <option value="normal">Normal</option>
+                    <option value="vip">VIP</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="mb-1 block h-4 text-xs text-lounge-muted">
+                    Төлөв
+                  </label>
+                  <label className="flex h-[42px] cursor-pointer select-none items-center gap-3 rounded-xl border border-lounge-border bg-lounge-black px-3 text-sm transition-all duration-300 hover:border-lounge-accent/50">
+                    <input
+                      type="checkbox"
+                      checked={availableOnly}
+                      onChange={(e) => setAvailableOnly(e.target.checked)}
+                      className="h-4 w-4 cursor-pointer accent-lounge-accent"
+                    />
+                    <span>Зөвхөн сул ширээтэй</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
             <div className="mt-7 space-y-5">
               <h2 className="text-center text-base font-extrabold text-white">Юу хүлээж байна вэ?</h2>
               <div className="grid gap-3 md:grid-cols-3">
@@ -644,80 +715,6 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mt-4 space-y-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-lounge-accent">
-                <SlidersHorizontal className="w-4 h-4" />
-                Шүүлтүүр
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {/* Search */}
-                <div className="flex flex-col">
-                  <label className="text-xs text-lounge-muted mb-1 block h-4">
-                    Нэр, хаяг
-                  </label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lounge-muted" />
-                    <input
-                      type="text"
-                      placeholder="Нэр, хаягаар хайх..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 h-[42px] bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-accent focus:shadow-[0_0_10px_rgba(255,168,0,0.15)] transition-all duration-300"
-                    />
-                  </div>
-                </div>
-
-                {/* Radius */}
-                <div className="flex flex-col">
-                  <label className="text-xs text-lounge-muted mb-1 block h-4">
-                    Радиус: {radius} км
-                  </label>
-                  <div className="flex items-center px-3 bg-lounge-black border border-lounge-border rounded-xl h-[42px]">
-                    <input
-                      type="range"
-                      min="1"
-                      max="50"
-                      value={radius}
-                      onChange={(e) => setRadius(Number(e.target.value))}
-                      className="w-full accent-lounge-primary bg-transparent cursor-pointer"
-                    />
-                  </div>
-                </div>
-
-                {/* Table Type */}
-                <div className="flex flex-col">
-                  <label className="text-xs text-lounge-muted mb-1 block h-4">
-                    Ширээний төрөл
-                  </label>
-                  <select
-                    value={tableType}
-                    onChange={(e) => setTableType(e.target.value)}
-                    className="w-full px-3 h-[42px] bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-primary cursor-pointer"
-                  >
-                    <option value="all">Бүгд</option>
-                    <option value="normal">Normal</option>
-                    <option value="vip">VIP</option>
-                  </select>
-                </div>
-
-                {/* Status Checkbox */}
-                <div className="flex flex-col">
-                  <label className="text-xs text-lounge-muted mb-1 block h-4">
-                    Төлөв
-                  </label>
-                  <label className="flex items-center gap-3 px-3 h-[42px] bg-lounge-black border border-lounge-border rounded-xl text-sm cursor-pointer hover:border-lounge-accent/50 transition-all duration-300 select-none">
-                    <input
-                      type="checkbox"
-                      checked={availableOnly}
-                      onChange={(e) => setAvailableOnly(e.target.checked)}
-                      className="w-4 h-4 accent-lounge-accent cursor-pointer"
-                    />
-                    <span>Зөвхөн сул ширээтэй</span>
-                  </label>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>

@@ -12,7 +12,6 @@ import {
   Loader2,
   MapPin,
   Navigation,
-  Phone,
   Search,
   SlidersHorizontal,
   Table2,
@@ -38,6 +37,24 @@ const UB_MAP_BOUNDS = {
   maxLat: 47.945,
   minLng: 106.84,
   maxLng: 106.985,
+};
+
+const REFERENCE_IMAGES = {
+  featuredFood:
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuDi5-8CFDWKfA415UMk9NGPz24Ea8oJBxwm1se3vvbkzFNP13TVpfC3CliM9Vm5dMCtjQmWjQZVMyyeQR_dOC3I4OwZD7L_WMLlp3Rjhy1jbPj2cnrkvedPeyFhXrAvgCF1xzTb6anetWXMTELqwUHoU8Wg9DyqKIZMQHkpd2OaGKAepoN3_ifzHlUev81uaP7dTU3g0K2gTCdGEXrUTphPRrCMU5cBbj8R2FJybDPMP9iiVggB7ic-S7kg4V5jlfnVIzKitvxVPzb4',
+  lounges: [
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuD_FoYr5v0tzmIw_npK3m7zSnomQJAB0a8uqDXKIiWsf0eWv7wQERjD48_AVDRHxNK7cFqTxDjZuE-uB5i4RXmTyzz9SsjPnU8BN16UcG3pV9bOdFska0vrVDBJ2etcOYNfBq3Dv6B2n_eYHGO5NYfGB_Vm2uP0hbPrPAk5jZG9jHmJzEQI0Z17jWMeHPb_-yHF8C2OoFJNRQedIwa8qCm0Uw5nPHNDo4MIkdgoYJMZLS8v7CTlZ5cTIKk2KSsWa0FLHwUii63Xn0BJ',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuCBY6nw8gko5ByfFhmjUKiuueyAAHmqlKSD-r11iZ-nrnxeJUQ5WdZK-xJUiqiI6zeoNO8JktNXpDfAN2yx-QrJVZ2Lxiv9j5uXwvmRWWTm_qNjYUTnMHyqa3IPgmh5xmc_PvQjY7ED5VLicaxCXNUXbzIxfwSA6tP9hDOrf0GBsi0_lq48VJT0lMcScosPcabmdw-2MJHtghsxpesieTeDCgx7CUfmvFr9-wunbW6-V3wQZ1nsX6Tj8RCODsl7Lae2eDFugnAS1-cR',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuBxiBjgEzrePl1n0vJ4Xm1AFL-X5WGJ212M3db_YwI5EpV9ZS-LrQyOKgYVDn553BeL4qh55au17k_IQ37G-MkTNMry8JYSdBfeAmVGZPdKN_uOMsAZJeTt9xjJ0gYhjgyIDHmWnd5oyWx9kjcCvJi_Z1LOJxxW1LqoZrRlCQ7SBN_CtJG4x_I11f7g6Iwm4_nu_6uPgpn6JOgv53IPkfFwv_8uu2vXk-9crtyW-iQJOtZO69b-ovyf0OSNNnoxWDWCBheTi0V1bTyd',
+  ],
+  restaurants: [
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuBNZ7fYcAqRrmZBb4yrvpHWCdtLv5w6EQCl9__Jjws8Q8wExyFLG2xtnLJbGFq-1HzRGKhC7vOa-GiD0dsTgpHBCf2_CITeOKNd9Yknu9Td5lEmBoO1mijeLrrtFkQgZBDTOnd9I7X0a6Pp01R7pHxUu8KMURtMXQuW0xmzIH_oZnOUDYN7Jx9MCnlGnll7cSdPNKY6K7gmQz3ZY8O-q9lrmOysvjY5q-T7E_qfO4AhTo3ULxYXwZXKe85K_iQU8zffJBeWsMlRv9tp',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuB723HqnGSDKXqiuLqYq5G0qH3EuqYNgo6KisjY0K7qlgea9nXNfr6L0HsMQZVwVW0J3RWNy95K9DBDbxSiKISyOOryKyB67jYwQX2Khp3YgDlAFtKMIOvIx1mHpEeWlZ7Ri87OteKcj5v09aUD4vwZTilXZarVZumA34_s4YgTtZopNW_7SDrNCKeRtsAj1PND3OkPaE0nqai7CQnmLOjHrOU2OItcrkiS4GykfEPDldE5mCErlThq1eHus66_kQLAm7EHhLd19Nd3',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuDsPN43z9hfHYTfJwssyhr5-4aznoddQfybbjTjUKvFfhzYmq5CkT8N9gprb1_c4yLlONoevEYLv_uPbnG8zzftAWInQhMGthvK8v1F9Qgq2xMNVaWs4dGCugVoLS0kTtsm0cBwRUOBNkz4AOdhNsELrtxR9yFr1Ls2k7eSC-Fp7EMOdrfT20CSqUN3Vioxm8vA-egeYkOKRdJv6shHmgdRZAIdyC05Ax_w-vKzUTr1DpIO-AynywSKX3R-whD_jmjqe830Fdd37PRf',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuAQ9m5ijF7FxMtfmaHAzxlGy9fFSbG34yzbRyZVYW8_HHE04Q7mjydI18Zm9IcOXTVEIIx043Qe1hNkmNajYARnnzWlCalekcz6-g9gdMzWqZREEjtZ8FcdUoEOUcMT916ro43rlfFOjXPR1beLLWcy9K8TSiCLudV8S6F7-1u2VyAtsCe6OPa78mkRDxj6CyApyiATVuvgQLgGJuN75c8PHewbhuMsEoJvH2LzD_b0V9_Zdh5PmJjJlJdquQfAsLiKSJpvCH4rWE-1',
+  ],
+  invitation:
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuAPanQuvEZbF7CjXY4tzP8mYQ0JDvgFTxjQM7Iu3RA8NqgZZ0FXxNfbkPSiC0iVd2I32dDE1aCf4U2t1tbPacEF3-zmx08QmaIHDkwdyQkJHLhde4kf9Eth4OblYL09WrhdMyFTugE0PCI_trhNDY_WwpGK5fhUYxzq1oi47RFdkOV_6CrhjgehfE_vLZ4msOOHeveWzRO1s93xHQpcpKQ5Gw0cI69-nva6LMPrny7cheK952vTnNmKYWET1oujvx2kGNvWMGYHKq9-',
 };
 
 const STATUS_LABELS = {
@@ -148,9 +165,6 @@ export default function Home() {
   const selectedPhone = selectedDetail?.phone || selectedSummary?.phone;
   const selectedOpeningTime = selectedDetail?.openingTime || selectedSummary?.opening_time;
   const selectedClosingTime = selectedDetail?.closingTime || selectedSummary?.closing_time;
-  const featuredLounges = organizations.slice(0, 3);
-  const nearbyLounges = organizations.slice(3, 7);
-
   const getMenuItemImages = (item) => {
     const images = Array.isArray(item.images) ? item.images : [];
     return [...images, item.image].filter(Boolean);
@@ -360,8 +374,8 @@ export default function Home() {
 
   return (
     <UserLayout>
-      <section className="w-full px-0 py-0 sm:px-0 sm:py-0">
-        <div className="border-b border-lounge-border/40 bg-[#15130f] px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+      <section className="w-full bg-[radial-gradient(circle_at_top_center,#2a2621_0%,#15130f_55%,#15130f_100%)] px-0 py-8 sm:px-0 sm:py-12">
+        <div className="hidden">
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-3">
             Ойролцоо <span className="text-gradient-neon font-black drop-shadow-[0_0_15px_rgba(255,168,0,0.3)]">Lounge</span> олох
           </h1>
@@ -377,10 +391,10 @@ export default function Home() {
           </div>
         )}
 
-        <div className="w-full overflow-hidden border-y border-lounge-border bg-[#171511] shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur sm:border-x-0">
-          <div className="border-b border-lounge-border/70 p-4 sm:p-6 lg:px-8">
-            <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-              <div className="flex items-start gap-3 rounded-2xl border border-lounge-border bg-[#211e18]/75 p-4 lg:col-start-1 lg:row-start-2">
+        <div className="mx-auto w-full max-w-[1280px] overflow-hidden px-4 sm:px-6 lg:px-16">
+          <div className="space-y-16">
+            <div className="grid gap-6 lg:grid-cols-12 lg:items-stretch">
+              <div className="hidden">
                 <div className="p-2 rounded-lg bg-lounge-accent/10 text-lounge-accent shadow-[0_0_10px_rgba(255,168,0,0.15)]">
                   <Navigation className="w-5 h-5" />
                 </div>
@@ -405,7 +419,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2 lg:col-start-1 lg:row-start-1">
+              <div className="hidden">
                 <button
                   onClick={requestLocation}
                   className="rounded-lg bg-lounge-primary px-4 py-2.5 text-xs font-extrabold text-white shadow-[0_0_12px_rgba(255,168,0,0.25)] transition-all duration-300 hover:bg-lounge-accent"
@@ -421,7 +435,7 @@ export default function Home() {
               </div>
 
             <div
-              className="relative h-[260px] min-h-[260px] overflow-hidden rounded-2xl border border-lounge-border/60 bg-lounge-black shadow-[0_0_25px_rgba(0,0,0,0.5)] sm:h-[340px] sm:min-h-[340px] lg:col-start-2 lg:row-span-2 lg:row-start-1"
+              className="relative h-[430px] min-h-[430px] overflow-hidden rounded-xl border border-[#3d372e] bg-[#1d1b17] shadow-[0_0_25px_rgba(0,0,0,0.5)] sm:h-[520px] sm:min-h-[520px] lg:col-span-8"
               onClick={clearOrganizationPreview}
             >
               <LoungeMap
@@ -432,6 +446,25 @@ export default function Home() {
                 onOrganizationSelect={previewOrganization}
                 onOrganizationClear={hideOrganizationPreview}
               />
+              <div className="absolute left-5 top-5 z-20 max-w-xs rounded-lg border border-[#3d372e] bg-[#373430]/90 p-5 shadow-2xl backdrop-blur-sm">
+                <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[#e8e1db]">
+                  <MapPin className="h-4 w-4 text-[#f2ca50]" />
+                  <span>Улаанбаатар хот</span>
+                </div>
+                <h1 className="mb-2 text-2xl font-semibold leading-tight text-[#e8e1db]">
+                  Ойролцоо {organizations.length || 12} ресторан байна
+                </h1>
+                <p className="mb-4 text-sm leading-relaxed text-[#d0c5af]">
+                  Таны байршилтай ойр байгаа хамгийн дээд зэрэглэлийн үйлчилгээтэй газрууд.
+                </p>
+                <button
+                  type="button"
+                  onClick={requestLocation}
+                  className="w-full rounded-lg border border-[#f2ca50] px-4 py-2 text-sm font-bold text-[#f2ca50] transition hover:bg-[#f2ca50]/10"
+                >
+                  Бүгдийг харах
+                </button>
+              </div>
               <a
                 href={`https://www.openstreetmap.org/?mlat=${location?.lat || DEFAULT_LOCATION.lat}&mlon=${location?.lng || DEFAULT_LOCATION.lng}#map=15/${location?.lat || DEFAULT_LOCATION.lat}/${location?.lng || DEFAULT_LOCATION.lng}`}
                 target="_blank"
@@ -596,6 +629,35 @@ export default function Home() {
               )}
             </div>
 
+            <div className="hidden flex-col gap-6 lg:col-span-4 lg:flex">
+              <div className="group relative flex-1 overflow-hidden rounded-xl border border-[#3d372e] bg-[#211f1b]">
+                <img
+                  src={REFERENCE_IMAGES.featuredFood}
+                  alt="Cloud 9 Lounge"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#15130f]/95 via-[#15130f]/35 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <span className="mb-2 inline-flex rounded-sm bg-[#f2ca50] px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-[#3c2f00]">
+                    Featured
+                  </span>
+                  <h2 className="text-2xl font-semibold text-[#e8e1db]">Cloud 9 Lounge</h2>
+                  <p className="mt-1 text-sm font-bold text-[#f2ca50]">★★★★★ <span className="text-[#d0c5af]">(4.9)</span></p>
+                </div>
+              </div>
+              <div className="flex h-32 items-center gap-6 rounded-xl border border-[#3d372e] bg-[#211f1b] p-6">
+                <div className="rounded-full bg-[#f2ca50]/10 p-3 text-[#f2ca50]">
+                  <Table2 className="h-8 w-8" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[#e8e1db]">Хялбар захиалга</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-[#d0c5af]">
+                    Хүссэн цагтаа, дуртай ширээгээ захиалаарай.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             </div>
 
             <div className="mt-6 space-y-4 rounded-2xl border border-lounge-border bg-[#12110e]/70 p-4">
@@ -678,39 +740,61 @@ export default function Home() {
                 <span className="hidden text-xs font-bold text-lounge-muted sm:inline">Premium сонголтууд</span>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
-                {(featuredLounges.length > 0
-                  ? featuredLounges
-                  : [
-                      { id: 'demo-1', name: 'Silk Road Lounge', address: 'Ulaanbaatar', distanceMeters: 1200 },
-                      { id: 'demo-2', name: 'Vista Rooftop', address: 'City center', distanceMeters: 1800 },
-                      { id: 'demo-3', name: 'Noir Jazz Club', address: 'Sukhbaatar', distanceMeters: 2300 },
-                    ]
-                ).map((org) => (
+              <div className="grid gap-6 md:grid-cols-3">
+                {[
+                  {
+                    id: 'silk-road',
+                    name: 'Silk Road Lounge',
+                    text: 'Дорно дахины хэв маягийг орчин үеийн люкс дизайнтай хослуулсан онцгой орчин.',
+                    meta: '$$$ · Lounge',
+                    time: 'Нээлттэй: 18:00 - 02:00',
+                    rating: '4.8',
+                    image: REFERENCE_IMAGES.lounges[0],
+                  },
+                  {
+                    id: 'vista-rooftop',
+                    name: 'Vista Rooftop',
+                    text: 'Улаанбаатар хотыг дээрээс нь тольдон суугаа өөрийн дуртай дарсаа амтлаарай.',
+                    meta: '$$$$ · Sky Bar',
+                    time: 'Нээлттэй: 17:00 - 00:00',
+                    rating: '4.7',
+                    image: REFERENCE_IMAGES.lounges[1],
+                  },
+                  {
+                    id: 'noir-jazz',
+                    name: 'Noir Jazz Club',
+                    text: 'Сонгодог жазз хөгжим, тансаг вискиний цуглуулга бүхий дотно уур амьсгал.',
+                    meta: '$$$ · Jazz Lounge',
+                    time: 'Нээлттэй: 19:00 - 03:00',
+                    rating: '4.9',
+                    image: REFERENCE_IMAGES.lounges[2],
+                  },
+                ].map((org) => (
                   <button
                     key={org.id}
                     type="button"
-                    onClick={() => org.id && !String(org.id).startsWith('demo-') && previewOrganization(org)}
-                    className="group overflow-hidden rounded-2xl border border-lounge-border bg-[#12110e] text-left transition-all hover:border-lounge-accent/70 hover:shadow-[0_0_24px_rgba(255,168,0,0.16)]"
+                    className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#3d372e] bg-[#211f1b] text-left transition-all hover:border-[#d4af37]"
                   >
-                    <div className="aspect-[16/9] w-full overflow-hidden bg-lounge-card">
+                    <div className="relative h-64 overflow-hidden">
                       <img
-                        src={getCoverImage(org)}
+                        src={org.image}
                         alt={org.name}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                    </div>
-                    <div className="space-y-2 p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <h3 className="truncate text-sm font-extrabold text-white">{org.name}</h3>
-                        <span className="rounded-full bg-lounge-primary/15 px-2 py-1 text-[10px] font-extrabold text-lounge-accent">
-                          {formatDistance(Number(org.distanceMeters)) || 'VIP'}
-                        </span>
+                      <div className="absolute right-4 top-4 rounded-full bg-[#373430]/80 px-3 py-1 text-sm font-bold text-[#e8e1db] backdrop-blur-md">
+                        <span className="text-[#f2ca50]">★</span> {org.rating}
                       </div>
-                      <p className="line-clamp-1 text-xs text-lounge-muted">{org.address}</p>
-                      <div className="flex items-center gap-2 text-[11px] font-bold text-lounge-accent">
-                        <Crown className="h-3.5 w-3.5" />
-                        <span>VIP · Lounge · Reserve</span>
+                    </div>
+                    <div className="flex flex-1 flex-col p-6">
+                      <h3 className="mb-2 text-2xl font-semibold text-[#e8e1db] transition-colors group-hover:text-[#f2ca50]">
+                        {org.name}
+                      </h3>
+                      <p className="mb-4 line-clamp-2 text-base leading-relaxed text-[#d0c5af]">
+                        {org.text}
+                      </p>
+                      <div className="mt-auto flex items-center justify-between border-t border-[#4d4635] pt-4">
+                        <span className="text-sm font-bold text-[#f2ca50]">{org.meta}</span>
+                        <span className="text-sm text-[#d0c5af]">{org.time}</span>
                       </div>
                     </div>
                   </button>
@@ -731,31 +815,42 @@ export default function Home() {
                     Байршил шинэчлэх
                   </button>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  {(nearbyLounges.length > 0 ? nearbyLounges : featuredLounges).slice(0, 4).map((org) => (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { id: 'mizu', name: 'Mizu Fusion', type: 'Япон хоол', price: '$$$', distance: '800м зайд', image: REFERENCE_IMAGES.restaurants[0] },
+                    { id: 'italia', name: 'La Bella Italia', type: 'Итали хоол', price: '$$$', distance: '1.2км зайд', image: REFERENCE_IMAGES.restaurants[1] },
+                    { id: 'prime', name: 'Prime Steakhouse', type: 'Стейк & Грил', price: '$$$$', distance: '2.5км зайд', image: REFERENCE_IMAGES.restaurants[2] },
+                    { id: 'bistro', name: "C'est La Vie", type: 'Франц хоол', price: '$$$', distance: '3.1км зайд', image: REFERENCE_IMAGES.restaurants[3] },
+                  ].map((org) => (
                     <button
-                      key={`near-${org.id}`}
+                      key={org.id}
                       type="button"
-                      onClick={() => previewOrganization(org)}
-                      className="group overflow-hidden rounded-xl border border-lounge-border bg-[#12110e] text-left transition-all hover:border-lounge-accent/60"
+                      className="group overflow-hidden rounded-xl bg-[#211f1b] text-left transition-all duration-300 hover:-translate-y-1"
                     >
-                      <div className="aspect-[4/3] w-full overflow-hidden bg-lounge-card">
+                      <div className="relative h-48 overflow-hidden">
                         <img
-                          src={getCoverImage(org)}
+                          src={org.image}
                           alt={org.name}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="absolute inset-0 h-full w-full object-cover"
                         />
+                        <div className="absolute bottom-3 left-3 rounded bg-[#15130f]/80 px-2 py-1 text-[10px] font-bold text-[#f2ca50] backdrop-blur-md">
+                          {org.distance}
+                        </div>
                       </div>
-                      <div className="p-3">
-                        <h3 className="truncate text-xs font-extrabold text-white">{org.name}</h3>
-                        <p className="mt-1 truncate text-[11px] text-lounge-muted">{org.address}</p>
+                      <div className="p-4">
+                        <h3 className="truncate font-bold text-[#e8e1db]">{org.name}</h3>
+                        <p className="text-sm text-[#d0c5af]">{org.type}</p>
+                        <div className="mt-4 flex items-center justify-between">
+                          <span className="text-sm font-bold text-[#f2ca50]">{org.price}</span>
+                          <ChevronRight className="h-5 w-5 text-[#f2ca50]" />
+                        </div>
                       </div>
                     </button>
                   ))}
                 </div>
               </div>
-              <h2 className="text-center text-base font-extrabold text-white">Юу хүлээж байна вэ?</h2>
-              <div className="grid gap-3 md:grid-cols-3">
+              <h2 className="hidden">Юу хүлээж байна вэ?</h2>
+              <div className="hidden">
                 {[
                   {
                     icon: Armchair,
@@ -783,21 +878,31 @@ export default function Home() {
                 ))}
               </div>
 
-              <div className="grid gap-4 rounded-2xl border border-lounge-border bg-lounge-black/55 p-4 md:grid-cols-[1fr_260px] md:items-center">
+              <div className="relative grid overflow-hidden rounded-2xl border border-[#f2ca50]/20 bg-[#f2ca50]/5 p-6 md:grid-cols-[1fr_360px] md:items-center md:gap-12 md:p-12">
+                <div className="absolute -right-32 -top-32 h-64 w-64 rounded-full bg-[#f2ca50]/10 blur-[100px]" />
                 <div>
-                  <h2 className="text-base font-extrabold text-white">Холбоо барих</h2>
-                  <p className="mt-2 max-w-xl text-xs leading-relaxed text-lounge-muted">
-                    Асуулт, санал, тусламжтай холбоотой багтай холбогдоорой.
+                  <h2 className="mb-6 text-3xl font-extrabold leading-tight text-[#e8e1db] sm:text-5xl">Онцгой эрх хүлээн авах</h2>
+                  <p className="mb-8 max-w-lg text-base leading-relaxed text-[#d0c5af] sm:text-lg">
+                    UBTable-ийн гишүүн болсноор шинээр нээгдэж буй лоунжуудын урилга, тусгай хөнгөлөлт болон арга хэмжээний мэдээллийг түрүүлж авах боломжтой.
                   </p>
-                  <a
-                    href="/contact"
-                    className="mt-4 inline-flex items-center gap-2 rounded-lg border border-lounge-border bg-lounge-card px-4 py-2 text-xs font-extrabold text-white transition-all hover:border-lounge-accent hover:text-lounge-accent"
-                  >
-                    <Phone className="h-3.5 w-3.5" />
-                    Холбоо барих
-                  </a>
+                  <div className="flex w-full max-w-md gap-2">
+                    <input
+                      className="min-w-0 flex-1 rounded-lg border border-[#4d4635] bg-[#100e0a] px-4 py-3 text-sm text-[#e8e1db] outline-none transition-all placeholder:text-[#d0c5af] focus:border-[#f2ca50]"
+                      placeholder="Таны имэйл хаяг"
+                      type="email"
+                    />
+                    <button className="rounded-lg bg-[#f2ca50] px-6 py-3 text-sm font-bold text-[#3c2f00] transition hover:brightness-110">
+                      Илгээх
+                    </button>
+                  </div>
                 </div>
-                <div className="hidden h-24 rounded-xl border border-lounge-border bg-[linear-gradient(135deg,rgba(255,168,0,0.14),rgba(255,255,255,0.04))] md:block" />
+                <div className="relative z-10 mt-8 hidden aspect-square md:mt-0 md:block">
+                  <img
+                    src={REFERENCE_IMAGES.invitation}
+                    alt="Luxury invitation"
+                    className="h-full w-full rotate-3 scale-110 rounded-xl border border-[#3d372e] object-cover shadow-2xl"
+                  />
+                </div>
               </div>
             </div>
 

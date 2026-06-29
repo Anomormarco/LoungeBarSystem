@@ -39,6 +39,9 @@ export default function SubscriptionInfo() {
 
   useEffect(() => {
     fetchSubscription();
+    if (new URLSearchParams(window.location.search).get('success') === 'true') {
+      setPaymentSuccess(true);
+    }
   }, []);
 
   const handlePay = async () => {
@@ -311,21 +314,30 @@ export default function SubscriptionInfo() {
                     )}
 
                     {!invoice && (
-                      <button
-                        type="button"
-                        onClick={handlePay}
-                        className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs flex justify-center items-center gap-2"
-                        disabled={submitting || !paymentMethod}
-                      >
-                        {submitting ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <>
-                            Багц сунгах
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </>
+                      <>
+                        {paymentMethod === 'stripe' && (
+                          <div className="rounded-xl border border-slate-800 bg-slate-950 p-3 text-[11px] leading-relaxed text-slate-400">
+                            <p className="font-bold text-amber-400">Stripe test card</p>
+                            <p className="mt-1">Card: <span className="font-mono text-slate-200">4242 4242 4242 4242</span></p>
+                            <p>Date: ирээдүйн сар/жил, CVC: дурын 3 тоо</p>
+                          </div>
                         )}
-                      </button>
+                        <button
+                          type="button"
+                          onClick={handlePay}
+                          className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs flex justify-center items-center gap-2"
+                          disabled={submitting || !paymentMethod}
+                        >
+                          {submitting ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <>
+                              Багц сунгах
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </>
+                          )}
+                        </button>
+                      </>
                     )}
                   </>
                 )}

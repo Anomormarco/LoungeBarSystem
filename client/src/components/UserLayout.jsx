@@ -26,7 +26,8 @@ export default function UserLayout({ children }) {
     <div className="min-h-screen bg-[#15130f] text-[#e8e1db]">
       <div className="absolute top-0 left-0 w-full h-96 bg-[radial-gradient(circle_at_top,rgba(255,168,0,0.11),transparent_52%)] pointer-events-none" />
 
-      <header className="relative z-10 flex h-16 w-full items-center justify-between border-b border-lounge-border/40 bg-[#12110e]/88 px-4 backdrop-blur sm:px-6 lg:px-8">
+      <header className="relative z-10 w-full border-b border-lounge-border/40 bg-[#12110e]/88 backdrop-blur">
+        <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-3">
           <img src={LOGO_URL} alt="UBTable Logo" className="h-12 w-auto object-contain" />
         </Link>
@@ -47,6 +48,7 @@ export default function UserLayout({ children }) {
         >
           <Menu className="h-5 w-5" />
         </button>
+        </div>
       </header>
 
       {mobileOpen && (
@@ -89,8 +91,10 @@ export default function UserLayout({ children }) {
 
       <main className="relative z-10">{children}</main>
 
-      <footer className="relative z-10 mt-12 w-full border-t border-lounge-border px-4 py-8 text-center text-xs text-lounge-muted sm:px-6 lg:px-8">
-        <p>&copy; {new Date().getFullYear()} Lounge Table Reservation Platform</p>
+      <footer className="relative z-10 mt-12 w-full border-t border-lounge-border">
+        <div className="mx-auto w-full max-w-[1440px] px-4 py-8 text-center text-xs text-lounge-muted sm:px-6 lg:px-8">
+          <p>&copy; {new Date().getFullYear()} Lounge Table Reservation Platform</p>
+        </div>
       </footer>
     </div>
   );

@@ -40,7 +40,7 @@ export default function Contact() {
           <div className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
               <h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl">
-                Бидэнтэй <span className="text-gradient-neon">холбогдох</span>
+                Бидэнтэй <span className="text-white">холбогдох</span>
               </h1>
               <p className="mt-4 text-sm leading-relaxed text-lounge-muted">
                 Асуулт, санал, гомдолтой холбоотой бидэнтэй холбогдоорой.

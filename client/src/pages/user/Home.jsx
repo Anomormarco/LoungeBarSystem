@@ -121,6 +121,44 @@ function getTableStatusCounts(tables) {
   }, {});
 }
 
+const NEED_FILTERS = [
+  { id: 'all', label: 'Бүгд' },
+  { id: 'restaurant', label: 'Restaurant' },
+  { id: 'lounge', label: 'Lounge' },
+  { id: 'vip', label: 'VIP' },
+  { id: 'available', label: 'Сул ширээ' },
+  { id: 'near', label: 'Хамгийн ойр' },
+];
+
+function getSearchText(org) {
+  return [org?.name, org?.description, org?.address, org?.category, org?.type]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+}
+
+function matchesNeed(org, need) {
+  const text = getSearchText(org);
+  if (need === 'restaurant') return /restaurant|рест|зоог|хоол|cafe|кафе/.test(text);
+  if (need === 'lounge') return /lounge|bar|pub|club|клуб|лаунж/.test(text);
+  if (need === 'vip') return Number(org?.vipTableCount ?? org?.vip_table_count ?? 0) > 0 || /vip/.test(text);
+  if (need === 'available') return Number(org?.availableTableCount ?? org?.available_table_count ?? 0) > 0;
+  if (need === 'near') return Number(org?.distanceMeters ?? org?.distance_meters ?? Infinity) <= 3000;
+  return true;
+}
+
+function sortByRecommendation(a, b) {
+  const aDistance = Number(a?.distanceMeters ?? a?.distance_meters ?? Infinity);
+  const bDistance = Number(b?.distanceMeters ?? b?.distance_meters ?? Infinity);
+  const aScore = Number(a?.availableTableCount ?? 0) * 2 + Number(a?.vipTableCount ?? 0) * 3 - aDistance / 1000;
+  const bScore = Number(b?.availableTableCount ?? 0) * 2 + Number(b?.vipTableCount ?? 0) * 3 - bDistance / 1000;
+  return bScore - aScore;
+}
+
+function sortByDistance(a, b) {
+  return Number(a?.distanceMeters ?? a?.distance_meters ?? Infinity) - Number(b?.distanceMeters ?? b?.distance_meters ?? Infinity);
+}
+
 export default function Home() {
   const detailRequestRef = useRef(0);
   const locationRequestRef = useRef(0);
@@ -137,6 +175,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [tableType, setTableType] = useState('all');
   const [availableOnly, setAvailableOnly] = useState(false);
+  const [activeNeed, setActiveNeed] = useState('all');
   const [selectedOrgId, setSelectedOrgId] = useState(null);
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -171,6 +210,11 @@ export default function Home() {
   const selectedPhone = selectedDetail?.phone || selectedSummary?.phone;
   const selectedOpeningTime = selectedDetail?.openingTime || selectedSummary?.opening_time;
   const selectedClosingTime = selectedDetail?.closingTime || selectedSummary?.closing_time;
+  const recommendedOrganizations = organizations
+    .filter((org) => matchesNeed(org, activeNeed))
+    .sort(activeNeed === 'near' ? sortByDistance : sortByRecommendation)
+    .slice(0, 6);
+  const nearbyOrganizations = [...organizations].sort(sortByDistance).slice(0, 8);
   const getMenuItemImages = (item) => {
     const images = Array.isArray(item.images) ? item.images : [];
     return [...images, item.image].filter(Boolean);
@@ -385,8 +429,8 @@ export default function Home() {
     }
   };
 
-  const openLandingOrganization = async (index) => {
-    const org = organizations[index] || organizations[0];
+  const openLandingOrganization = async (target) => {
+    const org = typeof target === 'object' ? target : organizations[target] || organizations[0];
     if (!org) return;
     await previewOrganization(org, { source: 'click' });
     openLoungeDetail();
@@ -765,7 +809,80 @@ export default function Home() {
                 <span className="hidden text-xs font-bold text-lounge-muted sm:inline">Premium сонголтууд</span>
               </div>
 
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="rounded-2xl border border-lounge-border bg-[#12110e]/70 p-3">
+                <div className="mb-3 flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.18em] text-lounge-accent">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  Таны хэрэгцээнд
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {NEED_FILTERS.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setActiveNeed(item.id)}
+                      className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-extrabold transition ${
+                        activeNeed === item.id
+                          ? 'border-lounge-accent bg-lounge-accent text-lounge-black'
+                          : 'border-lounge-border bg-lounge-black text-lounge-muted hover:border-lounge-accent hover:text-white'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {recommendedOrganizations.map((org) => (
+                  <div
+                    key={org.id}
+                    className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#3d372e] bg-[#211f1b] text-left transition-all hover:border-[#d4af37]"
+                  >
+                    <div className="relative h-36 overflow-hidden sm:h-40">
+                      <img
+                        src={getCoverImage(org)}
+                        alt={org.name}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute right-3 top-3 rounded-full bg-[#373430]/80 px-2.5 py-0.5 text-xs font-bold text-[#e8e1db] backdrop-blur-md">
+                        <span className="text-[#f2ca50]">VIP</span> {org.vipTableCount ?? 0}
+                      </div>
+                    </div>
+                    <div className="flex flex-1 flex-col p-3.5">
+                      <h3 className="mb-1 text-base font-semibold text-[#e8e1db] transition-colors group-hover:text-[#f2ca50]">
+                        {org.name}
+                      </h3>
+                      <p className="mb-2 line-clamp-2 text-[11px] leading-relaxed text-[#d0c5af] sm:text-xs">
+                        {org.description || org.address}
+                      </p>
+                      <div className="mt-auto flex items-center justify-between gap-2 border-t border-[#4d4635] pt-2.5">
+                        <span className="text-[11px] font-bold text-[#f2ca50]">
+                          {formatDistance(Number(org.distanceMeters)) || 'Ойролцоо'}
+                        </span>
+                        <span className="truncate text-[11px] text-[#d0c5af]">
+                          {org.openingTime || org.opening_time} - {org.closingTime || org.closing_time}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openLandingOrganization(org)}
+                        disabled={organizations.length === 0}
+                        className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#f2ca50] px-3 py-2 text-xs font-bold text-[#3c2f00] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Дэлгэрэнгүй захиалах
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {recommendedOrganizations.length === 0 && (
+                  <div className="rounded-xl border border-lounge-border bg-lounge-black p-4 text-sm text-lounge-muted sm:col-span-2 lg:col-span-3">
+                    Энэ ангилалд тохирох газар олдсонгүй.
+                  </div>
+                )}
+              </div>
+
+                <div className="hidden">
                 {[
                   {
                     id: 'silk-road',
@@ -849,6 +966,47 @@ export default function Home() {
                   </button>
                 </div>
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {nearbyOrganizations.map((org) => (
+                    <div
+                      key={org.id}
+                      className="group overflow-hidden rounded-xl bg-[#211f1b] text-left transition-all duration-300 hover:-translate-y-1"
+                    >
+                      <div className="relative h-32 overflow-hidden sm:h-36">
+                        <img
+                          src={getCoverImage(org)}
+                          alt={org.name}
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                        <div className="absolute bottom-3 left-3 rounded bg-[#15130f]/80 px-2 py-1 text-[10px] font-bold text-[#f2ca50] backdrop-blur-md">
+                          {formatDistance(Number(org.distanceMeters)) || 'Ойрхон'}
+                        </div>
+                      </div>
+                      <div className="p-3">
+                        <h3 className="truncate text-sm font-bold text-[#e8e1db]">{org.name}</h3>
+                        <p className="line-clamp-1 text-xs text-[#d0c5af]">{org.address}</p>
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="text-xs font-bold text-[#f2ca50]">{org.availableTableCount ?? 0} сул</span>
+                          <button
+                            type="button"
+                            onClick={() => openLandingOrganization(org)}
+                            disabled={organizations.length === 0}
+                            className="inline-flex items-center gap-1 rounded-md border border-[#f2ca50]/40 px-2 py-1 text-xs font-bold text-[#f2ca50] transition hover:bg-[#f2ca50]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            Дэлгэрэнгүй
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {nearbyOrganizations.length === 0 && (
+                    <div className="rounded-xl border border-lounge-border bg-lounge-black p-4 text-sm text-lounge-muted sm:col-span-2 lg:col-span-4">
+                      Таны байршилд ойр газар олдсонгүй.
+                    </div>
+                  )}
+                </div>
+
+                  <div className="hidden">
                   {[
                     { id: 'mizu', name: 'Mizu Fusion', type: 'Япон хоол', price: '$$$', distance: '800м зайд', image: REFERENCE_IMAGES.restaurants[0] },
                     { id: 'italia', name: 'La Bella Italia', type: 'Итали хоол', price: '$$$', distance: '1.2км зайд', image: REFERENCE_IMAGES.restaurants[1] },

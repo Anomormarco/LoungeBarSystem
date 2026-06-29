@@ -37,7 +37,7 @@ export default function Contact() {
     <UserLayout>
       <section className="w-full px-0 py-0">
         <div className="w-full border-y border-lounge-border bg-lounge-card/75 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur">
-          <div className="p-4 sm:p-6 lg:px-8">
+          <div className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
               <h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl">
                 Бидэнтэй <span className="text-gradient-neon">холбогдох</span>

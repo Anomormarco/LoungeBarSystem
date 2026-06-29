@@ -48,7 +48,7 @@ export default function RestaurantsLounges() {
 
   return (
     <UserLayout>
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+      <section className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-lounge-accent text-sm font-black mb-2">Places</p>

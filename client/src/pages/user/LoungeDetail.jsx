@@ -120,7 +120,7 @@ function LoungeDetailContent() {
   if (error || !organization) {
     return (
       <UserLayout>
-        <div className="max-w-7xl mx-auto px-6 py-20 text-center">
+        <div className="mx-auto w-full max-w-[1440px] px-4 py-20 text-center sm:px-6 lg:px-8">
           <p className="text-red-400 mb-4">{error || 'Lounge олдсонгүй.'}</p>
           <button
             onClick={() => navigate('/')}
@@ -142,7 +142,7 @@ function LoungeDetailContent() {
         }}
       >
       <div
-        className="max-w-7xl mx-auto px-4 sm:px-6 py-6"
+        className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8"
         onClick={(event) => event.stopPropagation()}
       >
         <button

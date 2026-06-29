@@ -66,7 +66,7 @@ export default function About() {
             <div className="absolute inset-0 bg-black/65" />
           </div>
 
-          <div className="relative z-10 mx-auto w-full px-4 py-24 sm:px-6 lg:px-8">
+          <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 py-24 sm:px-6 lg:px-8">
             <div className="max-w-2xl space-y-8">
               <span className="inline-block border border-[#f2ca50]/40 px-4 py-1 text-sm font-bold uppercase tracking-[0.22em] text-[#f2ca50]">
                 Premium Dining
@@ -88,7 +88,7 @@ export default function About() {
           </div>
         </section>
 
-        <section className="mx-auto w-full px-4 py-28 sm:px-6 lg:px-8">
+        <section className="mx-auto w-full max-w-[1440px] px-4 py-28 sm:px-6 lg:px-8">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-bold text-[#f2ca50]">Why UBTable?</h2>
             <div className="mx-auto h-1 w-24 bg-[#f2ca50]" />
@@ -109,7 +109,7 @@ export default function About() {
         </section>
 
         <section className="bg-[#100e0a] py-28">
-          <div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
             <div className="mb-16 flex flex-col justify-between gap-8 md:flex-row md:items-end">
               <div className="max-w-xl">
                 <h2 className="text-5xl font-extrabold text-[#f2ca50]">Our Network</h2>
@@ -143,7 +143,7 @@ export default function About() {
 
         <section className="relative overflow-hidden py-28">
           <div className="absolute inset-0 -z-10 origin-right translate-y-20 skew-y-3 bg-[#2c2a25]/40" />
-          <div className="mx-auto grid w-full grid-cols-1 items-center gap-16 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
+          <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 items-center gap-16 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
             <div className="relative order-2 md:order-1">
               <div className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-[#f2ca50]/10 blur-3xl" />
               <img src={images.business} alt="Business partnership" className="relative z-10 w-full border border-[#3d372e] object-cover shadow-2xl" />

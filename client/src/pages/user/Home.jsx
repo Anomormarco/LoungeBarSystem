@@ -178,6 +178,21 @@ export default function Home() {
     setLoadingLocation(false);
   };
 
+  const applyBrowserLocation = (pos) => {
+    const nextLat = Number(pos.coords.latitude);
+    const nextLng = Number(pos.coords.longitude);
+
+    if (!Number.isFinite(nextLat) || !Number.isFinite(nextLng)) {
+      useDefaultLocation('Байршлын координат буруу ирлээ. УБ төвөөр хайж байна.');
+      return;
+    }
+
+    setLocation({ lat: nextLat, lng: nextLng, updatedAt: Date.now() });
+    setLocationLabel('Таны одоогийн байршил');
+    setLocationError('');
+    setLoadingLocation(false);
+  };
+
   const requestLocation = () => {
     setLoadingLocation(true);
     setLocationError('');
@@ -187,29 +202,35 @@ export default function Home() {
       return;
     }
 
+    let settled = false;
+
+    const finishWithFallback = (geoError) => {
+      if (settled) return;
+      settled = true;
+      const reason = geoError?.code === 1
+        ? 'Байршлын зөвшөөрөл олгоогүй.'
+        : geoError?.code === 3
+          ? 'Байршил татах хугацаа хэтэрлээ.'
+          : 'Байршил татахад алдаа гарлаа.';
+      useDefaultLocation(`${reason} Browser settings дээр location зөвшөөрөөд дахин оролдоорой. Түр УБ төвөөр хайж байна.`);
+    };
+
+    const finishWithLocation = (pos) => {
+      if (settled) return;
+      settled = true;
+      applyBrowserLocation(pos);
+    };
+
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const nextLat = Number(pos.coords.latitude);
-        const nextLng = Number(pos.coords.longitude);
-
-        if (!Number.isFinite(nextLat) || !Number.isFinite(nextLng)) {
-          useDefaultLocation('Байршлын координат буруу ирлээ. УБ төвөөр хайж байна.');
-          return;
-        }
-
-        setLocation({ lat: nextLat, lng: nextLng, updatedAt: Date.now() });
-        setLocationLabel('Таны одоогийн байршил');
-        setLoadingLocation(false);
+      finishWithLocation,
+      () => {
+        navigator.geolocation.getCurrentPosition(
+          finishWithLocation,
+          finishWithFallback,
+          { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+        );
       },
-      (geoError) => {
-        const reason = geoError?.code === 1
-          ? 'Байршлын зөвшөөрөл олгоогүй.'
-          : geoError?.code === 3
-            ? 'Байршил татах хугацаа хэтэрлээ.'
-            : 'Байршил татахад алдаа гарлаа.';
-        useDefaultLocation(`${reason} УБ төвөөр хайж байна.`);
-      },
-      { enableHighAccuracy: false, timeout: 15000, maximumAge: 30000 }
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 30000 }
     );
   };
 

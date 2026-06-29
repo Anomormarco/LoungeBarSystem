@@ -121,6 +121,7 @@ export default function Home() {
   const [stickyPreviewId, setStickyPreviewId] = useState(null);
   const [selectedTable, setSelectedTable] = useState(null);
   const [tableViewFilter, setTableViewFilter] = useState('all');
+  const [selectedMedia, setSelectedMedia] = useState(null);
 
   const selectedSummary = organizations.find((org) => org.id === selectedOrgId);
   const mapBounds = UB_MAP_BOUNDS;
@@ -135,10 +136,19 @@ export default function Home() {
   const exteriorImages = selectedDetail?.exteriorImages || selectedSummary?.exteriorImages || [];
   const interiorImages = selectedDetail?.interiorImages || selectedSummary?.interiorImages || [];
   const previewImages = [...exteriorImages.slice(0, 2), ...interiorImages.slice(0, 2)];
+  const galleryImages = [
+    ...exteriorImages.map((image) => ({ image, title: 'Exterior', subtitle: selectedSummary?.name })),
+    ...interiorImages.map((image) => ({ image, title: 'Interior', subtitle: selectedSummary?.name })),
+  ];
   const selectedDescription = selectedDetail?.description || selectedSummary?.description;
   const selectedPhone = selectedDetail?.phone || selectedSummary?.phone;
   const selectedOpeningTime = selectedDetail?.openingTime || selectedSummary?.opening_time;
   const selectedClosingTime = selectedDetail?.closingTime || selectedSummary?.closing_time;
+
+  const getMenuItemImages = (item) => {
+    const images = Array.isArray(item.images) ? item.images : [];
+    return [...images, item.image].filter(Boolean);
+  };
 
   const openLoungeDetail = () => {
     setTableViewFilter('all');
@@ -149,6 +159,7 @@ export default function Home() {
     setDetailOverlayOpen(false);
     setSelectedTable(null);
     setTableViewFilter('all');
+    setSelectedMedia(null);
   };
 
   const hideOrganizationPreview = () => {
@@ -770,13 +781,22 @@ export default function Home() {
                       Interior / Exterior
                     </h3>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      {(previewImages.length > 0 ? previewImages : [getCoverImage(selectedDetail || selectedSummary)]).slice(0, 4).map((image, index) => (
-                        <img
-                          key={image + index}
-                          src={image}
-                          alt=""
-                          className="h-28 w-full rounded-lg border border-lounge-border object-cover"
-                        />
+                      {(galleryImages.length > 0 ? galleryImages : [{ image: getCoverImage(selectedDetail || selectedSummary), title: 'Lounge', subtitle: selectedSummary.name }]).slice(0, 8).map((item, index) => (
+                        <button
+                          key={item.image + index}
+                          type="button"
+                          onClick={() => setSelectedMedia(item)}
+                          className="group relative h-28 overflow-hidden rounded-lg border border-lounge-border bg-lounge-card text-left hover:border-lounge-accent hover:shadow-[0_0_14px_rgba(255,168,0,0.22)]"
+                        >
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                          <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-2 pb-2 pt-6 text-[11px] font-extrabold text-white">
+                            {item.title}
+                          </span>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -904,14 +924,47 @@ export default function Home() {
                     </h3>
                     <div className="max-h-[34rem] space-y-2 overflow-auto pr-1">
                       {menuItems.length > 0 ? (
-                        menuItems.slice(0, 12).map((item) => (
-                          <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-lounge-border bg-lounge-card px-3 py-3">
-                            <p className="truncate text-sm font-semibold text-white">{item.name}</p>
-                            <span className="shrink-0 text-sm font-extrabold text-lounge-accent">
-                              {Number(item.price).toLocaleString()} ₮
-                            </span>
-                          </div>
-                        ))
+                        menuItems.slice(0, 18).map((item) => {
+                          const itemImages = getMenuItemImages(item);
+                          const firstImage = itemImages[0];
+
+                          return (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => {
+                                if (firstImage) {
+                                  setSelectedMedia({
+                                    image: firstImage,
+                                    title: item.name,
+                                    subtitle: item.description || item.category,
+                                    price: item.price,
+                                  });
+                                }
+                              }}
+                              className={`flex w-full items-center gap-3 rounded-lg border border-lounge-border bg-lounge-card px-3 py-3 text-left transition-all ${
+                                firstImage ? 'hover:border-lounge-accent hover:bg-lounge-card/90 hover:shadow-[0_0_12px_rgba(255,168,0,0.18)]' : 'cursor-default'
+                              }`}
+                            >
+                              {firstImage && (
+                                <img
+                                  src={firstImage}
+                                  alt={item.name}
+                                  className="h-14 w-14 shrink-0 rounded-lg border border-lounge-border object-cover"
+                                />
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-semibold text-white">{item.name}</p>
+                                {item.description && (
+                                  <p className="mt-1 line-clamp-2 text-xs text-lounge-muted">{item.description}</p>
+                                )}
+                              </div>
+                              <span className="shrink-0 text-sm font-extrabold text-lounge-accent">
+                                {Number(item.price).toLocaleString()} ₮
+                              </span>
+                            </button>
+                          );
+                        })
                       ) : (
                         <div className="rounded-lg border border-lounge-border bg-lounge-card px-3 py-3 text-sm text-lounge-muted">
                           {detailLoading ? 'Menu ачаалж байна...' : 'Menu бүртгэлгүй байна'}
@@ -921,6 +974,47 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedMedia && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 px-4 py-6 backdrop-blur-sm"
+          onClick={() => setSelectedMedia(null)}
+        >
+          <div
+            className="relative w-full max-w-4xl overflow-hidden rounded-2xl border border-lounge-primary/30 bg-lounge-card shadow-[0_0_35px_rgba(255,168,0,0.24)]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedMedia(null)}
+              className="absolute right-3 top-3 z-10 rounded-xl border border-lounge-border bg-lounge-black/90 p-2 text-lounge-muted transition-colors hover:text-white"
+              aria-label="Close image"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="max-h-[78vh] bg-lounge-black">
+              <img
+                src={selectedMedia.image}
+                alt={selectedMedia.title || 'Lounge image'}
+                className="max-h-[78vh] w-full object-contain"
+              />
+            </div>
+            <div className="flex flex-col gap-1 border-t border-lounge-border bg-lounge-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <h3 className="truncate text-base font-extrabold text-white">{selectedMedia.title}</h3>
+                {selectedMedia.subtitle && (
+                  <p className="mt-1 line-clamp-2 text-xs text-lounge-muted">{selectedMedia.subtitle}</p>
+                )}
+              </div>
+              {selectedMedia.price && (
+                <p className="shrink-0 text-sm font-extrabold text-lounge-accent">
+                  {Number(selectedMedia.price).toLocaleString()} ₮
+                </p>
+              )}
             </div>
           </div>
         </div>

@@ -143,6 +143,7 @@ export default function Home() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [tableViewFilter, setTableViewFilter] = useState('all');
   const [selectedMedia, setSelectedMedia] = useState(null);
+  const [showMapInfo, setShowMapInfo] = useState(true);
 
   const selectedSummary = organizations.find((org) => org.id === selectedOrgId);
   const mapBounds = UB_MAP_BOUNDS;
@@ -453,7 +454,19 @@ export default function Home() {
                 onOrganizationSelect={previewOrganization}
                 onOrganizationClear={hideOrganizationPreview}
               />
-              <div className="absolute left-5 top-5 z-20 max-w-xs rounded-lg border border-[#3d372e] bg-[#373430]/90 p-5 shadow-2xl backdrop-blur-sm">
+              {showMapInfo && (
+              <div className="absolute left-5 top-5 z-20 max-w-xs rounded-lg border border-[#3d372e] bg-[#373430]/90 p-5 pr-11 shadow-2xl backdrop-blur-sm">
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setShowMapInfo(false);
+                  }}
+                  className="absolute right-2 top-2 rounded-lg p-1.5 text-[#d0c5af] transition hover:bg-[#15130f]/70 hover:text-white"
+                  aria-label="Мэдээлэл хаах"
+                >
+                  <X className="h-4 w-4" />
+                </button>
                 <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[#e8e1db]">
                   <MapPin className="h-4 w-4 text-[#f2ca50]" />
                   <span>Улаанбаатар хот</span>
@@ -472,6 +485,7 @@ export default function Home() {
                   Бүгдийг харах
                 </button>
               </div>
+              )}
               {loading && (
                 <div className="absolute inset-0 z-30 bg-lounge-black/85 flex flex-col items-center justify-center gap-3 backdrop-blur-sm">
                   <Loader2 className="w-10 h-10 text-lounge-accent animate-spin" />
@@ -490,11 +504,11 @@ export default function Home() {
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-lounge-black/95 to-transparent" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedOrgId(null);
-                        setSelectedDetail(null);
+                      <button
+                        type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        clearOrganizationPreview();
                       }}
                       className="absolute top-3 right-3 p-2 rounded-lg bg-lounge-black/80 border border-lounge-border text-lounge-muted hover:text-white"
                     >

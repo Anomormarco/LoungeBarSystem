@@ -39,6 +39,8 @@ const UB_MAP_BOUNDS = {
   maxLng: 106.985,
 };
 
+const MAP_INFO_DISMISSED_KEY = 'ubtable-map-info-dismissed';
+
 const REFERENCE_IMAGES = {
   featuredFood:
     'https://lh3.googleusercontent.com/aida-public/AB6AXuDi5-8CFDWKfA415UMk9NGPz24Ea8oJBxwm1se3vvbkzFNP13TVpfC3CliM9Vm5dMCtjQmWjQZVMyyeQR_dOC3I4OwZD7L_WMLlp3Rjhy1jbPj2cnrkvedPeyFhXrAvgCF1xzTb6anetWXMTELqwUHoU8Wg9DyqKIZMQHkpd2OaGKAepoN3_ifzHlUev81uaP7dTU3g0K2gTCdGEXrUTphPRrCMU5cBbj8R2FJybDPMP9iiVggB7ic-S7kg4V5jlfnVIzKitvxVPzb4',
@@ -143,7 +145,10 @@ export default function Home() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [tableViewFilter, setTableViewFilter] = useState('all');
   const [selectedMedia, setSelectedMedia] = useState(null);
-  const [showMapInfo, setShowMapInfo] = useState(true);
+  const [showMapInfo, setShowMapInfo] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return window.localStorage.getItem(MAP_INFO_DISMISSED_KEY) !== 'true';
+  });
 
   const selectedSummary = organizations.find((org) => org.id === selectedOrgId);
   const mapBounds = UB_MAP_BOUNDS;
@@ -174,6 +179,13 @@ export default function Home() {
   const openLoungeDetail = () => {
     setTableViewFilter('all');
     setDetailOverlayOpen(true);
+  };
+
+  const dismissMapInfo = () => {
+    setShowMapInfo(false);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(MAP_INFO_DISMISSED_KEY, 'true');
+    }
   };
 
   const closeLoungeDetail = () => {
@@ -443,7 +455,7 @@ export default function Home() {
               </div>
 
             <div
-              className="relative h-[380px] min-h-[380px] overflow-hidden rounded-xl border border-[#3d372e] bg-[#1d1b17] shadow-[0_0_25px_rgba(0,0,0,0.5)] sm:h-[470px] sm:min-h-[470px] lg:col-span-8"
+              className="relative h-[330px] min-h-[330px] overflow-hidden rounded-xl border border-[#3d372e] bg-[#1d1b17] shadow-[0_0_25px_rgba(0,0,0,0.5)] sm:h-[430px] sm:min-h-[430px] lg:col-span-8"
               onClick={clearOrganizationPreview}
             >
               <LoungeMap
@@ -455,32 +467,32 @@ export default function Home() {
                 onOrganizationClear={hideOrganizationPreview}
               />
               {showMapInfo && (
-              <div className="absolute left-5 top-5 z-20 max-w-xs rounded-lg border border-[#3d372e] bg-[#373430]/90 p-5 pr-11 shadow-2xl backdrop-blur-sm">
+              <div className="absolute left-3 right-3 top-3 z-20 rounded-lg border border-[#3d372e] bg-[#373430]/90 p-3 pr-10 shadow-2xl backdrop-blur-sm sm:left-5 sm:right-auto sm:top-5 sm:max-w-xs sm:p-5 sm:pr-11">
                 <button
                   type="button"
                   onClick={(event) => {
                     event.stopPropagation();
-                    setShowMapInfo(false);
+                    dismissMapInfo();
                   }}
                   className="absolute right-2 top-2 rounded-lg p-1.5 text-[#d0c5af] transition hover:bg-[#15130f]/70 hover:text-white"
                   aria-label="Мэдээлэл хаах"
                 >
                   <X className="h-4 w-4" />
                 </button>
-                <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[#e8e1db]">
+                <div className="mb-1.5 flex items-center gap-2 text-xs font-bold text-[#e8e1db] sm:mb-2 sm:text-sm">
                   <MapPin className="h-4 w-4 text-[#f2ca50]" />
                   <span>Улаанбаатар хот</span>
                 </div>
-                <h1 className="mb-2 text-2xl font-semibold leading-tight text-[#e8e1db]">
+                <h1 className="mb-1.5 text-lg font-semibold leading-tight text-[#e8e1db] sm:mb-2 sm:text-2xl">
                   Ойролцоо ресторан, lounge
                 </h1>
-                <p className="mb-4 text-sm leading-relaxed text-[#d0c5af]">
+                <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-[#d0c5af] sm:mb-4 sm:line-clamp-none sm:text-sm">
                   Таны байршилтай ойр байгаа хамгийн дээд зэрэглэлийн үйлчилгээтэй газрууд.
                 </p>
                 <button
                   type="button"
                   onClick={requestLocation}
-                  className="w-full rounded-lg border border-[#f2ca50] px-4 py-2 text-sm font-bold text-[#f2ca50] transition hover:bg-[#f2ca50]/10"
+                  className="w-full rounded-lg border border-[#f2ca50] px-3 py-1.5 text-xs font-bold text-[#f2ca50] transition hover:bg-[#f2ca50]/10 sm:px-4 sm:py-2 sm:text-sm"
                 >
                   Бүгдийг харах
                 </button>
@@ -744,7 +756,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mt-8 space-y-5">
+            <div className="mt-6 space-y-4">
               <div className="flex items-end justify-between gap-3">
                 <div>
                   <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-lounge-accent">Recommended</p>
@@ -753,7 +765,7 @@ export default function Home() {
                 <span className="hidden text-xs font-bold text-lounge-muted sm:inline">Premium сонголтууд</span>
               </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[
                   {
                     id: 'silk-road',
@@ -787,32 +799,32 @@ export default function Home() {
                     key={org.id}
                     className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#3d372e] bg-[#211f1b] text-left transition-all hover:border-[#d4af37]"
                   >
-                    <div className="relative h-48 overflow-hidden">
+                    <div className="relative h-36 overflow-hidden sm:h-40">
                       <img
                         src={org.image}
                         alt={org.name}
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      <div className="absolute right-4 top-4 rounded-full bg-[#373430]/80 px-3 py-1 text-sm font-bold text-[#e8e1db] backdrop-blur-md">
+                      <div className="absolute right-3 top-3 rounded-full bg-[#373430]/80 px-2.5 py-0.5 text-xs font-bold text-[#e8e1db] backdrop-blur-md">
                         <span className="text-[#f2ca50]">★</span> {org.rating}
                       </div>
                     </div>
-                    <div className="flex flex-1 flex-col p-4">
-                      <h3 className="mb-1.5 text-lg font-semibold text-[#e8e1db] transition-colors group-hover:text-[#f2ca50]">
+                    <div className="flex flex-1 flex-col p-3.5">
+                      <h3 className="mb-1 text-base font-semibold text-[#e8e1db] transition-colors group-hover:text-[#f2ca50]">
                         {org.name}
                       </h3>
-                      <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-[#d0c5af]">
+                      <p className="mb-2 line-clamp-2 text-[11px] leading-relaxed text-[#d0c5af] sm:text-xs">
                         {org.text}
                       </p>
-                      <div className="mt-auto flex items-center justify-between border-t border-[#4d4635] pt-3">
-                        <span className="text-xs font-bold text-[#f2ca50]">{org.meta}</span>
-                        <span className="text-xs text-[#d0c5af]">{org.time}</span>
+                      <div className="mt-auto flex items-center justify-between gap-2 border-t border-[#4d4635] pt-2.5">
+                        <span className="text-[11px] font-bold text-[#f2ca50]">{org.meta}</span>
+                        <span className="truncate text-[11px] text-[#d0c5af]">{org.time}</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => openLandingOrganization(index)}
                         disabled={organizations.length === 0}
-                        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#f2ca50] px-4 py-2.5 text-sm font-bold text-[#3c2f00] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#f2ca50] px-3 py-2 text-xs font-bold text-[#3c2f00] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Дэлгэрэнгүй захиалах
                         <ChevronRight className="h-4 w-4" />
@@ -836,7 +848,7 @@ export default function Home() {
                     Байршил шинэчлэх
                   </button>
                 </div>
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
                     { id: 'mizu', name: 'Mizu Fusion', type: 'Япон хоол', price: '$$$', distance: '800м зайд', image: REFERENCE_IMAGES.restaurants[0] },
                     { id: 'italia', name: 'La Bella Italia', type: 'Итали хоол', price: '$$$', distance: '1.2км зайд', image: REFERENCE_IMAGES.restaurants[1] },
@@ -847,7 +859,7 @@ export default function Home() {
                       key={org.id}
                       className="group overflow-hidden rounded-xl bg-[#211f1b] text-left transition-all duration-300 hover:-translate-y-1"
                     >
-                      <div className="relative h-40 overflow-hidden">
+                      <div className="relative h-32 overflow-hidden sm:h-36">
                         <img
                           src={org.image}
                           alt={org.name}
@@ -857,11 +869,11 @@ export default function Home() {
                           {org.distance}
                         </div>
                       </div>
-                      <div className="p-4">
-                        <h3 className="truncate font-bold text-[#e8e1db]">{org.name}</h3>
-                        <p className="text-sm text-[#d0c5af]">{org.type}</p>
-                        <div className="mt-4 flex items-center justify-between">
-                          <span className="text-sm font-bold text-[#f2ca50]">{org.price}</span>
+                      <div className="p-3">
+                        <h3 className="truncate text-sm font-bold text-[#e8e1db]">{org.name}</h3>
+                        <p className="text-xs text-[#d0c5af]">{org.type}</p>
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="text-xs font-bold text-[#f2ca50]">{org.price}</span>
                           <button
                             type="button"
                             onClick={() => openLandingOrganization(index + 3)}

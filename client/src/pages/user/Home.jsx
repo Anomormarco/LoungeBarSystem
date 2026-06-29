@@ -100,6 +100,8 @@ function getTableStatusCounts(tables) {
 
 export default function Home() {
   const detailRequestRef = useRef(0);
+  const locationRequestRef = useRef(0);
+  const locationWatchRef = useRef(null);
   const tableListRef = useRef(null);
   const [location, setLocation] = useState({ lat: DEFAULT_LOCATION.lat, lng: DEFAULT_LOCATION.lng });
   const [locationLabel, setLocationLabel] = useState(DEFAULT_LOCATION.label);
@@ -171,7 +173,17 @@ export default function Home() {
     }));
   };
 
-  const useDefaultLocation = (message = '') => {
+  const stopLocationWatch = () => {
+    if (locationWatchRef.current && navigator.geolocation) {
+      navigator.geolocation.clearWatch(locationWatchRef.current);
+      locationWatchRef.current = null;
+    }
+  };
+
+  const useDefaultLocation = (message = '', options = {}) => {
+    if (options.stopWatching !== false) {
+      stopLocationWatch();
+    }
     setLocation({ lat: DEFAULT_LOCATION.lat, lng: DEFAULT_LOCATION.lng, updatedAt: Date.now() });
     setLocationLabel(DEFAULT_LOCATION.label);
     setLocationError(typeof message === 'string' ? message : '');
@@ -191,35 +203,56 @@ export default function Home() {
     setLocationLabel('Таны одоогийн байршил');
     setLocationError('');
     setLoadingLocation(false);
+    stopLocationWatch();
   };
 
   const requestLocation = () => {
+    const requestId = locationRequestRef.current + 1;
+    locationRequestRef.current = requestId;
+    stopLocationWatch();
     setLoadingLocation(true);
     setLocationError('');
+
+    if (!window.isSecureContext) {
+      useDefaultLocation('Байршил зөвхөн HTTPS дээр ажиллана. Түр УБ төвөөр хайж байна.');
+      return;
+    }
 
     if (!navigator.geolocation) {
       useDefaultLocation('Таны browser байршил дэмжихгүй байна. УБ төвөөр хайж байна.');
       return;
     }
 
-    let settled = false;
-
     const finishWithFallback = (geoError) => {
-      if (settled) return;
-      settled = true;
+      if (locationRequestRef.current !== requestId) return;
       const reason = geoError?.code === 1
         ? 'Байршлын зөвшөөрөл олгоогүй.'
         : geoError?.code === 3
           ? 'Байршил татах хугацаа хэтэрлээ.'
           : 'Байршил татахад алдаа гарлаа.';
-      useDefaultLocation(`${reason} Browser settings дээр location зөвшөөрөөд дахин оролдоорой. Түр УБ төвөөр хайж байна.`);
+      useDefaultLocation(`${reason} Browser settings дээр location зөвшөөрөөд дахин оролдоорой. Түр УБ төвөөр хайж байна.`, {
+        stopWatching: false,
+      });
     };
 
     const finishWithLocation = (pos) => {
-      if (settled) return;
-      settled = true;
+      if (locationRequestRef.current !== requestId) return;
       applyBrowserLocation(pos);
     };
+
+    locationWatchRef.current = navigator.geolocation.watchPosition(
+      finishWithLocation,
+      (geoError) => {
+        if (locationRequestRef.current !== requestId) return;
+        const reason = geoError?.code === 1
+          ? 'Байршлын зөвшөөрөл олгоогүй.'
+          : geoError?.code === 3
+            ? 'GPS уншиж байна, түр хүлээгээрэй.'
+            : 'Байршил уншихад алдаа гарлаа.';
+        setLocationError(reason);
+      },
+      { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+    );
 
     navigator.geolocation.getCurrentPosition(
       finishWithLocation,
@@ -236,6 +269,9 @@ export default function Home() {
 
   useEffect(() => {
     requestLocation();
+    return () => {
+      stopLocationWatch();
+    };
   }, []);
 
   useEffect(() => {
@@ -360,7 +396,7 @@ export default function Home() {
                   Байршил шинэчлэх
                 </button>
                 <button
-                  onClick={useDefaultLocation}
+                  onClick={() => useDefaultLocation()}
                   className="px-4 py-2 text-xs font-bold bg-lounge-black text-lounge-accent border border-lounge-border/80 rounded-lg hover:border-lounge-accent hover:shadow-[0_0_10px_rgba(255,168,0,0.25)] hover:text-white transition-all duration-300"
                 >
                   УБ төвөөр хайх

@@ -372,6 +372,13 @@ export default function Home() {
     }
   };
 
+  const openLandingOrganization = async (index) => {
+    const org = organizations[index] || organizations[0];
+    if (!org) return;
+    await previewOrganization(org, { source: 'click' });
+    openLoungeDetail();
+  };
+
   return (
     <UserLayout>
       <section className="w-full bg-[radial-gradient(circle_at_top_center,#2a2621_0%,#15130f_55%,#15130f_100%)] px-0 py-8 sm:px-0 sm:py-12">
@@ -452,7 +459,7 @@ export default function Home() {
                   <span>Улаанбаатар хот</span>
                 </div>
                 <h1 className="mb-2 text-2xl font-semibold leading-tight text-[#e8e1db]">
-                  Ойролцоо {organizations.length || 12} ресторан байна
+                  Ойролцоо ресторан, lounge
                 </h1>
                 <p className="mb-4 text-sm leading-relaxed text-[#d0c5af]">
                   Таны байршилтай ойр байгаа хамгийн дээд зэрэглэлийн үйлчилгээтэй газрууд.
@@ -465,14 +472,6 @@ export default function Home() {
                   Бүгдийг харах
                 </button>
               </div>
-              <a
-                href={`https://www.openstreetmap.org/?mlat=${location?.lat || DEFAULT_LOCATION.lat}&mlon=${location?.lng || DEFAULT_LOCATION.lng}#map=15/${location?.lat || DEFAULT_LOCATION.lat}/${location?.lng || DEFAULT_LOCATION.lng}`}
-                target="_blank"
-                rel="noreferrer"
-                className="absolute bottom-4 left-4 z-20 rounded-xl bg-lounge-card/90 border border-lounge-border px-3 py-2 text-xs font-bold text-white shadow-xl shadow-black/30 hover:bg-lounge-primary/20 hover:text-lounge-accent transition-all"
-              >
-                {organizations.length} lounges</a>
-
               {loading && (
                 <div className="absolute inset-0 z-30 bg-lounge-black/85 flex flex-col items-center justify-center gap-3 backdrop-blur-sm">
                   <Loader2 className="w-10 h-10 text-lounge-accent animate-spin" />
@@ -769,10 +768,9 @@ export default function Home() {
                     rating: '4.9',
                     image: REFERENCE_IMAGES.lounges[2],
                   },
-                ].map((org) => (
-                  <button
+                ].map((org, index) => (
+                  <div
                     key={org.id}
-                    type="button"
                     className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#3d372e] bg-[#211f1b] text-left transition-all hover:border-[#d4af37]"
                   >
                     <div className="relative h-64 overflow-hidden">
@@ -796,8 +794,17 @@ export default function Home() {
                         <span className="text-sm font-bold text-[#f2ca50]">{org.meta}</span>
                         <span className="text-sm text-[#d0c5af]">{org.time}</span>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => openLandingOrganization(index)}
+                        disabled={organizations.length === 0}
+                        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#f2ca50] px-4 py-2.5 text-sm font-bold text-[#3c2f00] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Дэлгэрэнгүй захиалах
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
 
@@ -821,10 +828,9 @@ export default function Home() {
                     { id: 'italia', name: 'La Bella Italia', type: 'Итали хоол', price: '$$$', distance: '1.2км зайд', image: REFERENCE_IMAGES.restaurants[1] },
                     { id: 'prime', name: 'Prime Steakhouse', type: 'Стейк & Грил', price: '$$$$', distance: '2.5км зайд', image: REFERENCE_IMAGES.restaurants[2] },
                     { id: 'bistro', name: "C'est La Vie", type: 'Франц хоол', price: '$$$', distance: '3.1км зайд', image: REFERENCE_IMAGES.restaurants[3] },
-                  ].map((org) => (
-                    <button
+                  ].map((org, index) => (
+                    <div
                       key={org.id}
-                      type="button"
                       className="group overflow-hidden rounded-xl bg-[#211f1b] text-left transition-all duration-300 hover:-translate-y-1"
                     >
                       <div className="relative h-48 overflow-hidden">
@@ -842,10 +848,18 @@ export default function Home() {
                         <p className="text-sm text-[#d0c5af]">{org.type}</p>
                         <div className="mt-4 flex items-center justify-between">
                           <span className="text-sm font-bold text-[#f2ca50]">{org.price}</span>
-                          <ChevronRight className="h-5 w-5 text-[#f2ca50]" />
+                          <button
+                            type="button"
+                            onClick={() => openLandingOrganization(index + 3)}
+                            disabled={organizations.length === 0}
+                            className="inline-flex items-center gap-1 rounded-md border border-[#f2ca50]/40 px-2 py-1 text-xs font-bold text-[#f2ca50] transition hover:bg-[#f2ca50]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            Дэлгэрэнгүй
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
                         </div>
                       </div>
-                    </button>
+                    </div>
                   ))}
                 </div>
               </div>

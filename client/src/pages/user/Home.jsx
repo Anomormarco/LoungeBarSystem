@@ -172,7 +172,7 @@ export default function Home() {
   };
 
   const useDefaultLocation = (message = '') => {
-    setLocation({ lat: DEFAULT_LOCATION.lat, lng: DEFAULT_LOCATION.lng });
+    setLocation({ lat: DEFAULT_LOCATION.lat, lng: DEFAULT_LOCATION.lng, updatedAt: Date.now() });
     setLocationLabel(DEFAULT_LOCATION.label);
     setLocationError(typeof message === 'string' ? message : '');
     setLoadingLocation(false);
@@ -183,22 +183,33 @@ export default function Home() {
     setLocationError('');
 
     if (!navigator.geolocation) {
-      setLocationError('Таны browser байршил дэмжихгүй байна.');
-      setLoadingLocation(false);
+      useDefaultLocation('Таны browser байршил дэмжихгүй байна. УБ төвөөр хайж байна.');
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        const nextLat = Number(pos.coords.latitude);
+        const nextLng = Number(pos.coords.longitude);
+
+        if (!Number.isFinite(nextLat) || !Number.isFinite(nextLng)) {
+          useDefaultLocation('Байршлын координат буруу ирлээ. УБ төвөөр хайж байна.');
+          return;
+        }
+
+        setLocation({ lat: nextLat, lng: nextLng, updatedAt: Date.now() });
         setLocationLabel('Таны одоогийн байршил');
         setLoadingLocation(false);
       },
-      () => {
-        setLocationError('Байршлын зөвшөөрөл олгоогүй. УБ төвөөр хайж болно.');
-        setLoadingLocation(false);
+      (geoError) => {
+        const reason = geoError?.code === 1
+          ? 'Байршлын зөвшөөрөл олгоогүй.'
+          : geoError?.code === 3
+            ? 'Байршил татах хугацаа хэтэрлээ.'
+            : 'Байршил татахад алдаа гарлаа.';
+        useDefaultLocation(`${reason} УБ төвөөр хайж байна.`);
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 30000 }
     );
   };
 

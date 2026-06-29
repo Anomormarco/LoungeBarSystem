@@ -9,7 +9,14 @@ function RecenterMap({ center }) {
 
   useEffect(() => {
     if (!center) return;
+    map.invalidateSize();
     map.setView(center, Math.max(map.getZoom(), 14), { animate: true });
+    const timer = window.setTimeout(() => {
+      map.invalidateSize();
+      map.setView(center, Math.max(map.getZoom(), 14), { animate: true });
+    }, 250);
+
+    return () => window.clearTimeout(timer);
   }, [center, map]);
 
   return null;

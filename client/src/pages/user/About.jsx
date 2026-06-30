@@ -5,6 +5,7 @@ import {
   BarChart3,
   Building2,
   CheckCircle2,
+  Clock,
   Handshake,
   Loader2,
   Lock,
@@ -73,6 +74,11 @@ export default function About() {
     phone: '',
     organizationName: '',
     address: '',
+    latitude: '47.9184',
+    longitude: '106.9177',
+    openingTime: '10:00',
+    closingTime: '23:00',
+    description: '',
   });
   const [portalMode, setPortalMode] = useState(null);
   const [portalError, setPortalError] = useState('');
@@ -103,7 +109,11 @@ export default function About() {
     setPortalError('');
 
     try {
-      const response = await api.registerOwner(registerForm);
+      const response = await api.registerOwner({
+        ...registerForm,
+        latitude: Number(registerForm.latitude),
+        longitude: Number(registerForm.longitude),
+      });
       saveOwnerSession(response.data);
     } catch (error) {
       setPortalError(error.message || 'Бүртгэл үүсгэхэд алдаа гарлаа.');
@@ -326,6 +336,45 @@ export default function About() {
                     </span>
                   </label>
                 ))}
+              </div>
+
+              <div className="mt-5 border-t border-[#3d372e] pt-5">
+                <p className="mb-4 text-sm font-bold text-[#f2ca50]">Lounge location & hours</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {[
+                    { key: 'latitude', label: 'Latitude', icon: MapPin, placeholder: '47.9184', type: 'number', step: '0.0000001' },
+                    { key: 'longitude', label: 'Longitude', icon: MapPin, placeholder: '106.9177', type: 'number', step: '0.0000001' },
+                    { key: 'openingTime', label: 'Opening time', icon: Clock, placeholder: '10:00', type: 'time' },
+                    { key: 'closingTime', label: 'Closing time', icon: Clock, placeholder: '23:00', type: 'time' },
+                  ].map(({ key, label, icon: Icon, placeholder, type = 'text', step }) => (
+                    <label key={key} className="block">
+                      <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-[#a99f8d]">{label}</span>
+                      <span className="flex items-center gap-3 border border-[#3d372e] bg-[#15130f] px-4 py-3">
+                        <Icon className="h-4 w-4 text-[#f2ca50]" />
+                        <input
+                          type={type}
+                          step={step}
+                          required
+                          value={registerForm[key]}
+                          onChange={(event) => setRegisterForm((prev) => ({ ...prev, [key]: event.target.value }))}
+                          className="w-full bg-transparent text-sm text-[#e8e1db] outline-none placeholder:text-[#6f675b]"
+                          placeholder={placeholder}
+                        />
+                      </span>
+                    </label>
+                  ))}
+                </div>
+
+                <label className="mt-4 block">
+                  <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-[#a99f8d]">Description</span>
+                  <textarea
+                    value={registerForm.description}
+                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, description: event.target.value }))}
+                    rows={4}
+                    className="w-full resize-y border border-[#3d372e] bg-[#15130f] px-4 py-3 text-sm text-[#e8e1db] outline-none placeholder:text-[#6f675b]"
+                    placeholder="Lounge-ийн танилцуулга"
+                  />
+                </label>
               </div>
 
               <button

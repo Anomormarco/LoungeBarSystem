@@ -60,11 +60,13 @@ async function ownerRegister(payload) {
   const phone = normalizePhone(payload.phone);
   const organizationName = normalizeText(payload.organizationName);
   const address = normalizeText(payload.address);
-  const latitude = Number(payload.latitude || 47.9184);
-  const longitude = Number(payload.longitude || 106.9177);
+  const latitude = Number(payload.latitude);
+  const longitude = Number(payload.longitude);
+  const openingTime = normalizeText(payload.openingTime);
+  const closingTime = normalizeText(payload.closingTime);
 
-  if (!ownerName || !email || !password || !organizationName || !address) {
-    throw httpError(400, "Owner нэр, имэйл, нууц үг, байгууллагын нэр болон хаяг шаардлагатай.");
+  if (!ownerName || !email || !password || !organizationName || !address || !openingTime || !closingTime) {
+    throw httpError(400, "Owner нэр, имэйл, нууц үг, байгууллагын нэр, хаяг, нээх цаг болон хаах цаг шаардлагатай.");
   }
 
   if (!isGmail(email)) {
@@ -93,8 +95,8 @@ async function ownerRegister(payload) {
       latitude,
       longitude,
       phone: phone || null,
-      openingTime: normalizeText(payload.openingTime) || "10:00",
-      closingTime: normalizeText(payload.closingTime) || "23:00",
+      openingTime,
+      closingTime,
       subscriptionStatus: "expired",
       isApproved: true,
       exteriorImages: [],

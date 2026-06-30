@@ -727,8 +727,8 @@ export default function Home() {
               )}
             </div>
 
-            <div className="flex flex-col gap-4 lg:col-span-4">
-              <div className="relative flex-1 overflow-hidden rounded-xl border border-[#3d372e] bg-[#211f1b] shadow-[0_0_25px_rgba(0,0,0,0.35)]">
+            <div className="hidden flex-col gap-6 lg:col-span-4 lg:flex">
+              <div className="hidden">
                 {featuredOrg ? (
                   <>
                     <img
@@ -785,10 +785,10 @@ export default function Home() {
                   </div>
                 )}
               </div>
-              <div className="hidden">
+              <div className="group relative flex-1 overflow-hidden rounded-xl border border-[#3d372e] bg-[#211f1b]">
                 <img
-                  src={REFERENCE_IMAGES.featuredFood}
-                  alt="Cloud 9 Lounge"
+                  src={featuredOrg ? getCoverImage(featuredOrg) : REFERENCE_IMAGES.featuredFood}
+                  alt={featuredOrg?.name || 'Featured lounge'}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#15130f]/95 via-[#15130f]/35 to-transparent" />
@@ -796,11 +796,35 @@ export default function Home() {
                   <span className="mb-2 inline-flex rounded-sm bg-[#f2ca50] px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-[#3c2f00]">
                     Featured
                   </span>
-                  <h2 className="text-2xl font-semibold text-[#e8e1db]">Cloud 9 Lounge</h2>
-                  <p className="mt-1 text-sm font-bold text-[#f2ca50]">★★★★★ <span className="text-[#d0c5af]">(4.9)</span></p>
+                  <h2 className="text-2xl font-semibold text-[#e8e1db]">{featuredOrg?.name || 'Cloud 9 Lounge'}</h2>
+                  <div className="mt-3 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-sm font-bold text-[#f2ca50]">
+                      <span className="flex items-center gap-0.5">
+                        {[0, 1, 2, 3, 4].map((item) => (
+                          <Star key={item} className="h-4 w-4 fill-[#f2ca50] text-[#f2ca50]" />
+                        ))}
+                      </span>
+                      <span className="text-[#d0c5af]">({featuredRating.rating})</span>
+                    </div>
+                    {featuredOrg && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (selectedSummary?.id === featuredOrg.id) {
+                            openLoungeDetail();
+                          } else {
+                            openLandingOrganization(featuredOrg);
+                          }
+                        }}
+                        className="rounded-lg border border-[#f2ca50]/60 bg-[#15130f]/70 px-3 py-1.5 text-xs font-extrabold text-[#f2ca50] backdrop-blur transition hover:bg-[#f2ca50] hover:text-[#3c2f00]"
+                      >
+                        Дэлгэрэнгүй
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className="hidden">
+              <div className="flex h-32 items-center gap-6 rounded-xl border border-[#3d372e] bg-[#211f1b] p-6">
                 <div className="rounded-full bg-[#f2ca50]/10 p-3 text-[#f2ca50]">
                   <Table2 className="h-8 w-8" />
                 </div>

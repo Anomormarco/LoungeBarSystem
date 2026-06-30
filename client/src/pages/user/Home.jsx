@@ -801,7 +801,7 @@ export default function Home() {
             </div>
 
             <div className="mt-6 space-y-4">
-              <div className="flex items-end justify-between gap-3">
+              <div className="hidden">
                 <div>
                   <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-lounge-accent">Recommended</p>
                   <h2 className="mt-1 text-xl font-extrabold text-white sm:text-2xl">Санал болгох lounge</h2>
@@ -809,7 +809,7 @@ export default function Home() {
                 <span className="hidden text-xs font-bold text-lounge-muted sm:inline">Premium сонголтууд</span>
               </div>
 
-              <div className="rounded-xl border border-lounge-border bg-[#12110e]/70 p-3">
+              <div className="hidden">
                 <div className="mb-3 flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.18em] text-lounge-accent">
                   <SlidersHorizontal className="h-4 w-4" />
                   Таны хэрэгцээнд
@@ -840,7 +840,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:px-0 lg:grid-cols-3">
+              <div className="hidden">
                 {recommendedOrganizations.map((org) => (
                   <div
                     key={org.id}

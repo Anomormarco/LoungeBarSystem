@@ -93,6 +93,12 @@ function formatDistance(meters) {
   return `${(meters / 1000).toFixed(1)} км`;
 }
 
+function formatPrice(value) {
+  const price = Number(value);
+  if (!Number.isFinite(price)) return '-';
+  return `${price.toLocaleString()} ₮`;
+}
+
 function getCoverImage(org) {
   const images = org?.exteriorImages || org?.exterior_images;
   if (Array.isArray(images) && images.length > 0) return images[0];
@@ -210,6 +216,8 @@ export default function Home() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [tableViewFilter, setTableViewFilter] = useState('all');
   const [selectedMedia, setSelectedMedia] = useState(null);
+  const [activeMenuCategory, setActiveMenuCategory] = useState('all');
+  const [selectedMenuItemId, setSelectedMenuItemId] = useState(null);
   const [showMapInfo, setShowMapInfo] = useState(() => {
     if (typeof window === 'undefined') return true;
     return window.localStorage.getItem(MAP_INFO_DISMISSED_KEY) !== 'true';
@@ -219,6 +227,11 @@ export default function Home() {
   const mapBounds = UB_MAP_BOUNDS;
   const tables = selectedDetail?.tables || [];
   const menuItems = selectedDetail?.menuItems || [];
+  const menuCategories = ['all', ...Array.from(new Set(menuItems.map((item) => item.category).filter(Boolean)))];
+  const filteredMenuItems = activeMenuCategory === 'all'
+    ? menuItems
+    : menuItems.filter((item) => item.category === activeMenuCategory);
+  const selectedMenuItem = menuItems.find((item) => item.id === selectedMenuItemId) || filteredMenuItems[0] || menuItems[0];
   const tableStatusCounts = getTableStatusCounts(tables);
   const filteredTables = tables.filter((table) => {
     if (tableViewFilter === 'available') return table.status === 'available';
@@ -248,6 +261,24 @@ export default function Home() {
     const images = Array.isArray(item.images) ? item.images : [];
     return [...images, item.image].filter(Boolean);
   };
+  const selectedMenuImages = selectedMenuItem ? getMenuItemImages(selectedMenuItem) : [];
+
+  useEffect(() => {
+    setActiveMenuCategory('all');
+    setSelectedMenuItemId(null);
+  }, [selectedOrgId]);
+
+  useEffect(() => {
+    if (filteredMenuItems.length === 0) {
+      setSelectedMenuItemId(null);
+      return;
+    }
+
+    const selectedStillVisible = filteredMenuItems.some((item) => item.id === selectedMenuItemId);
+    if (!selectedStillVisible) {
+      setSelectedMenuItemId(filteredMenuItems[0].id);
+    }
+  }, [activeMenuCategory, menuItems, selectedMenuItemId]);
 
   const openLoungeDetail = () => {
     setTableViewFilter('all');
@@ -266,6 +297,8 @@ export default function Home() {
     setSelectedTable(null);
     setTableViewFilter('all');
     setSelectedMedia(null);
+    setActiveMenuCategory('all');
+    setSelectedMenuItemId(null);
   };
 
   const hideOrganizationPreview = () => {
@@ -1478,28 +1511,109 @@ export default function Home() {
                       <UtensilsCrossed className="h-4 w-4" />
                       Menu
                     </h3>
+                    {menuItems.length > 0 && (
+                      <div className="mb-4 space-y-4">
+                        <div className="flex gap-2 overflow-x-auto pb-1">
+                          {menuCategories.map((cat) => (
+                            <button
+                              key={cat}
+                              type="button"
+                              onClick={() => setActiveMenuCategory(cat)}
+                              className={`shrink-0 rounded-lg border px-3 py-1.5 text-xs font-extrabold transition-all ${
+                                activeMenuCategory === cat
+                                  ? 'border-lounge-accent bg-lounge-accent/15 text-lounge-accent'
+                                  : 'border-lounge-border bg-lounge-card text-lounge-muted hover:border-lounge-accent/60 hover:text-white'
+                              }`}
+                            >
+                              {cat === 'all' ? 'All' : cat}
+                            </button>
+                          ))}
+                        </div>
+
+                        {selectedMenuItem && (
+                          <div className="overflow-hidden rounded-xl border border-lounge-border bg-lounge-card">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (selectedMenuImages[0]) {
+                                  setSelectedMedia({
+                                    image: selectedMenuImages[0],
+                                    title: selectedMenuItem.name,
+                                    subtitle: selectedMenuItem.description || selectedMenuItem.category,
+                                    price: selectedMenuItem.price,
+                                  });
+                                }
+                              }}
+                              className="group relative h-44 w-full bg-lounge-black text-left"
+                            >
+                              {selectedMenuImages[0] ? (
+                                <img
+                                  src={selectedMenuImages[0]}
+                                  alt={selectedMenuItem.name}
+                                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                />
+                              ) : (
+                                <div className="flex h-full items-center justify-center text-lounge-muted">
+                                  <ImageIcon className="h-8 w-8" />
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
+                              <div className="absolute inset-x-0 bottom-0 p-4">
+                                <div className="mb-2 flex items-center gap-2">
+                                  <span className="rounded-md bg-lounge-accent px-2 py-1 text-[10px] font-black uppercase text-lounge-black">
+                                    {selectedMenuItem.category || 'Menu'}
+                                  </span>
+                                  {!selectedMenuItem.isAvailable && (
+                                    <span className="rounded-md border border-red-500/30 bg-red-500/15 px-2 py-1 text-[10px] font-black uppercase text-red-300">
+                                      Unavailable
+                                    </span>
+                                  )}
+                                </div>
+                                <h4 className="line-clamp-2 text-xl font-extrabold text-white">{selectedMenuItem.name}</h4>
+                              </div>
+                            </button>
+
+                            <div className="space-y-3 p-4">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                  <p className="text-xs font-bold uppercase text-lounge-muted">Price</p>
+                                  <p className="mt-1 text-2xl font-extrabold text-lounge-accent">
+                                    {formatPrice(selectedMenuItem.price)}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => showTableGroup('available')}
+                                  className="shrink-0 rounded-lg border border-lounge-primary/40 bg-lounge-primary/15 px-3 py-2 text-xs font-extrabold text-lounge-primary hover:bg-lounge-primary/25"
+                                >
+                                  Choose table
+                                </button>
+                              </div>
+
+                              <p className="text-sm leading-relaxed text-lounge-muted">
+                                {selectedMenuItem.description || 'No description yet.'}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     <div className="max-h-[34rem] space-y-2 overflow-auto pr-1">
                       {menuItems.length > 0 ? (
-                        menuItems.slice(0, 18).map((item) => {
+                        filteredMenuItems.map((item) => {
                           const itemImages = getMenuItemImages(item);
                           const firstImage = itemImages[0];
+                          const isSelected = selectedMenuItem?.id === item.id;
 
                           return (
                             <button
                               key={item.id}
                               type="button"
-                              onClick={() => {
-                                if (firstImage) {
-                                  setSelectedMedia({
-                                    image: firstImage,
-                                    title: item.name,
-                                    subtitle: item.description || item.category,
-                                    price: item.price,
-                                  });
-                                }
-                              }}
+                              onClick={() => setSelectedMenuItemId(item.id)}
                               className={`flex w-full items-center gap-3 rounded-lg border border-lounge-border bg-lounge-card px-3 py-3 text-left transition-all ${
-                                firstImage ? 'hover:border-lounge-accent hover:bg-lounge-card/90 hover:shadow-[0_0_12px_rgba(255,168,0,0.18)]' : 'cursor-default'
+                                isSelected
+                                  ? 'border-lounge-accent bg-lounge-accent/10 shadow-[0_0_12px_rgba(255,168,0,0.16)]'
+                                  : 'hover:border-lounge-accent hover:bg-lounge-card/90 hover:shadow-[0_0_12px_rgba(255,168,0,0.18)]'
                               }`}
                             >
                               {firstImage && (

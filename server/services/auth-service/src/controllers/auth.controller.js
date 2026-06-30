@@ -1,4 +1,4 @@
-const { ownerLogin, adminLogin, getAdminStatistics } = require("../modules/auth/auth.service");
+const { ownerLogin, ownerRegister, adminLogin, getAdminStatistics } = require("../modules/auth/auth.service");
 const {
   getOwnerStaff,
   createOwnerStaff,
@@ -14,6 +14,11 @@ function asyncHandler(handler) {
 async function loginOwner(req, res) {
   const data = await ownerLogin(req.body);
   res.json({ data });
+}
+
+async function registerOwner(req, res) {
+  const data = await ownerRegister(req.body);
+  res.status(201).json({ data });
 }
 
 async function loginAdmin(req, res) {
@@ -53,6 +58,7 @@ async function adminStatistics(req, res) {
 
 module.exports = {
   loginOwner: asyncHandler(loginOwner),
+  registerOwner: asyncHandler(registerOwner),
   loginAdmin: asyncHandler(loginAdmin),
   updateOwnerPassword: asyncHandler(updateOwnerPassword),
   listOwnerStaff: asyncHandler(listOwnerStaff),
@@ -61,4 +67,3 @@ module.exports = {
   removeOwnerStaff: asyncHandler(removeOwnerStaff),
   adminStatistics: asyncHandler(adminStatistics),
 };
-

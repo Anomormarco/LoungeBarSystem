@@ -10,6 +10,7 @@ router.get("/health", healthController.health);
 router.use("/socket.io", socketProxy(serviceUrls.notification));
 
 router.use("/owner/login", serviceProxy(serviceUrls.auth));
+router.use("/owner/register", serviceProxy(serviceUrls.auth));
 router.use("/owner/password", serviceProxy(serviceUrls.auth));
 router.use("/owner/staff", serviceProxy(serviceUrls.auth));
 router.use("/admin/login", serviceProxy(serviceUrls.auth));

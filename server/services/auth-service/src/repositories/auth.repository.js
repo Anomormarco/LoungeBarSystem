@@ -12,11 +12,40 @@ function findManagerByEmail(email) {
   });
 }
 
+function findStaffByEmail(email) {
+  return prisma.staff.findFirst({
+    where: {
+      email: { equals: email, mode: "insensitive" },
+    },
+  });
+}
+
 function findAdminByEmail(email) {
   return prisma.admin.findFirst({
     where: {
       email: { equals: email, mode: "insensitive" },
     },
+  });
+}
+
+function createOwnerOrganization({ organization, owner }) {
+  return prisma.$transaction(async (tx) => {
+    const createdOrganization = await tx.organization.create({
+      data: organization,
+    });
+
+    const createdOwner = await tx.staff.create({
+      data: {
+        ...owner,
+        organizationId: createdOrganization.id,
+        role: "manager",
+      },
+      include: {
+        organization: true,
+      },
+    });
+
+    return createdOwner;
   });
 }
 
@@ -31,6 +60,8 @@ function getAdminStatistics() {
 
 module.exports = {
   findManagerByEmail,
+  findStaffByEmail,
   findAdminByEmail,
+  createOwnerOrganization,
   getAdminStatistics,
 };

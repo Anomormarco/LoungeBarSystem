@@ -5,6 +5,7 @@ const { ownerGuard, ownerActiveGuard, adminGuard } = require("../middlewares/aut
 const router = express.Router();
 
 router.post("/owner/login", controller.loginOwner);
+router.post("/owner/register", controller.registerOwner);
 router.put("/owner/password", ownerGuard, controller.updateOwnerPassword);
 
 router.get("/owner/staff", ownerActiveGuard, controller.listOwnerStaff);

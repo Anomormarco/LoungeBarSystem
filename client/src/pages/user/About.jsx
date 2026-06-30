@@ -1,15 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   BarChart3,
+  Building2,
   CheckCircle2,
   Handshake,
+  Loader2,
+  Lock,
+  Mail,
+  MapPin,
+  Phone,
   Star,
   TicketCheck,
   UtensilsCrossed,
+  User,
 } from 'lucide-react';
 import UserLayout from '../../components/UserLayout';
+import { api } from '../../utils/api';
 
 const images = {
   hero:
@@ -57,6 +65,52 @@ const venues = [
 ];
 
 export default function About() {
+  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [registerForm, setRegisterForm] = useState({
+    ownerName: '',
+    email: '',
+    password: '',
+    phone: '',
+    organizationName: '',
+    address: '',
+  });
+  const [portalMode, setPortalMode] = useState(null);
+  const [portalError, setPortalError] = useState('');
+
+  const saveOwnerSession = (data) => {
+    localStorage.setItem('owner_token', data.token);
+    localStorage.setItem('owner_user', JSON.stringify(data.owner));
+    window.location.href = '/subscription';
+  };
+
+  const handleOwnerLogin = async (event) => {
+    event.preventDefault();
+    setPortalMode('login');
+    setPortalError('');
+
+    try {
+      const response = await api.login(loginForm.email, loginForm.password);
+      saveOwnerSession(response.data);
+    } catch (error) {
+      setPortalError(error.message || 'Нэвтрэхэд алдаа гарлаа.');
+      setPortalMode(null);
+    }
+  };
+
+  const handleOwnerRegister = async (event) => {
+    event.preventDefault();
+    setPortalMode('register');
+    setPortalError('');
+
+    try {
+      const response = await api.registerOwner(registerForm);
+      saveOwnerSession(response.data);
+    } catch (error) {
+      setPortalError(error.message || 'Бүртгэл үүсгэхэд алдаа гарлаа.');
+      setPortalMode(null);
+    }
+  };
+
   return (
     <UserLayout>
       <main className="bg-[#15130f] text-[#e8e1db]">
@@ -174,6 +228,115 @@ export default function About() {
                 Хамтран ажиллах хүсэлт илгээх
               </Link>
             </div>
+          </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-[1440px] px-4 py-24 sm:px-6 lg:px-8">
+          <div className="mb-10 max-w-3xl">
+            <p className="mb-3 text-sm font-bold uppercase tracking-[0.24em] text-[#f2ca50]">Partner Portal</p>
+            <h2 className="text-4xl font-extrabold text-[#e8e1db] sm:text-5xl">Owner нэвтрэх ба бүртгүүлэх</h2>
+            <p className="mt-4 text-base leading-7 text-[#d0c5af]">
+              Restaurant, lounge owner өөрөө бүртгэл үүсгээд subscription идэвхжүүлсний дараа dashboard, ширээ, меню,
+              ажилтан болон захиалгын удирдлагаа ашиглана.
+            </p>
+          </div>
+
+          {portalError && (
+            <div className="mb-6 border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm font-semibold text-red-200">
+              {portalError}
+            </div>
+          )}
+
+          <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
+            <form onSubmit={handleOwnerLogin} className="border border-[#3d372e] bg-[#1d1b17] p-6 shadow-2xl">
+              <div className="mb-6">
+                <h3 className="text-2xl font-extrabold text-[#e8e1db]">Owner Login</h3>
+                <p className="mt-2 text-sm text-[#a99f8d]">Өмнө нь бүртгэлтэй owner dashboard руу нэвтэрнэ.</p>
+              </div>
+
+              <div className="space-y-4">
+                <label className="block">
+                  <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-[#a99f8d]">Имэйл</span>
+                  <span className="flex items-center gap-3 border border-[#3d372e] bg-[#15130f] px-4 py-3">
+                    <Mail className="h-4 w-4 text-[#f2ca50]" />
+                    <input
+                      type="email"
+                      required
+                      value={loginForm.email}
+                      onChange={(event) => setLoginForm((prev) => ({ ...prev, email: event.target.value }))}
+                      className="w-full bg-transparent text-sm text-[#e8e1db] outline-none placeholder:text-[#6f675b]"
+                      placeholder="owner@gmail.com"
+                    />
+                  </span>
+                </label>
+
+                <label className="block">
+                  <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-[#a99f8d]">Нууц үг</span>
+                  <span className="flex items-center gap-3 border border-[#3d372e] bg-[#15130f] px-4 py-3">
+                    <Lock className="h-4 w-4 text-[#f2ca50]" />
+                    <input
+                      type="password"
+                      required
+                      value={loginForm.password}
+                      onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))}
+                      className="w-full bg-transparent text-sm text-[#e8e1db] outline-none placeholder:text-[#6f675b]"
+                      placeholder="••••••••"
+                    />
+                  </span>
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                disabled={portalMode === 'login'}
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 bg-[#f2ca50] px-6 py-3 text-sm font-black text-[#211a04] transition hover:brightness-110 disabled:opacity-60"
+              >
+                {portalMode === 'login' ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+                Нэвтрэх
+              </button>
+            </form>
+
+            <form onSubmit={handleOwnerRegister} className="border border-[#3d372e] bg-[#1d1b17] p-6 shadow-2xl">
+              <div className="mb-6">
+                <h3 className="text-2xl font-extrabold text-[#e8e1db]">Owner Register</h3>
+                <p className="mt-2 text-sm text-[#a99f8d]">Шинэ байгууллагаа бүртгүүлээд subscription хэсэг рүү үргэлжлүүлнэ.</p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {[
+                  { key: 'ownerName', label: 'Owner нэр', icon: User, placeholder: 'Таны нэр' },
+                  { key: 'phone', label: 'Утас', icon: Phone, placeholder: '99112233' },
+                  { key: 'email', label: 'Gmail', icon: Mail, placeholder: 'owner@gmail.com', type: 'email' },
+                  { key: 'password', label: 'Нууц үг', icon: Lock, placeholder: 'Aa123!', type: 'password' },
+                  { key: 'organizationName', label: 'Байгууллага', icon: Building2, placeholder: 'Lounge нэр' },
+                  { key: 'address', label: 'Хаяг', icon: MapPin, placeholder: 'Улаанбаатар, СБД' },
+                ].map(({ key, label, icon: Icon, placeholder, type = 'text' }) => (
+                  <label key={key} className="block">
+                    <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-[#a99f8d]">{label}</span>
+                    <span className="flex items-center gap-3 border border-[#3d372e] bg-[#15130f] px-4 py-3">
+                      <Icon className="h-4 w-4 text-[#f2ca50]" />
+                      <input
+                        type={type}
+                        required={key !== 'phone'}
+                        value={registerForm[key]}
+                        onChange={(event) => setRegisterForm((prev) => ({ ...prev, [key]: event.target.value }))}
+                        className="w-full bg-transparent text-sm text-[#e8e1db] outline-none placeholder:text-[#6f675b]"
+                        placeholder={placeholder}
+                      />
+                    </span>
+                  </label>
+                ))}
+              </div>
+
+              <button
+                type="submit"
+                disabled={portalMode === 'register'}
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 border border-[#f2ca50] px-6 py-3 text-sm font-black text-[#f2ca50] transition hover:bg-[#f2ca50]/10 disabled:opacity-60"
+              >
+                {portalMode === 'register' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Handshake className="h-4 w-4" />}
+                Бүртгүүлэх
+              </button>
+            </form>
           </div>
         </section>
       </main>

@@ -89,6 +89,12 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
+  registerOwner: (payload) =>
+    request('/owner/register', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      tokenKey: null,
+    }),
   changePassword: (currentPassword, newPassword) =>
     request('/owner/password', {
       method: 'PUT',

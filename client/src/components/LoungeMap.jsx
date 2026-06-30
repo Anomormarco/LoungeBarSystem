@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, Marker, TileLayer, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
 const DEFAULT_CENTER = [47.9184, 106.9177];
@@ -103,12 +103,6 @@ export default function LoungeMap({
               <Tooltip direction="top" offset={[0, -34]} opacity={1} className="lounge-name-tooltip">
                 {org.name}
               </Tooltip>
-              <Popup>
-                <div className="min-w-44">
-                  <strong>{org.name}</strong>
-                  {org.address && <p className="mt-1 text-xs">{org.address}</p>}
-                </div>
-              </Popup>
             </Marker>
           );
         })}

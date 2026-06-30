@@ -1366,6 +1366,105 @@ export default function Home() {
 
                   <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
                     <h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-lounge-accent">
+                      <UtensilsCrossed className="h-4 w-4" />
+                      Menu
+                    </h3>
+                    {menuItems.length > 0 ? (
+                      <div className="space-y-4">
+                        <div className="flex gap-2 overflow-x-auto pb-1">
+                          {menuCategories.map((cat) => (
+                            <button
+                              key={cat}
+                              type="button"
+                              onClick={() => setActiveMenuCategory(cat)}
+                              className={`shrink-0 rounded-lg border px-3 py-1.5 text-xs font-extrabold transition-all ${
+                                activeMenuCategory === cat
+                                  ? 'border-lounge-accent bg-lounge-accent/15 text-lounge-accent'
+                                  : 'border-lounge-border bg-lounge-card text-lounge-muted hover:border-lounge-accent/60 hover:text-white'
+                              }`}
+                            >
+                              {cat === 'all' ? 'All' : cat}
+                            </button>
+                          ))}
+                        </div>
+
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          {filteredMenuItems.map((item) => {
+                            const firstImage = getMenuItemImages(item)[0];
+                            const isSelected = selectedMenuItem?.id === item.id;
+
+                            return (
+                              <button
+                                key={item.id}
+                                type="button"
+                                onClick={() => setSelectedMenuItemId(item.id)}
+                                className={`flex min-h-24 items-center gap-3 rounded-xl border bg-lounge-card p-3 text-left transition-all ${
+                                  isSelected
+                                    ? 'border-lounge-accent bg-lounge-accent/10 shadow-[0_0_12px_rgba(255,168,0,0.16)]'
+                                    : 'border-lounge-border hover:border-lounge-accent/60'
+                                }`}
+                              >
+                                {firstImage ? (
+                                  <img
+                                    src={firstImage}
+                                    alt={item.name}
+                                    className="h-16 w-16 shrink-0 rounded-lg border border-lounge-border object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-lounge-border bg-lounge-black text-lounge-muted">
+                                    <ImageIcon className="h-5 w-5" />
+                                  </div>
+                                )}
+                                <div className="min-w-0 flex-1">
+                                  <div className="mb-1 flex items-center gap-2">
+                                    <span className="rounded-md bg-lounge-accent/15 px-2 py-0.5 text-[10px] font-black uppercase text-lounge-accent">
+                                      {item.category || 'Menu'}
+                                    </span>
+                                    {!item.isAvailable && (
+                                      <span className="rounded-md bg-red-500/15 px-2 py-0.5 text-[10px] font-black uppercase text-red-300">
+                                        Unavailable
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="truncate text-sm font-extrabold text-white">{item.name}</p>
+                                  {item.description && (
+                                    <p className="mt-1 line-clamp-2 text-xs text-lounge-muted">{item.description}</p>
+                                  )}
+                                </div>
+                                <span className="shrink-0 text-sm font-extrabold text-lounge-accent">
+                                  {formatPrice(item.price)}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border border-lounge-border bg-lounge-card px-3 py-3 text-sm text-lounge-muted">
+                        {detailLoading ? 'Menu ачаалж байна...' : 'Menu бүртгэлгүй байна'}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="hidden rounded-xl border border-lounge-border bg-lounge-black p-4">
+                    <h3 className="mb-2 text-sm font-extrabold text-lounge-accent">Мэдээлэл</h3>
+                    <p className="text-sm leading-relaxed text-lounge-muted">
+                      {selectedDescription || 'Тайлбар бүртгэгдээгүй байна.'}
+                    </p>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-lg border border-lounge-border bg-lounge-card px-3 py-2">
+                        <p className="text-[11px] uppercase text-lounge-muted">Утас</p>
+                        <p className="mt-1 text-sm font-bold text-white">{selectedPhone || 'Бүртгэлгүй'}</p>
+                      </div>
+                      <div className="rounded-lg border border-lounge-border bg-lounge-card px-3 py-2">
+                        <p className="text-[11px] uppercase text-lounge-muted">Байршил</p>
+                        <p className="mt-1 line-clamp-2 text-sm font-bold text-white">{selectedSummary.address}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="hidden rounded-xl border border-lounge-border bg-lounge-black p-4">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-lounge-accent">
                       <ImageIcon className="h-4 w-4" />
                       Interior / Exterior
                     </h3>
@@ -1506,7 +1605,7 @@ export default function Home() {
                     )}
                   </div>
 
-                  <div className="rounded-xl border border-lounge-border bg-lounge-black p-4">
+                  <div className="hidden rounded-xl border border-lounge-border bg-lounge-black p-4">
                     <h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-lounge-accent">
                       <UtensilsCrossed className="h-4 w-4" />
                       Menu

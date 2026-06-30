@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, UtensilsCrossed, X } from 'lucide-react';
 
 const navItems = [
   { label: 'Нүүр', path: '/' },
@@ -26,7 +26,10 @@ export default function UserLayout({ children }) {
       <header className="relative z-10 w-full border-b border-lounge-border/40 bg-[#12110e]/88 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-3">
-          <span className="ub-script-logo" aria-label="UBTable Logo">UBTable</span>
+          <span className="ub-script-logo" aria-label="UBTable Logo">
+            <UtensilsCrossed className="ub-script-logo-icon" aria-hidden="true" />
+            UBTable
+          </span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-2">
@@ -59,7 +62,10 @@ export default function UserLayout({ children }) {
           <aside className="absolute right-0 top-0 h-full w-[min(82vw,320px)] border-l border-lounge-border bg-[#12110e] p-5 shadow-2xl">
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="ub-script-logo ub-script-logo-sm" aria-label="UBTable Logo">UBTable</span>
+                <span className="ub-script-logo ub-script-logo-sm" aria-label="UBTable Logo">
+                  <UtensilsCrossed className="ub-script-logo-icon" aria-hidden="true" />
+                  UBTable
+                </span>
               </div>
               <button
                 type="button"

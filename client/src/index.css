@@ -15,9 +15,10 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 7px;
   color: #d6aa35;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 34px;
+  font-size: 29px;
   font-style: italic;
   font-weight: 800;
   letter-spacing: 0;
@@ -26,7 +27,15 @@ body {
 }
 
 .ub-script-logo-sm {
-  font-size: 28px;
+  gap: 6px;
+  font-size: 24px;
+}
+
+.ub-script-logo-icon {
+  width: 0.82em;
+  height: 0.82em;
+  flex: 0 0 auto;
+  stroke-width: 2.4;
 }
 
 .leaflet-container {

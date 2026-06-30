@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
-const LOGO_URL =
-  'https://lh3.googleusercontent.com/aida/AP1WRLt4oSxj6v1Qc8c0jQWeiogCTvE4mYgcnNvOzMeu6hEkEjeqCxS6Wwt4h_OowNg7DCgNBcEZiK0jTB8DPFpz1K4oH8N9_pWXmQh9bm_QjOuyc_26N6y7eVxWWIspGZgfWCuzhwE32-gW18X8l3NrT9L98euUHXoK-23qjJ2vl6_IKQ9Xh2WnFp1M1ubbmNCnvWylwOG1W0JVtbHL6uAJfQdgyozX6ytpHjEm8LCS4_eX57kVNb9rD82CkxQG';
-
 const navItems = [
   { label: 'Нүүр', path: '/' },
   { label: 'Танилцуулга', path: '/about' },
@@ -29,7 +26,7 @@ export default function UserLayout({ children }) {
       <header className="relative z-10 w-full border-b border-lounge-border/40 bg-[#12110e]/88 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-3">
-          <img src={LOGO_URL} alt="UBTable Logo" className="h-12 w-auto object-contain" />
+          <span className="ub-script-logo" aria-label="UBTable Logo">UBTable</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-2">
@@ -62,7 +59,7 @@ export default function UserLayout({ children }) {
           <aside className="absolute right-0 top-0 h-full w-[min(82vw,320px)] border-l border-lounge-border bg-[#12110e] p-5 shadow-2xl">
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <img src={LOGO_URL} alt="UBTable Logo" className="h-10 w-auto object-contain" />
+                <span className="ub-script-logo ub-script-logo-sm" aria-label="UBTable Logo">UBTable</span>
               </div>
               <button
                 type="button"

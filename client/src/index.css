@@ -13,30 +13,20 @@ body {
 
 .ub-script-logo {
   display: inline-flex;
-  min-height: 40px;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
-  border: 1px solid rgba(214, 170, 53, 0.28);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 168, 0, 0.05)),
-    #10100f;
-  padding: 0 16px;
   color: #d6aa35;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 22px;
+  font-size: 34px;
   font-style: italic;
   font-weight: 800;
   letter-spacing: 0;
   line-height: 1;
-  text-shadow: 0 0 16px rgba(255, 168, 0, 0.26);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.38);
+  text-shadow: 0 0 18px rgba(255, 168, 0, 0.28);
 }
 
 .ub-script-logo-sm {
-  min-height: 36px;
-  padding: 0 13px;
-  font-size: 19px;
+  font-size: 28px;
 }
 
 .leaflet-container {

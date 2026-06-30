@@ -244,18 +244,6 @@ export default function Home() {
   const featuredOrg = selectedDetail || selectedSummary || recommendedOrganizations[0] || nearbyOrganizations[0] || organizations[0];
   const featuredRating = getRatingData(featuredOrg);
   const featuredFeatures = getOrganizationFeatures(featuredOrg);
-  const featuredExteriorImages = Array.isArray(featuredOrg?.exteriorImages || featuredOrg?.exterior_images)
-    ? featuredOrg.exteriorImages || featuredOrg.exterior_images
-    : [];
-  const featuredInteriorImages = Array.isArray(featuredOrg?.interiorImages || featuredOrg?.interior_images)
-    ? featuredOrg.interiorImages || featuredOrg.interior_images
-    : [];
-  const featuredImages = [
-    ...featuredExteriorImages.slice(0, 2),
-    ...featuredInteriorImages.slice(0, 2),
-  ].filter(Boolean);
-  const featuredTables = selectedSummary?.id === featuredOrg?.id ? tables : [];
-  const featuredMenuItems = selectedSummary?.id === featuredOrg?.id ? menuItems : [];
   const getMenuItemImages = (item) => {
     const images = Array.isArray(item.images) ? item.images : [];
     return [...images, item.image].filter(Boolean);
@@ -754,10 +742,6 @@ export default function Home() {
                         Featured
                       </span>
                       <h2 className="text-2xl font-semibold leading-tight text-[#e8e1db]">{featuredOrg.name}</h2>
-                      <p className="mt-2 flex items-start gap-2 text-sm leading-relaxed text-[#d0c5af]">
-                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#f2ca50]" />
-                        <span className="line-clamp-2">{featuredOrg.address || 'Байршил бүртгэгдээгүй'}</span>
-                      </p>
 
                       <div className="mt-4 flex flex-wrap items-center gap-3">
                         <div className="flex items-center gap-1 rounded-full border border-[#f2ca50]/30 bg-[#15130f]/75 px-3 py-1.5">
@@ -769,138 +753,12 @@ export default function Home() {
                         <span className="text-xs font-semibold text-[#d0c5af]">{featuredRating.reviewCount} review</span>
                       </div>
 
-                      <p className="mt-4 line-clamp-4 text-sm leading-relaxed text-[#d0c5af]">
-                        {featuredOrg.description || 'Энэ газрын танилцуулга удахгүй нэмэгдэнэ. Marker дээр дарахад зураг, онцлох мэдээлэл болон захиалгын боломж энд шууд харагдана.'}
-                      </p>
-
                       <div className="mt-4 flex flex-wrap gap-2">
                         {(featuredFeatures.length > 0 ? featuredFeatures : ['Restaurant / Lounge', 'Захиалга авах боломжтой']).map((feature) => (
                           <span key={feature} className="rounded-full border border-[#f2ca50]/25 bg-[#f2ca50]/10 px-3 py-1 text-[11px] font-bold text-[#f2ca50]">
                             {feature}
                           </span>
                         ))}
-                      </div>
-
-                      {featuredImages.length > 0 && (
-                        <div className="mt-4 grid grid-cols-4 gap-2">
-                          {featuredImages.slice(0, 4).map((image, index) => (
-                            <img key={image + index} src={image} alt="" className="h-14 w-full rounded-lg border border-[#3d372e] object-cover" />
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                        <div className="rounded-lg border border-[#3d372e] bg-[#15130f]/85 px-2 py-2">
-                          <p className="text-sm font-extrabold text-lounge-success">{featuredOrg.availableTableCount ?? featuredOrg.available_table_count ?? 0}</p>
-                          <p className="text-[10px] text-[#d0c5af]">сул</p>
-                        </div>
-                        <div className="rounded-lg border border-[#3d372e] bg-[#15130f]/85 px-2 py-2">
-                          <p className="text-sm font-extrabold text-[#f2ca50]">{featuredOrg.vipTableCount ?? featuredOrg.vip_table_count ?? 0}</p>
-                          <p className="text-[10px] text-[#d0c5af]">VIP</p>
-                        </div>
-                        <div className="rounded-lg border border-[#3d372e] bg-[#15130f]/85 px-2 py-2">
-                          <p className="text-sm font-extrabold text-lounge-accent">{formatDistance(Number(featuredOrg.distanceMeters ?? featuredOrg.distance_meters)) || '-'}</p>
-                          <p className="text-[10px] text-[#d0c5af]">зай</p>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                        <div className="rounded-xl border border-[#3d372e] bg-[#15130f]/85 p-3">
-                          <div className="mb-2 flex items-center justify-between gap-2">
-                            <h3 className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.16em] text-[#f2ca50]">
-                              <Armchair className="h-4 w-4" />
-                              Ширээ
-                            </h3>
-                            {featuredTables.length > 0 && (
-                              <span className="text-[11px] font-bold text-[#d0c5af]">{featuredTables.length}</span>
-                            )}
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            {featuredTables.slice(0, 4).map((table) => {
-                              const isAvailable = table.status === 'available';
-                              return (
-                                <button
-                                  key={table.id}
-                                  type="button"
-                                  disabled={!isAvailable}
-                                  onClick={() => isAvailable && setSelectedTable(table)}
-                                  className={`rounded-lg border px-2 py-2 text-left transition ${
-                                    isAvailable
-                                      ? 'border-[#f2ca50]/30 bg-[#f2ca50]/10 hover:border-[#f2ca50]'
-                                      : 'cursor-not-allowed border-[#3d372e] bg-[#211f1b]/80 opacity-60'
-                                  }`}
-                                >
-                                  <div className="flex items-center justify-between gap-1">
-                                    <span className="text-xs font-extrabold text-[#e8e1db]">#{table.tableNumber}</span>
-                                    {table.type === 'vip' && <Crown className="h-3.5 w-3.5 text-[#f2ca50]" />}
-                                  </div>
-                                  <p className="mt-1 text-[10px] text-[#d0c5af]">
-                                    {table.capacity} хүн · {getStatusLabel(table)}
-                                  </p>
-                                </button>
-                              );
-                            })}
-                          </div>
-                          {featuredTables.length === 0 && (
-                            <p className="rounded-lg border border-[#3d372e] bg-[#211f1b]/75 px-3 py-3 text-xs leading-relaxed text-[#d0c5af]">
-                              {selectedSummary?.id === featuredOrg.id && detailLoading
-                                ? 'Ширээний мэдээлэл ачаалж байна...'
-                                : 'Marker дараад Дэлгэрэнгүй хэсгээс ширээ сонгон захиална.'}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="rounded-xl border border-[#3d372e] bg-[#15130f]/85 p-3">
-                          <div className="mb-2 flex items-center justify-between gap-2">
-                            <h3 className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.16em] text-[#f2ca50]">
-                              <UtensilsCrossed className="h-4 w-4" />
-                              Цэс
-                            </h3>
-                            {featuredMenuItems.length > 0 && (
-                              <span className="text-[11px] font-bold text-[#d0c5af]">онцлох</span>
-                            )}
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            {featuredMenuItems.slice(0, 4).map((item) => {
-                              const firstImage = getMenuItemImages(item)[0];
-                              return (
-                                <button
-                                  key={item.id}
-                                  type="button"
-                                  onClick={() => {
-                                    if (firstImage) {
-                                      setSelectedMedia({
-                                        image: firstImage,
-                                        title: item.name,
-                                        subtitle: item.description || item.category,
-                                        price: item.price,
-                                      });
-                                    }
-                                  }}
-                                  className="relative min-h-20 overflow-hidden rounded-lg border border-[#3d372e] bg-[#211f1b] text-left transition hover:border-[#f2ca50]/70"
-                                >
-                                  {firstImage && (
-                                    <img src={firstImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-70" />
-                                  )}
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-black/10" />
-                                  <div className="relative z-10 flex min-h-20 flex-col justify-end p-2">
-                                    <p className="line-clamp-1 text-xs font-extrabold text-white">{item.name}</p>
-                                    <p className="mt-0.5 text-[11px] font-bold text-[#f2ca50]">
-                                      {Number(item.price).toLocaleString()} ₮
-                                    </p>
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                          {featuredMenuItems.length === 0 && (
-                            <p className="rounded-lg border border-[#3d372e] bg-[#211f1b]/75 px-3 py-3 text-xs leading-relaxed text-[#d0c5af]">
-                              {selectedSummary?.id === featuredOrg.id && detailLoading
-                                ? 'Цэс ачаалж байна...'
-                                : 'Дэлгэрэнгүй дээр дарж тухайн газрын menu болон танилцуулгыг харна.'}
-                            </p>
-                          )}
-                        </div>
                       </div>
 
                       <button

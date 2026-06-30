@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Menu, UtensilsCrossed, X } from 'lucide-react';
+import { Home, Info, Menu, PhoneCall, Store, UtensilsCrossed, X } from 'lucide-react';
 
 const navItems = [
-  { label: 'Нүүр', path: '/' },
-  { label: 'Танилцуулга', path: '/about' },
-  { label: 'Restaurant & Lounge', path: '/restaurants-lounges' },
-  { label: 'Холбоо барих', path: '/contact' },
+  { label: 'Нүүр', shortLabel: 'Нүүр', path: '/', icon: Home },
+  { label: 'Restaurant & Lounge', shortLabel: 'Rest', path: '/restaurants-lounges', icon: Store },
+  { label: 'Холбоо барих', shortLabel: 'Холбогдох', path: '/contact', icon: PhoneCall },
+  { label: 'Танилцуулга', shortLabel: 'Бидний тухай', path: '/about', icon: Info },
 ];
 
 export default function UserLayout({ children }) {
@@ -92,13 +92,39 @@ export default function UserLayout({ children }) {
         </div>
       )}
 
-      <main className="relative z-10">{children}</main>
+      <main className="relative z-10 pb-24 md:pb-0">{children}</main>
 
-      <footer className="relative z-10 mt-12 w-full border-t border-lounge-border">
+      <footer className="relative z-10 mt-12 w-full border-t border-lounge-border pb-24 md:pb-0">
         <div className="mx-auto w-full max-w-[1440px] px-4 py-8 text-center text-xs text-lounge-muted sm:px-6 lg:px-8">
           <p>&copy; {new Date().getFullYear()} Lounge Table Reservation Platform</p>
         </div>
       </footer>
+
+      <nav className="fixed inset-x-0 bottom-0 z-[85] border-t border-lounge-border/70 bg-[#12110e]/95 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-18px_45px_rgba(0,0,0,0.38)] backdrop-blur md:hidden">
+        <div className="mx-auto grid max-w-md grid-cols-4 gap-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === '/'}
+                className={({ isActive }) =>
+                  `flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1.5 text-center text-[10px] font-extrabold leading-tight transition-all ${
+                    isActive
+                      ? 'bg-lounge-primary/15 text-lounge-accent shadow-[0_0_14px_rgba(255,168,0,0.18)]'
+                      : 'text-lounge-muted active:bg-lounge-card active:text-white'
+                  }`
+                }
+              >
+                <Icon className="h-5 w-5" />
+                <span className="line-clamp-1">{item.shortLabel}</span>
+              </NavLink>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

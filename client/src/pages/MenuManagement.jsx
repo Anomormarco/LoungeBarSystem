@@ -11,6 +11,48 @@ import {
   Utensils
 } from 'lucide-react';
 
+const MENU_CATEGORIES = [
+  {
+    value: 'Food',
+    label: 'Food / Хоол',
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900&q=80',
+  },
+  {
+    value: 'Drink',
+    label: 'Drink / Ундаа',
+    image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=900&q=80',
+  },
+  {
+    value: 'Dessert',
+    label: 'Dessert / Амттан',
+    image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=900&q=80',
+  },
+  {
+    value: 'Alcohol',
+    label: 'Alcohol / Алкохол',
+    image: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=900&q=80',
+  },
+  {
+    value: 'Snack',
+    label: 'Snack / Зууш',
+    image: 'https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=900&q=80',
+  },
+  {
+    value: 'Coffee',
+    label: 'Coffee / Кофе',
+    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80',
+  },
+];
+
+const DEFAULT_MENU_IMAGE_BY_CATEGORY = MENU_CATEGORIES.reduce((acc, item) => {
+  acc[item.value] = item.image;
+  return acc;
+}, {});
+
+function defaultImageForCategory(category) {
+  return DEFAULT_MENU_IMAGE_BY_CATEGORY[category] || DEFAULT_MENU_IMAGE_BY_CATEGORY.Food;
+}
+
 export default function MenuManagement() {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,14 +61,12 @@ export default function MenuManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [name, setName] = useState('');
-  const [category, setCategory] = useState('Хоол'); // Default category
+  const [category, setCategory] = useState('Food');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [image, setImage] = useState('');
   const [isAvailable, setIsAvailable] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-
-  const categories = ['Хоол', 'Шөл', 'Хөнгөн зууш', 'Коктейль', 'Ундаа', 'Шар айраг', 'Бусад'];
 
   const fetchMenu = async () => {
     try {
@@ -46,10 +86,10 @@ export default function MenuManagement() {
   const handleOpenCreate = () => {
     setEditingId(null);
     setName('');
-    setCategory('Хоол');
+    setCategory('Food');
     setDescription('');
     setPrice('');
-    setImage('');
+    setImage(defaultImageForCategory('Food'));
     setIsAvailable(true);
     setShowModal(true);
   };
@@ -63,6 +103,13 @@ export default function MenuManagement() {
     setImage(item.image || '');
     setIsAvailable(item.isAvailable);
     setShowModal(true);
+  };
+
+  const handleCategoryChange = (nextCategory) => {
+    setCategory(nextCategory);
+    if (!image || image === defaultImageForCategory(category)) {
+      setImage(defaultImageForCategory(nextCategory));
+    }
   };
 
   const handleDelete = async (id) => {
@@ -88,7 +135,7 @@ export default function MenuManagement() {
       category,
       description,
       price: parseFloat(price),
-      image: image || null,
+      image: image || defaultImageForCategory(category),
       isAvailable,
     };
 
@@ -251,12 +298,12 @@ export default function MenuManagement() {
                 <label className="block text-slate-300 text-xs font-semibold uppercase mb-2">Ангилал</label>
                 <select
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
                   className="w-full px-4 py-2.5 bg-slate-850 border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 text-slate-200 text-sm"
                   disabled={submitting}
                 >
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                  {MENU_CATEGORIES.map(cat => (
+                    <option key={cat.value} value={cat.value}>{cat.label}</option>
                   ))}
                 </select>
               </div>
@@ -277,12 +324,20 @@ export default function MenuManagement() {
                 <label className="block text-slate-300 text-xs font-semibold uppercase mb-2">Зургийн URL</label>
                 <input
                   type="text"
-                  placeholder="https://example.com/image.jpg"
+                  placeholder={defaultImageForCategory(category)}
                   value={image}
                   onChange={(e) => setImage(e.target.value)}
                   className="w-full px-4 py-2.5 bg-slate-850 border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 text-slate-200 text-sm"
                   disabled={submitting}
                 />
+                <button
+                  type="button"
+                  onClick={() => setImage(defaultImageForCategory(category))}
+                  className="mt-2 text-xs font-bold text-amber-500 hover:text-amber-400"
+                  disabled={submitting}
+                >
+                  Энэ ангиллын default зураг ашиглах
+                </button>
               </div>
 
               <div>

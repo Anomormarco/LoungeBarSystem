@@ -7,6 +7,19 @@ function parseId(id, label) {
   return parsed;
 }
 
+const DEFAULT_MENU_IMAGE_BY_CATEGORY = {
+  Food: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900&q=80",
+  Drink: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=900&q=80",
+  Dessert: "https://images.unsplash.com/photo-1551024601-bec78aea704b?w=900&q=80",
+  Alcohol: "https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=900&q=80",
+  Snack: "https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=900&q=80",
+  Coffee: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80",
+};
+
+function defaultImageForCategory(category) {
+  return DEFAULT_MENU_IMAGE_BY_CATEGORY[category] || DEFAULT_MENU_IMAGE_BY_CATEGORY.Food;
+}
+
 async function getOwnerMenuItems(organizationId) {
   return prisma.menuItem.findMany({
     where: { organizationId },
@@ -28,7 +41,7 @@ async function createOwnerMenuItem(organizationId, payload) {
       name: payload.name,
       description: payload.description,
       price,
-      image: payload.image,
+      image: payload.image || defaultImageForCategory(payload.category),
       isAvailable: payload.isAvailable ?? true,
     },
   });
@@ -43,6 +56,7 @@ async function updateOwnerMenuItem(organizationId, menuItemId, payload) {
   }
 
   if (payload.price !== undefined) data.price = Number(payload.price);
+  if (!data.image && payload.category) data.image = defaultImageForCategory(payload.category);
 
   return prisma.menuItem.update({
     where: {

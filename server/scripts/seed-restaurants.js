@@ -69,13 +69,22 @@ const restaurants = [
   closingTime: index % 4 === 0 ? "02:00" : "00:00",
 }));
 
+const menuImages = {
+  Food: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900&q=80",
+  Drink: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=900&q=80",
+  Dessert: "https://images.unsplash.com/photo-1551024601-bec78aea704b?w=900&q=80",
+  Alcohol: "https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=900&q=80",
+  Snack: "https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=900&q=80",
+  Coffee: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80",
+};
+
 const menuTemplate = [
-  ["Coffee & Tea", "Signature Americano", "Гашуун амттай шинэхэн кофе", 8500],
-  ["Coffee & Tea", "Honey Ginger Tea", "Зөгийн балтай халуун цай", 7500],
-  ["Main", "Grilled Chicken Bowl", "Ногоотой тахианы bowl", 28500],
-  ["Main", "Beef Tenderloin", "Соус, төмсний нухаштай үхрийн мах", 52000],
-  ["Dessert", "Chocolate Lava Cake", "Халуун шоколадтай dessert", 16500],
-  ["Drinks", "House Mocktail", "Жимсний signature mocktail", 14500],
+  ["Coffee", "Signature Americano", "Fresh espresso coffee", 8500, menuImages.Coffee],
+  ["Drink", "Honey Ginger Tea", "Honey and ginger hot tea", 7500, menuImages.Drink],
+  ["Food", "Grilled Chicken Bowl", "Chicken, rice and seasonal vegetables", 28500, menuImages.Food],
+  ["Food", "Beef Tenderloin", "Tender beef with potato mash and house sauce", 52000, menuImages.Food],
+  ["Dessert", "Chocolate Lava Cake", "Warm chocolate dessert", 16500, menuImages.Dessert],
+  ["Alcohol", "House Cocktail", "Signature lounge cocktail", 24500, menuImages.Alcohol],
 ];
 
 function buildTables(organizationId) {
@@ -130,13 +139,13 @@ async function main() {
 
     await prisma.menuItem.deleteMany({ where: { organizationId: organization.id } });
     await prisma.menuItem.createMany({
-      data: menuTemplate.map(([category, name, description, price], itemIndex) => ({
+      data: menuTemplate.map(([category, name, description, price, image]) => ({
         organizationId: organization.id,
         category,
         name,
         description,
         price,
-        image: itemIndex % 2 === 0 ? interiorImages[(index + itemIndex) % interiorImages.length] : null,
+        image,
         isAvailable: true,
       })),
     });

@@ -36,19 +36,28 @@ const baseTables = [
   ["BAR-01", 2, "normal", "available"],
 ];
 
+const menuImages = {
+  Food: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900&q=80",
+  Drink: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=900&q=80",
+  Dessert: "https://images.unsplash.com/photo-1551024601-bec78aea704b?w=900&q=80",
+  Alcohol: "https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=900&q=80",
+  Snack: "https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=900&q=80",
+  Coffee: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80",
+};
+
 const baseMenuItems = [
-  ["Coffee & Tea", "Signature Americano", "Fresh espresso with clean bitter finish", 8500],
-  ["Coffee & Tea", "Honey Ginger Tea", "Hot tea with honey and ginger", 7500],
-  ["Drinks", "Berry Mocktail", "Berry, citrus and soda signature mocktail", 15500],
-  ["Drinks", "Classic Mojito", "Mint, lime and sparkling soda", 18000],
-  ["Main", "Grilled Chicken Bowl", "Chicken, rice and seasonal vegetables", 28500],
-  ["Main", "Beef Tenderloin", "Tender beef with potato mash and house sauce", 52000],
-  ["Main", "Seafood Pasta", "Creamy pasta with shrimp and herbs", 38500],
-  ["Snack", "Truffle Fries", "Crispy fries with truffle seasoning", 16500],
-  ["Snack", "Chicken Wings", "Spicy glazed wings with dip", 24500],
-  ["Dessert", "Chocolate Lava Cake", "Warm chocolate cake with soft center", 16500],
-  ["Dessert", "Cheesecake", "Creamy cheesecake with berry sauce", 14500],
-  ["VIP Set", "VIP Platter", "Shared meat, snack and dessert platter", 98000],
+  ["Coffee", "Signature Americano", "Fresh espresso with clean bitter finish", 8500, menuImages.Coffee],
+  ["Drink", "Honey Ginger Tea", "Hot tea with honey and ginger", 7500, menuImages.Drink],
+  ["Drink", "Berry Mocktail", "Berry, citrus and soda signature mocktail", 15500, menuImages.Drink],
+  ["Alcohol", "Classic Mojito", "Mint, lime and sparkling cocktail", 18000, menuImages.Alcohol],
+  ["Food", "Grilled Chicken Bowl", "Chicken, rice and seasonal vegetables", 28500, menuImages.Food],
+  ["Food", "Beef Tenderloin", "Tender beef with potato mash and house sauce", 52000, menuImages.Food],
+  ["Food", "Seafood Pasta", "Creamy pasta with shrimp and herbs", 38500, menuImages.Food],
+  ["Snack", "Truffle Fries", "Crispy fries with truffle seasoning", 16500, menuImages.Snack],
+  ["Snack", "Chicken Wings", "Spicy glazed wings with dip", 24500, menuImages.Snack],
+  ["Dessert", "Chocolate Lava Cake", "Warm chocolate cake with soft center", 16500, menuImages.Dessert],
+  ["Dessert", "Cheesecake", "Creamy cheesecake with berry sauce", 14500, menuImages.Dessert],
+  ["Food", "VIP Platter", "Shared meat, snack and dessert platter", 98000, menuImages.Food],
 ];
 
 const lounges = [
@@ -143,7 +152,7 @@ async function upsertTables(organizationId) {
 }
 
 async function upsertMenuItems(organizationId, prefix) {
-  for (const [category, baseName, description, price] of baseMenuItems) {
+  for (const [category, baseName, description, price, image] of baseMenuItems) {
     const name = baseName.includes("VIP") || baseName.includes("Berry") ? `${prefix} ${baseName}` : baseName;
     const existing = await prisma.menuItem.findFirst({
       where: { organizationId, name },
@@ -152,7 +161,7 @@ async function upsertMenuItems(organizationId, prefix) {
     if (existing) {
       await prisma.menuItem.update({
         where: { id: existing.id },
-        data: { category, description, price, isAvailable: true },
+        data: { category, description, price, image, isAvailable: true },
       });
     } else {
       await prisma.menuItem.create({
@@ -162,6 +171,7 @@ async function upsertMenuItems(organizationId, prefix) {
           name,
           description,
           price,
+          image,
           isAvailable: true,
         },
       });

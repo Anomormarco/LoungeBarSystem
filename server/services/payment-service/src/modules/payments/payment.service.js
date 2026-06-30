@@ -1,4 +1,5 @@
 const Stripe = require("stripe");
+require("../../utils/loadEnv");
 const prisma = require("../../utils/prisma");
 const httpError = require("../../utils/httpError");
 
@@ -9,8 +10,9 @@ function periodEnd(days = 30) {
 }
 
 function stripeClient() {
-  if (!process.env.STRIPE_SECRET_KEY) return null;
-  return new Stripe(process.env.STRIPE_SECRET_KEY);
+  const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
+  if (!secretKey) return null;
+  return new Stripe(secretKey);
 }
 
 function isActiveStripeStatus(status) {

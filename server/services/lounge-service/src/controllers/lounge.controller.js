@@ -1,4 +1,5 @@
 const organizationService = require("../modules/organizations/organization.service");
+const ownerOrganizationService = require("../modules/organizations/owner-organization.service");
 const tableService = require("../modules/tables/table.service");
 const menuService = require("../modules/menu/menu.service");
 const ownerTableService = require("../modules/tables/owner-table.service");
@@ -32,6 +33,17 @@ async function organizationTables(req, res) {
 
 async function organizationMenu(req, res) {
   const data = await menuService.getOrganizationMenu(req.params.id);
+  res.json({ data });
+}
+
+async function ownerOrganization(req, res) {
+  const data = await ownerOrganizationService.getOwnerOrganization(req.user.organizationId);
+  res.json({ data });
+}
+
+async function updateOwnerOrganization(req, res) {
+  const data = await ownerOrganizationService.updateOwnerOrganization(req.user.organizationId, req.body);
+  clearPublicCache();
   res.json({ data });
 }
 
@@ -121,6 +133,8 @@ module.exports = {
   organizationDetail: asyncHandler(organizationDetail),
   organizationTables: asyncHandler(organizationTables),
   organizationMenu: asyncHandler(organizationMenu),
+  ownerOrganization: asyncHandler(ownerOrganization),
+  updateOwnerOrganization: asyncHandler(updateOwnerOrganization),
   ownerTables: asyncHandler(ownerTables),
   createOwnerTable: asyncHandler(createOwnerTable),
   updateOwnerTable: asyncHandler(updateOwnerTable),

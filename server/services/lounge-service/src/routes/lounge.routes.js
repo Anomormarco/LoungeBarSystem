@@ -9,6 +9,9 @@ router.get("/organizations/:id", controller.organizationDetail);
 router.get("/organizations/:id/tables", controller.organizationTables);
 router.get("/organizations/:id/menu", controller.organizationMenu);
 
+router.get("/owner/organization", ownerActiveGuard, controller.ownerOrganization);
+router.put("/owner/organization", ownerActiveGuard, controller.updateOwnerOrganization);
+
 router.get("/owner/tables", ownerActiveGuard, controller.ownerTables);
 router.post("/owner/tables", ownerActiveGuard, controller.createOwnerTable);
 router.put("/owner/tables/:id", ownerActiveGuard, controller.updateOwnerTable);

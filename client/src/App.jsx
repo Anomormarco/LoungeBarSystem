@@ -18,6 +18,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import TableManagement from './pages/TableManagement';
 import MenuManagement from './pages/MenuManagement';
+import GalleryManagement from './pages/GalleryManagement';
 import StaffManagement from './pages/StaffManagement';
 import Statistics from './pages/Statistics';
 import SubscriptionInfo from './pages/SubscriptionInfo';
@@ -84,6 +85,14 @@ function App() {
           element={
             <ProtectedRoute>
               <MenuManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/gallery"
+          element={
+            <ProtectedRoute>
+              <GalleryManagement />
             </ProtectedRoute>
           }
         />

@@ -104,6 +104,9 @@ export const api = {
   confirmReservation: (id) => request(`/owner/reservations/${id}/confirm`, { method: 'PUT' }),
   cancelReservation: (id) => request(`/owner/reservations/${id}/cancel`, { method: 'PUT' }),
   completeReservation: (id) => request(`/owner/reservations/${id}/complete`, { method: 'PUT' }),
+  getOwnerOrganization: () => request('/owner/organization'),
+  updateOwnerOrganization: (payload) =>
+    request('/owner/organization', { method: 'PUT', body: JSON.stringify(payload) }),
   getTables: () => request('/owner/tables'),
   createTable: (table) =>
     request('/owner/tables', { method: 'POST', body: JSON.stringify(table) }),

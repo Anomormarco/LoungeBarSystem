@@ -17,6 +17,7 @@ router.use("/admin/login", serviceProxy(serviceUrls.auth));
 router.use("/admin/statistics", serviceProxy(serviceUrls.auth));
 
 router.use("/organizations", serviceProxy(serviceUrls.lounge));
+router.use("/owner/organization", serviceProxy(serviceUrls.lounge));
 router.use("/owner/tables", serviceProxy(serviceUrls.lounge));
 router.use("/owner/menu-items", serviceProxy(serviceUrls.lounge));
 router.use("/admin/organizations", serviceProxy(serviceUrls.lounge));

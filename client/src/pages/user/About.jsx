@@ -71,7 +71,7 @@ export default function About() {
               <span className="inline-block border border-[#f2ca50]/40 px-4 py-1 text-sm font-bold uppercase tracking-[0.22em] text-[#f2ca50]">
                 Premium Dining
               </span>
-              <h1 className="text-5xl font-extrabold leading-tight text-[#e8e1db] sm:text-7xl">
+              <h1 className="text-3xl font-extrabold leading-tight text-[#e8e1db] sm:text-5xl">
                 Luxury Dining Network
               </h1>
               <p className="text-lg leading-8 text-[#d0c5af]">

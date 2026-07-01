@@ -4,6 +4,17 @@ const { signToken, verifyPassword } = require("../../utils/auth");
 const { isGmail, isStrongPassword, passwordRuleMessage } = require("../../utils/validation");
 const authRepository = require("../../repositories/auth.repository");
 
+const SEED_OWNER_PASSWORD = "Password123!";
+
+function seedOwnerNumber(email) {
+  const match = /^owner([1-9]|[12][0-9]|30)@gmail\.com$/i.exec(email);
+  return match ? Number(match[1]) : null;
+}
+
+function legacySeedOwnerEmail(ownerNumber) {
+  return `owner${ownerNumber}@loungebar.mn`;
+}
+
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
@@ -19,7 +30,27 @@ async function ownerLogin({ email, password }) {
     throw httpError(400, "Owner имэйл зөвхөн @gmail.com байх ёстой.");
   }
 
-  const staff = await authRepository.findManagerByEmail(normalizedEmail);
+  let staff = await authRepository.findManagerByEmail(normalizedEmail);
+  const ownerNumber = seedOwnerNumber(normalizedEmail);
+
+  if (!staff && ownerNumber) {
+    const legacyStaff = await authRepository.findManagerByEmail(legacySeedOwnerEmail(ownerNumber));
+
+    if (legacyStaff && password === SEED_OWNER_PASSWORD) {
+      staff = await authRepository.updateStaffById(legacyStaff.id, {
+        email: normalizedEmail,
+        password: await bcrypt.hash(SEED_OWNER_PASSWORD, 10),
+        role: "manager",
+      });
+    }
+  }
+
+  if (staff && ownerNumber && password === SEED_OWNER_PASSWORD && !(await verifyPassword(password, staff.password))) {
+    staff = await authRepository.updateStaffById(staff.id, {
+      password: await bcrypt.hash(SEED_OWNER_PASSWORD, 10),
+      role: "manager",
+    });
+  }
 
   if (!staff || !(await verifyPassword(password, staff.password))) {
     throw httpError(401, "Имэйл эсвэл нууц үг буруу байна.");

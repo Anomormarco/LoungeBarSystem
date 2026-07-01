@@ -20,6 +20,16 @@ function findStaffByEmail(email) {
   });
 }
 
+function updateStaffById(id, data) {
+  return prisma.staff.update({
+    where: { id },
+    data,
+    include: {
+      organization: true,
+    },
+  });
+}
+
 function findAdminByEmail(email) {
   return prisma.admin.findFirst({
     where: {
@@ -61,6 +71,7 @@ function getAdminStatistics() {
 module.exports = {
   findManagerByEmail,
   findStaffByEmail,
+  updateStaffById,
   findAdminByEmail,
   createOwnerOrganization,
   getAdminStatistics,

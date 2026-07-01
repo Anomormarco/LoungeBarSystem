@@ -2,6 +2,10 @@ function isGmail(email) {
   return /^[^\s@]+@gmail\.com$/i.test(String(email || "").trim());
 }
 
+function isEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(String(email || "").trim());
+}
+
 function isStrongPassword(password) {
   const value = String(password || "");
   return value.length >= 6 && /[A-Z]/.test(value) && /[a-z]/.test(value) && /[^A-Za-z0-9]/.test(value);
@@ -12,9 +16,9 @@ function passwordRuleMessage() {
 }
 
 module.exports = {
+  isEmail,
   isGmail,
   isStrongPassword,
   passwordRuleMessage,
 };
-
 

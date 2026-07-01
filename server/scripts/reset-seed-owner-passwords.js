@@ -5,7 +5,14 @@ const { PrismaPg } = require("@prisma/adapter-pg");
 const { PrismaClient } = require("@prisma/client");
 
 const OWNER_PASSWORD = "Password123!";
-const OWNER_EMAILS = Array.from({ length: 30 }, (_, index) => `owner${index + 1}@loungebar.mn`);
+
+function gmailOwnerEmail(index) {
+  return `owner${index + 1}@gmail.com`;
+}
+
+function legacyOwnerEmail(index) {
+  return `owner${index + 1}@loungebar.mn`;
+}
 
 async function main() {
   if (!process.env.DATABASE_URL) {
@@ -15,18 +22,35 @@ async function main() {
   const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
   const prisma = new PrismaClient({ adapter });
   const password = await bcrypt.hash(OWNER_PASSWORD, 10);
+  let updated = 0;
+  let missing = 0;
 
   try {
-    const result = await prisma.staff.updateMany({
-      where: {
-        email: { in: OWNER_EMAILS },
-        role: "manager",
-      },
-      data: { password },
-    });
+    for (let index = 0; index < 30; index += 1) {
+      const nextEmail = gmailOwnerEmail(index);
+      const oldEmail = legacyOwnerEmail(index);
+      const staff =
+        (await prisma.staff.findFirst({ where: { email: nextEmail, role: "manager" } })) ||
+        (await prisma.staff.findFirst({ where: { email: oldEmail, role: "manager" } }));
 
-    console.log(`Reset ${result.count} owner passwords.`);
-    console.log(`Owners: owner1@loungebar.mn ... owner30@loungebar.mn / ${OWNER_PASSWORD}`);
+      if (!staff) {
+        missing += 1;
+        continue;
+      }
+
+      await prisma.staff.update({
+        where: { id: staff.id },
+        data: {
+          email: nextEmail,
+          password,
+          role: "manager",
+        },
+      });
+      updated += 1;
+    }
+
+    console.log(`Updated ${updated} owner accounts. Missing ${missing}.`);
+    console.log(`Owners: owner1@gmail.com ... owner30@gmail.com / ${OWNER_PASSWORD}`);
   } finally {
     await prisma.$disconnect();
   }

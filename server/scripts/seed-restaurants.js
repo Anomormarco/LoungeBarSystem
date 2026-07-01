@@ -69,6 +69,10 @@ const restaurants = [
   closingTime: index % 4 === 0 ? "02:00" : "00:00",
 }));
 
+function ownerEmail(index) {
+  return `owner${index + 1}@gmail.com`;
+}
+
 const menuImages = {
   Food: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900&q=80",
   Drink: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=900&q=80",
@@ -172,14 +176,14 @@ async function main() {
       where: {
         organizationId_email: {
           organizationId: organization.id,
-          email: `owner${index + 1}@loungebar.mn`,
+          email: ownerEmail(index),
         },
       },
       update: { password, role: "manager" },
       create: {
         organizationId: organization.id,
         name: `${organization.name} Manager`,
-        email: `owner${index + 1}@loungebar.mn`,
+        email: ownerEmail(index),
         phone: restaurant.phone,
         password,
         role: "manager",
@@ -189,7 +193,7 @@ async function main() {
 
   console.log(`Seeded ${restaurants.length} restaurants with tables, menu items, owners, and admin account.`);
   console.log("Admin: admin@loungebar.mn / Password123!");
-  console.log("Owners: owner1@loungebar.mn ... owner30@loungebar.mn / Password123!");
+  console.log("Owners: owner1@gmail.com ... owner30@gmail.com / Password123!");
 }
 
 main()

@@ -1,7 +1,7 @@
 const httpError = require("../../utils/httpError");
 const bcrypt = require("bcryptjs");
 const { signToken, verifyPassword } = require("../../utils/auth");
-const { isEmail, isGmail, isStrongPassword, passwordRuleMessage } = require("../../utils/validation");
+const { isGmail, isStrongPassword, passwordRuleMessage } = require("../../utils/validation");
 const authRepository = require("../../repositories/auth.repository");
 
 function normalizeEmail(email) {
@@ -15,8 +15,8 @@ async function ownerLogin({ email, password }) {
     throw httpError(400, "Имэйл болон нууц үг шаардлагатай.");
   }
 
-  if (!isEmail(normalizedEmail)) {
-    throw httpError(400, "Owner email is invalid.");
+  if (!isGmail(normalizedEmail)) {
+    throw httpError(400, "Owner имэйл зөвхөн @gmail.com байх ёстой.");
   }
 
   const staff = await authRepository.findManagerByEmail(normalizedEmail);

@@ -12,7 +12,6 @@ import {
   Loader2,
   Lock,
   Mail,
-  MapPin,
   Phone,
   ShieldCheck,
   Star,
@@ -22,6 +21,7 @@ import {
 } from 'lucide-react';
 import UserLayout from '../../components/UserLayout';
 import { api } from '../../utils/api';
+import LocationPicker from '../../components/LocationPicker';
 
 const heroImages = [
   'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=1800&q=85',
@@ -165,10 +165,15 @@ export default function About() {
     setPortalSuccess('');
 
     try {
+      const latitude = Number(registerForm.latitude);
+      const longitude = Number(registerForm.longitude);
+      const address = String(registerForm.address || '').trim() || `Map location ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+
       await api.registerOwner({
         ...registerForm,
-        latitude: Number(registerForm.latitude),
-        longitude: Number(registerForm.longitude),
+        address,
+        latitude,
+        longitude,
       });
 
       const response = await api.login(registerForm.email, registerForm.password);
@@ -608,9 +613,6 @@ function RegisterPortal({ form, setForm, loading, onSubmit, onBack }) {
           { key: 'email', label: 'Gmail', icon: Mail, placeholder: 'owner@gmail.com', type: 'email' },
           { key: 'password', label: 'Нууц үг', icon: Lock, placeholder: 'Aa123!', type: 'password' },
           { key: 'organizationName', label: 'Байгууллага', icon: Building2, placeholder: 'Lounge нэр' },
-          { key: 'address', label: 'Хаяг', icon: MapPin, placeholder: 'Улаанбаатар, СБД' },
-          { key: 'latitude', label: 'Latitude', icon: MapPin, placeholder: '47.9184', type: 'number', step: '0.0000001' },
-          { key: 'longitude', label: 'Longitude', icon: MapPin, placeholder: '106.9177', type: 'number', step: '0.0000001' },
           { key: 'openingTime', label: 'Нээх цаг', icon: Clock, placeholder: '10:00', type: 'time' },
           { key: 'closingTime', label: 'Хаах цаг', icon: Clock, placeholder: '23:00', type: 'time' },
         ].map((field) => (
@@ -621,6 +623,19 @@ function RegisterPortal({ form, setForm, loading, onSubmit, onBack }) {
             onChange={(value) => update(field.key, value)}
           />
         ))}
+      </div>
+
+      <div className="mt-4">
+        <LocationPicker
+          latitude={form.latitude}
+          longitude={form.longitude}
+          address={form.address}
+          onAddressChange={(value) => update('address', value)}
+          onChange={({ latitude, longitude }) => {
+            update('latitude', latitude);
+            update('longitude', longitude);
+          }}
+        />
       </div>
 
       <label className="mt-4 block">

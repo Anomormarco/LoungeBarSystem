@@ -48,6 +48,7 @@ export default function LoungeMap({
   organizations,
   selectedOrgId,
   onOrganizationSelect,
+  onOrganizationOpen,
 }) {
   const [mapStyle, setMapStyle] = useState('dark');
   const center = useMemo(() => {
@@ -88,16 +89,24 @@ export default function LoungeMap({
           if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
           const active = org.id === selectedOrgId;
+          const handleMarkerTarget = (event) => {
+            event.originalEvent?.stopPropagation?.();
+            event.originalEvent?.preventDefault?.();
+            if (active) {
+              onOrganizationOpen?.(org, { source: 'marker' });
+              return;
+            }
+            onOrganizationSelect?.(org, { source: 'click' });
+          };
+
           return (
             <Marker
               key={org.id}
               position={[lat, lng]}
               icon={createLoungeIcon(active)}
               eventHandlers={{
-                click: (event) => {
-                  event.originalEvent?.stopPropagation?.();
-                  onOrganizationSelect?.(org, { source: 'click' });
-                },
+                click: handleMarkerTarget,
+                touchend: handleMarkerTarget,
               }}
             >
               <Tooltip direction="top" offset={[0, -34]} opacity={1} className="lounge-name-tooltip">

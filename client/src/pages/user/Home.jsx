@@ -570,6 +570,7 @@ export default function Home() {
                 organizations={organizations}
                 selectedOrgId={selectedOrgId}
                 onOrganizationSelect={previewOrganization}
+                onOrganizationOpen={openLandingOrganization}
                 onOrganizationClear={hideOrganizationPreview}
               />
               {showMapInfo && (

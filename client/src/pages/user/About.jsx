@@ -123,8 +123,8 @@ export default function About() {
     if (params.get('owner_payment') === 'success') {
       const email = sessionStorage.getItem('pending_owner_email') || '';
       setLoginForm((current) => ({ ...current, email }));
-      setPortalView('login');
-      setPortalSuccess('Stripe төлбөр амжилттай. Одоо owner login хийж dashboard эрхээ нээнэ үү.');
+      setPortalView('paymentSuccess');
+      setPortalSuccess('');
       sessionStorage.removeItem('pending_owner_token');
       sessionStorage.removeItem('pending_owner_email');
       window.history.replaceState({}, '', window.location.pathname);
@@ -133,6 +133,11 @@ export default function About() {
     if (params.get('owner_payment') === 'cancelled') {
       setPortalView('payment');
       setPortalError('Stripe төлбөр цуцлагдлаа. Дахин багцаа сонгоод үргэлжлүүлнэ үү.');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
+    if (params.get('owner_login') === 'true') {
+      setPortalView('login');
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
@@ -289,6 +294,11 @@ export default function About() {
                 loading={portalMode === 'login'}
                 onSubmit={handleOwnerLogin}
                 onRegister={() => showPortal('info')}
+              />
+            ) : portalView === 'paymentSuccess' ? (
+              <PaymentSuccessPortal
+                email={loginForm.email}
+                onLogin={() => showPortal('login')}
               />
             ) : (
               <RegisterPortal
@@ -588,6 +598,44 @@ function LoginPortal({ form, setForm, loading, onSubmit, onRegister }) {
         Шинээр owner access авах
       </button>
     </form>
+  );
+}
+
+function PaymentSuccessPortal({ email, onLogin }) {
+  const loginUrl = `${window.location.origin}/about?owner_login=true`;
+
+  return (
+    <div className="border border-emerald-400/40 bg-emerald-500/10 p-6 shadow-2xl shadow-emerald-950/30">
+      <div className="mb-5 flex items-center gap-3">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-400 text-[#082216]">
+          <CheckCircle2 className="h-7 w-7" />
+        </div>
+        <div>
+          <h3 className="text-2xl font-extrabold text-emerald-100">Төлбөр амжилттай төлөгдлөө</h3>
+          <p className="mt-1 text-sm text-emerald-100/75">Owner login эрх идэвхжлээ.</p>
+        </div>
+      </div>
+
+      {email && (
+        <div className="mb-4 border border-emerald-400/25 bg-[#15130f]/70 px-4 py-3 text-sm text-emerald-100">
+          Login email: <span className="font-bold">{email}</span>
+        </div>
+      )}
+
+      <div className="rounded-xl border border-[#3d372e] bg-[#15130f] p-4 text-xs leading-5 text-[#d0c5af]">
+        <p className="font-bold text-[#f2ca50]">Owner login URL</p>
+        <p className="mt-1 break-all">{loginUrl}</p>
+      </div>
+
+      <button
+        type="button"
+        onClick={onLogin}
+        className="mt-5 inline-flex w-full items-center justify-center gap-2 bg-emerald-400 px-6 py-3 text-sm font-black text-[#082216] transition hover:bg-emerald-300"
+      >
+        <ArrowRight className="h-4 w-4" />
+        Owner login хийх
+      </button>
+    </div>
   );
 }
 

@@ -11,13 +11,13 @@ import {
   Loader2,
   Lock,
   Mail,
-  MapPin,
   Phone,
   ShieldCheck,
   User,
   UtensilsCrossed,
 } from 'lucide-react';
 import { api } from '../utils/api';
+import LocationPicker from '../components/LocationPicker';
 
 const HERO_SLIDES = [
   {
@@ -350,7 +350,6 @@ function OwnerRegisterForm({ form, setForm, loading, error, onSubmit, onLogin })
             { key: 'email', label: 'Gmail', icon: Mail, placeholder: 'owner@gmail.com', type: 'email' },
             { key: 'password', label: 'Нууц үг', icon: Lock, placeholder: 'Aa123!', type: 'password' },
             { key: 'organizationName', label: 'Байгууллага', icon: Building2, placeholder: 'Lounge нэр' },
-            { key: 'address', label: 'Хаяг', icon: MapPin, placeholder: 'Улаанбаатар, СБД' },
           ].map((field) => (
             <IconInput
               key={field.key}
@@ -364,10 +363,20 @@ function OwnerRegisterForm({ form, setForm, loading, error, onSubmit, onLogin })
 
         <div className="border-t border-lounge-border pt-5">
           <p className="mb-4 text-sm font-bold text-lounge-yellow">Байршил ба ажиллах цаг</p>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <LocationPicker
+            latitude={form.latitude}
+            longitude={form.longitude}
+            address={form.address}
+            disabled={loading}
+            onAddressChange={(value) => updateField('address', value)}
+            onChange={({ latitude, longitude }) => {
+              updateField('latitude', latitude);
+              updateField('longitude', longitude);
+            }}
+          />
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {[
-              { key: 'latitude', label: 'Latitude', icon: MapPin, placeholder: '47.9184', type: 'number', step: '0.0000001' },
-              { key: 'longitude', label: 'Longitude', icon: MapPin, placeholder: '106.9177', type: 'number', step: '0.0000001' },
               { key: 'openingTime', label: 'Нээх цаг', icon: Clock, placeholder: '10:00', type: 'time' },
               { key: 'closingTime', label: 'Хаах цаг', icon: Clock, placeholder: '23:00', type: 'time' },
             ].map((field) => (

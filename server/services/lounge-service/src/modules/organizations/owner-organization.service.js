@@ -34,6 +34,8 @@ function selectOrganization() {
     name: true,
     description: true,
     address: true,
+    latitude: true,
+    longitude: true,
     phone: true,
     exteriorImages: true,
     interiorImages: true,
@@ -64,7 +66,18 @@ async function updateOwnerOrganization(organizationId, payload) {
   if (interiorImages !== undefined) data.interiorImages = interiorImages;
 
   if (payload.description !== undefined) data.description = String(payload.description || "").trim() || null;
+  if (payload.address !== undefined) data.address = String(payload.address || "").trim();
+  if (payload.latitude !== undefined) data.latitude = Number(payload.latitude);
+  if (payload.longitude !== undefined) data.longitude = Number(payload.longitude);
   if (payload.phone !== undefined) data.phone = String(payload.phone || "").trim() || null;
+
+  if (data.address !== undefined && !data.address) {
+    throw httpError(400, "Address is required.");
+  }
+
+  if ((data.latitude !== undefined && !Number.isFinite(data.latitude)) || (data.longitude !== undefined && !Number.isFinite(data.longitude))) {
+    throw httpError(400, "Location coordinates are invalid.");
+  }
 
   return prisma.organization.update({
     where: { id: organizationId },

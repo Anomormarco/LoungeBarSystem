@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Image as ImageIcon, Loader2, Save, Sparkles } from 'lucide-react';
 import { api } from '../utils/api';
+import LocationPicker from '../components/LocationPicker';
 
 function imagesToText(images) {
   return Array.isArray(images) ? images.join('\n') : '';
@@ -70,6 +71,9 @@ export default function GalleryManagement() {
   const [interiorImages, setInteriorImages] = useState('');
   const [description, setDescription] = useState('');
   const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [latitude, setLatitude] = useState('47.9184');
+  const [longitude, setLongitude] = useState('106.9177');
 
   useEffect(() => {
     let mounted = true;
@@ -83,6 +87,9 @@ export default function GalleryManagement() {
         setInteriorImages(imagesToText(data.interiorImages));
         setDescription(data.description || '');
         setPhone(data.phone || '');
+        setAddress(data.address || '');
+        setLatitude(String(data.latitude || '47.9184'));
+        setLongitude(String(data.longitude || '106.9177'));
       })
       .catch((err) => setError(err.message || 'Gallery мэдээлэл авахад алдаа гарлаа.'))
       .finally(() => mounted && setLoading(false));
@@ -104,6 +111,9 @@ export default function GalleryManagement() {
         interiorImages: textToImages(interiorImages),
         description,
         phone,
+        address,
+        latitude: Number(latitude),
+        longitude: Number(longitude),
       });
 
       setOrganization(res.data);
@@ -167,6 +177,19 @@ export default function GalleryManagement() {
               className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none transition-colors focus:border-amber-500"
             />
           </div>
+        </div>
+        <div className="mt-5">
+          <LocationPicker
+            latitude={latitude}
+            longitude={longitude}
+            address={address}
+            disabled={saving}
+            onAddressChange={setAddress}
+            onChange={({ latitude: nextLatitude, longitude: nextLongitude }) => {
+              setLatitude(nextLatitude);
+              setLongitude(nextLongitude);
+            }}
+          />
         </div>
       </section>
 

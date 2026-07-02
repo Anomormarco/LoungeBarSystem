@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 import { adminApi } from '../../utils/api';
+import LocationPicker from '../../components/LocationPicker';
 import {
   Loader2,
   Check,
@@ -205,20 +206,30 @@ export default function AdminOrganizations() {
                 </button>
               </div>
 
-              {['name', 'address', 'phone', 'description'].map((field) => (
+              {['name', 'phone', 'description'].map((field) => (
                 <div key={field}>
                   <label className="text-xs text-lounge-muted uppercase">{field}</label>
                   <input
                     value={form[field]}
                     onChange={(e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))}
                     className="w-full mt-1 px-3 py-2 bg-lounge-black border border-lounge-border rounded-xl text-sm focus:outline-none focus:border-lounge-yellow"
-                    required={['name', 'address'].includes(field)}
+                    required={field === 'name'}
                   />
                 </div>
               ))}
 
+              <LocationPicker
+                latitude={form.latitude}
+                longitude={form.longitude}
+                address={form.address}
+                onAddressChange={(value) => setForm((prev) => ({ ...prev, address: value }))}
+                onChange={({ latitude, longitude }) => {
+                  setForm((prev) => ({ ...prev, latitude, longitude }));
+                }}
+              />
+
               <div className="grid grid-cols-2 gap-3">
-                {['latitude', 'longitude', 'openingTime', 'closingTime'].map((field) => (
+                {['openingTime', 'closingTime'].map((field) => (
                   <div key={field}>
                     <label className="text-xs text-lounge-muted uppercase">{field}</label>
                     <input

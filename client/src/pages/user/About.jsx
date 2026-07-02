@@ -6,12 +6,15 @@ import {
   Building2,
   CheckCircle2,
   Clock,
+  CreditCard,
+  ExternalLink,
   Handshake,
   Loader2,
   Lock,
   Mail,
   MapPin,
   Phone,
+  ShieldCheck,
   Star,
   TicketCheck,
   UtensilsCrossed,
@@ -89,12 +92,20 @@ const initialRegisterForm = {
   description: '',
 };
 
+const ownerPlans = [
+  { name: 'Start owner access', amount: 50000, periodDays: 30, description: '30 хоногийн owner access' },
+  { name: 'Pro owner access', amount: 120000, periodDays: 30, description: '30 хоногийн pro owner access' },
+  { name: 'Annual owner access', amount: 990000, periodDays: 365, description: 'Бүтэн жилийн owner access' },
+];
+
 export default function About() {
   const [heroIndex, setHeroIndex] = useState(0);
-  const [portalView, setPortalView] = useState('login');
+  const [portalView, setPortalView] = useState('info');
   const [portalMode, setPortalMode] = useState(null);
   const [portalError, setPortalError] = useState('');
   const [portalSuccess, setPortalSuccess] = useState('');
+  const [pendingOwner, setPendingOwner] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState(ownerPlans[0]);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [registerForm, setRegisterForm] = useState(initialRegisterForm);
 
@@ -106,10 +117,30 @@ export default function About() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get('owner_payment') === 'success') {
+      const email = sessionStorage.getItem('pending_owner_email') || '';
+      setLoginForm((current) => ({ ...current, email }));
+      setPortalView('login');
+      setPortalSuccess('Stripe төлбөр амжилттай. Одоо owner login хийж dashboard эрхээ нээнэ үү.');
+      sessionStorage.removeItem('pending_owner_token');
+      sessionStorage.removeItem('pending_owner_email');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
+    if (params.get('owner_payment') === 'cancelled') {
+      setPortalView('payment');
+      setPortalError('Stripe төлбөр цуцлагдлаа. Дахин багцаа сонгоод үргэлжлүүлнэ үү.');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
   const saveOwnerSession = (data) => {
     localStorage.setItem('owner_token', data.token);
     localStorage.setItem('owner_user', JSON.stringify(data.owner));
-    window.location.href = '/subscription';
+    window.location.href = '/dashboard';
   };
 
   const handleOwnerLogin = async (event) => {
@@ -140,12 +171,60 @@ export default function About() {
         longitude: Number(registerForm.longitude),
       });
 
+      const response = await api.login(registerForm.email, registerForm.password);
+      const pending = {
+        token: response.data.token,
+        email: registerForm.email,
+        owner: response.data.owner,
+      };
+
+      setPendingOwner(pending);
+      sessionStorage.setItem('pending_owner_token', pending.token);
+      sessionStorage.setItem('pending_owner_email', pending.email);
       setLoginForm({ email: registerForm.email, password: '' });
       setRegisterForm(initialRegisterForm);
-      setPortalView('login');
-      setPortalSuccess('Бүртгэл амжилттай. Одоо owner login хийж нэвтэрнэ үү.');
+      setPortalView('payment');
+      setPortalSuccess('Бүртгэл үүслээ. Дараагийн алхам: Stripe төлбөрөө хийж owner login эрхээ идэвхжүүлнэ.');
     } catch (error) {
       setPortalError(error.message || 'Бүртгэл үүсгэхэд алдаа гарлаа.');
+    } finally {
+      setPortalMode(null);
+    }
+  };
+
+  const handleOwnerStripePayment = async () => {
+    const token = pendingOwner?.token || sessionStorage.getItem('pending_owner_token');
+
+    if (!token) {
+      setPortalError('Эхлээд owner бүртгэл үүсгээд дараа нь Stripe төлбөрөө хийнэ үү.');
+      setPortalView('register');
+      return;
+    }
+
+    setPortalMode('stripe');
+    setPortalError('');
+    setPortalSuccess('');
+
+    try {
+      const successUrl = `${window.location.origin}/about?owner_payment=success`;
+      const cancelUrl = `${window.location.origin}/about?owner_payment=cancelled`;
+      const response = await api.createStripeCheckoutWithToken(
+        token,
+        selectedPlan.amount,
+        selectedPlan.name,
+        successUrl,
+        cancelUrl,
+        selectedPlan.periodDays,
+      );
+
+      if (response.data.checkoutUrl) {
+        window.location.href = response.data.checkoutUrl;
+        return;
+      }
+
+      setPortalError(response.data.message || 'Stripe тохиргоо бүрэн идэвхжээгүй байна.');
+    } catch (error) {
+      setPortalError(error.message || 'Stripe төлбөр үүсгэхэд алдаа гарлаа.');
     } finally {
       setPortalMode(null);
     }
@@ -160,145 +239,17 @@ export default function About() {
   return (
     <UserLayout>
       <main className="bg-[#15130f] text-[#e8e1db]">
-        <section className="relative flex min-h-[78vh] items-center overflow-hidden">
-          <div className="absolute inset-0">
-            {heroImages.map((image, index) => (
-              <img
-                key={image}
-                src={image}
-                alt="Luxury lounge interior"
-                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
-                  index === heroIndex ? 'opacity-100' : 'opacity-0'
-                }`}
-              />
-            ))}
-            <div className="absolute inset-0 bg-black/65" />
-          </div>
-
-          <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 py-20 sm:px-6 lg:px-8">
-            <div className="max-w-xl space-y-5">
-              <span className="inline-block border border-[#f2ca50]/40 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-[#f2ca50]">
-                Premium Dining
-              </span>
-              <h1 className="text-3xl font-extrabold leading-tight text-[#e8e1db] sm:text-4xl">
-                Luxury Dining Network
-              </h1>
-              <p className="max-w-lg text-sm leading-7 text-[#d0c5af] sm:text-base">
-                Улаанбаатарын luxury lounge, bar, restaurant-уудыг нэг дороос харж, ширээ захиалж, owner тал digital dashboard ашиглана.
-              </p>
-              <Link
-                to="/restaurants-lounges"
-                className="inline-flex rounded-sm bg-[#f2ca50] px-5 py-2.5 text-sm font-semibold text-[#3c2f00] transition hover:brightness-110 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]"
-              >
-                Join Our Network
-              </Link>
-              <div className="flex gap-1.5 pt-2">
-                {heroImages.map((image, index) => (
-                  <span
-                    key={image}
-                    className={`h-1 rounded-full transition-all ${
-                      index === heroIndex ? 'w-6 bg-[#f2ca50]' : 'w-2 bg-white/35'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto w-full max-w-[1440px] px-4 py-24 sm:px-6 lg:px-8">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-[#f2ca50]">Why UBTable?</h2>
-            <div className="mx-auto h-1 w-20 bg-[#f2ca50]" />
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-            {advantages.map(({ icon: Icon, title, text, className }) => (
-              <div key={title} className={`group relative overflow-hidden border border-[#3d372e] p-7 transition hover:border-[#d4af37] ${className}`}>
-                <div className="relative z-10 space-y-3">
-                  <Icon className="h-7 w-7 text-[#f2ca50]" />
-                  <h3 className="text-lg font-semibold text-[#e8e1db]">{title}</h3>
-                  <p className="text-sm leading-6 text-[#d0c5af]">{text}</p>
-                </div>
-                <Star className="absolute -bottom-8 -right-8 h-36 w-36 fill-current text-white/5 transition group-hover:text-white/10" />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="bg-[#100e0a] py-24">
-          <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
-            <div className="mb-12 flex flex-col justify-between gap-8 md:flex-row md:items-end">
-              <div className="max-w-xl">
-                <h2 className="text-4xl font-extrabold text-[#f2ca50]">Our Network</h2>
-                <p className="mt-4 text-base leading-7 text-[#d0c5af]">
-                  Тансаг орчинтой lounge, bar, restaurant-уудтай хамтран хэрэглэгчдэд хурдан захиалгын урсгал санал болгодог.
-                </p>
-              </div>
-              <Link to="/restaurants-lounges" className="group inline-flex items-center gap-2 font-bold text-[#f2ca50]">
-                Бүгдийг харах <ArrowRight className="h-5 w-5 transition group-hover:translate-x-2" />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {venues.map((venue, index) => (
-                <div key={venue.title} className="group relative aspect-[4/5] overflow-hidden border border-[#3d372e] transition hover:border-[#d4af37]">
-                  <img
-                    src={images.network[index]}
-                    alt={venue.title}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/20 to-transparent p-6">
-                    <span className="mb-2 text-sm font-bold uppercase tracking-[0.22em] text-[#f2ca50]">{venue.tag}</span>
-                    <h4 className="text-2xl font-semibold text-white">{venue.title}</h4>
-                    <p className="mt-2 text-sm text-[#d0c5af] opacity-0 transition-opacity group-hover:opacity-100">{venue.place}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="relative overflow-hidden py-24">
-          <div className="absolute inset-0 -z-10 origin-right translate-y-20 skew-y-3 bg-[#2c2a25]/40" />
-          <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 items-center gap-12 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
-            <div className="relative order-2 md:order-1">
-              <img src={images.business} alt="Business partnership" className="relative z-10 w-full border border-[#3d372e] object-cover shadow-2xl" />
-              <div className="absolute -bottom-6 -right-6 hidden bg-[#f2ca50] p-5 font-bold text-[#3c2f00] lg:block">
-                <p className="text-2xl">200+</p>
-                <p className="text-xs uppercase tracking-widest">Active Partners</p>
-              </div>
-            </div>
-
-            <div className="order-1 space-y-6 md:order-2">
-              <h2 className="text-4xl font-extrabold leading-tight text-[#e8e1db]">For Business Owners</h2>
-              <p className="text-base leading-7 text-[#d0c5af]">
-                Байгууллагаа public map дээр харуулж, menu, table, reservation, staff болон subscription эрхээ нэг dashboard-оос удирдана.
-              </p>
-              <ul className="space-y-4">
-                {['Борлуулалтын шинэ суваг', 'Хэрэглэгчийн баталгаатай захиалга', 'Digital захиалгын уян хатан систем'].map((item) => (
-                  <li key={item} className="flex items-center gap-4 text-[#e8e1db]">
-                    <CheckCircle2 className="h-5 w-5 text-[#f2ca50]" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                to="/contact"
-                className="inline-flex border border-[#f2ca50] px-6 py-2.5 text-sm font-bold text-[#f2ca50] transition hover:bg-[#f2ca50]/10"
-              >
-                Хамтран ажиллах хүсэлт илгээх
-              </Link>
-            </div>
-          </div>
-        </section>
+        <HeroSection heroIndex={heroIndex} />
+        <AdvantagesSection />
+        <NetworkSection />
+        <BusinessSection />
 
         <section className="mx-auto w-full max-w-[1440px] px-4 py-20 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-8 max-w-md text-center">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-[#f2ca50]">Partner Portal</p>
-            <h2 className="text-3xl font-extrabold text-[#e8e1db]">Owner Login</h2>
+          <div className="mx-auto mb-8 max-w-2xl text-center">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-[#f2ca50]">Owner onboarding</p>
+            <h2 className="text-3xl font-extrabold text-[#e8e1db]">Owner access авах дараалал</h2>
             <p className="mt-3 text-sm leading-6 text-[#d0c5af]">
-              Dashboard ашиглахын тулд owner account-аар нэвтэрнэ.
+              Эхлээд байгууллагын мэдээллээ бүртгүүлнэ. Дараа нь Stripe төлбөрөө хийж баталгаажсаны дараа owner login эрх нээгдэнэ.
             </p>
           </div>
 
@@ -314,13 +265,25 @@ export default function About() {
           )}
 
           <div className="mx-auto max-w-md">
-            {portalView === 'login' ? (
+            {portalView === 'info' ? (
+              <OwnerAccessIntro onRegister={() => showPortal('register')} onLogin={() => showPortal('login')} />
+            ) : portalView === 'payment' ? (
+              <StripeAccessStep
+                plans={ownerPlans}
+                selectedPlan={selectedPlan}
+                setSelectedPlan={setSelectedPlan}
+                loading={portalMode === 'stripe'}
+                onPay={handleOwnerStripePayment}
+                onRegister={() => showPortal('register')}
+                onLogin={() => showPortal('login')}
+              />
+            ) : portalView === 'login' ? (
               <LoginPortal
                 form={loginForm}
                 setForm={setLoginForm}
                 loading={portalMode === 'login'}
                 onSubmit={handleOwnerLogin}
-                onRegister={() => showPortal('register')}
+                onRegister={() => showPortal('info')}
               />
             ) : (
               <RegisterPortal
@@ -328,7 +291,7 @@ export default function About() {
                 setForm={setRegisterForm}
                 loading={portalMode === 'register'}
                 onSubmit={handleOwnerRegister}
-                onLogin={() => showPortal('login')}
+                onBack={() => showPortal('info')}
               />
             )}
           </div>
@@ -338,9 +301,252 @@ export default function About() {
   );
 }
 
+function HeroSection({ heroIndex }) {
+  return (
+    <section className="relative flex min-h-[78vh] items-center overflow-hidden">
+      <div className="absolute inset-0">
+        {heroImages.map((image, index) => (
+          <img
+            key={image}
+            src={image}
+            alt="Luxury lounge interior"
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
+              index === heroIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        ))}
+        <div className="absolute inset-0 bg-black/65" />
+      </div>
+
+      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 py-20 sm:px-6 lg:px-8">
+        <div className="max-w-xl space-y-5">
+          <span className="inline-block border border-[#f2ca50]/40 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-[#f2ca50]">
+            Premium Dining
+          </span>
+          <h1 className="text-3xl font-extrabold leading-tight text-[#e8e1db] sm:text-4xl">
+            Luxury Dining Network
+          </h1>
+          <p className="max-w-lg text-sm leading-7 text-[#d0c5af] sm:text-base">
+            Улаанбаатарын luxury lounge, bar, restaurant-уудыг нэг дороос харж, ширээ захиалж, owner тал digital dashboard ашиглана.
+          </p>
+          <Link
+            to="/restaurants-lounges"
+            className="inline-flex rounded-sm bg-[#f2ca50] px-5 py-2.5 text-sm font-semibold text-[#3c2f00] transition hover:brightness-110 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]"
+          >
+            Join Our Network
+          </Link>
+          <div className="flex gap-1.5 pt-2">
+            {heroImages.map((image, index) => (
+              <span
+                key={image}
+                className={`h-1 rounded-full transition-all ${index === heroIndex ? 'w-6 bg-[#f2ca50]' : 'w-2 bg-white/35'}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AdvantagesSection() {
+  return (
+    <section className="mx-auto w-full max-w-[1440px] px-4 py-24 sm:px-6 lg:px-8">
+      <div className="mb-12 text-center">
+        <h2 className="mb-4 text-3xl font-bold text-[#f2ca50]">Why UBTable?</h2>
+        <div className="mx-auto h-1 w-20 bg-[#f2ca50]" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+        {advantages.map(({ icon: Icon, title, text, className }) => (
+          <div key={title} className={`group relative overflow-hidden border border-[#3d372e] p-7 transition hover:border-[#d4af37] ${className}`}>
+            <div className="relative z-10 space-y-3">
+              <Icon className="h-7 w-7 text-[#f2ca50]" />
+              <h3 className="text-lg font-semibold text-[#e8e1db]">{title}</h3>
+              <p className="text-sm leading-6 text-[#d0c5af]">{text}</p>
+            </div>
+            <Star className="absolute -bottom-8 -right-8 h-36 w-36 fill-current text-white/5 transition group-hover:text-white/10" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function NetworkSection() {
+  return (
+    <section className="bg-[#100e0a] py-24">
+      <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
+        <div className="mb-12 flex flex-col justify-between gap-8 md:flex-row md:items-end">
+          <div className="max-w-xl">
+            <h2 className="text-4xl font-extrabold text-[#f2ca50]">Our Network</h2>
+            <p className="mt-4 text-base leading-7 text-[#d0c5af]">
+              Тансаг орчинтой lounge, bar, restaurant-уудтай хамтран хэрэглэгчдэд хурдан захиалгын урсгал санал болгодог.
+            </p>
+          </div>
+          <Link to="/restaurants-lounges" className="group inline-flex items-center gap-2 font-bold text-[#f2ca50]">
+            Бүгдийг харах <ArrowRight className="h-5 w-5 transition group-hover:translate-x-2" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {venues.map((venue, index) => (
+            <div key={venue.title} className="group relative aspect-[4/5] overflow-hidden border border-[#3d372e] transition hover:border-[#d4af37]">
+              <img src={images.network[index]} alt={venue.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/20 to-transparent p-6">
+                <span className="mb-2 text-sm font-bold uppercase tracking-[0.22em] text-[#f2ca50]">{venue.tag}</span>
+                <h4 className="text-2xl font-semibold text-white">{venue.title}</h4>
+                <p className="mt-2 text-sm text-[#d0c5af] opacity-0 transition-opacity group-hover:opacity-100">{venue.place}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BusinessSection() {
+  return (
+    <section className="relative overflow-hidden py-24">
+      <div className="absolute inset-0 -z-10 origin-right translate-y-20 skew-y-3 bg-[#2c2a25]/40" />
+      <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 items-center gap-12 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
+        <div className="relative order-2 md:order-1">
+          <img src={images.business} alt="Business partnership" className="relative z-10 w-full border border-[#3d372e] object-cover shadow-2xl" />
+          <div className="absolute -bottom-6 -right-6 hidden bg-[#f2ca50] p-5 font-bold text-[#3c2f00] lg:block">
+            <p className="text-2xl">200+</p>
+            <p className="text-xs uppercase tracking-widest">Active Partners</p>
+          </div>
+        </div>
+
+        <div className="order-1 space-y-6 md:order-2">
+          <h2 className="text-4xl font-extrabold leading-tight text-[#e8e1db]">For Business Owners</h2>
+          <p className="text-base leading-7 text-[#d0c5af]">
+            Байгууллагаа public map дээр харуулж, menu, table, reservation, staff болон subscription эрхээ нэг dashboard-оос удирдана.
+          </p>
+          <ul className="space-y-4">
+            {['Борлуулалтын шинэ суваг', 'Хэрэглэгчийн баталгаатай захиалга', 'Digital захиалгын уян хатан систем'].map((item) => (
+              <li key={item} className="flex items-center gap-4 text-[#e8e1db]">
+                <CheckCircle2 className="h-5 w-5 text-[#f2ca50]" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function OwnerAccessIntro({ onRegister, onLogin }) {
+  return (
+    <div className="border border-[#3d372e] bg-[#1d1b17] p-6 shadow-2xl">
+      <div className="space-y-5">
+        {[
+          { icon: Building2, title: '1. Байгууллагын мэдээлэл', text: 'Owner нэр, Gmail, lounge/bar нэр, байршил болон ажиллах цагийг бүртгэнэ.' },
+          { icon: CreditCard, title: '2. Stripe төлбөр', text: 'Stripe checkout-оор сонгосон багцаа төлж owner access идэвхжүүлнэ.' },
+          { icon: ShieldCheck, title: '3. Owner login', text: 'Төлбөр амжилттай болсны дараа login хийж dashboard ашиглах эрх нээгдэнэ.' },
+        ].map(({ icon: Icon, title, text }) => (
+          <div key={title} className="flex gap-4 rounded-xl border border-[#3d372e] bg-[#15130f] p-4">
+            <Icon className="mt-0.5 h-5 w-5 shrink-0 text-[#f2ca50]" />
+            <div>
+              <h3 className="text-sm font-black text-[#e8e1db]">{title}</h3>
+              <p className="mt-1 text-xs leading-5 text-[#d0c5af]">{text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={onRegister}
+        className="mt-6 inline-flex w-full items-center justify-center gap-2 bg-[#f2ca50] px-6 py-3 text-sm font-black text-[#211a04] transition hover:brightness-110"
+      >
+        Бүртгэл эхлүүлэх
+        <ArrowRight className="h-4 w-4" />
+      </button>
+
+      <button
+        type="button"
+        onClick={onLogin}
+        className="mt-3 inline-flex w-full items-center justify-center border border-[#f2ca50]/60 px-6 py-3 text-sm font-black text-[#f2ca50] transition hover:bg-[#f2ca50]/10"
+      >
+        Stripe төлсөн owner login хийх
+      </button>
+    </div>
+  );
+}
+
+function StripeAccessStep({ plans, selectedPlan, setSelectedPlan, loading, onPay, onRegister, onLogin }) {
+  return (
+    <div className="border border-[#3d372e] bg-[#1d1b17] p-6 shadow-2xl">
+      <div className="mb-6">
+        <h3 className="text-2xl font-extrabold text-[#e8e1db]">Stripe payment</h3>
+        <p className="mt-2 text-sm leading-6 text-[#d0c5af]">
+          Төлбөр баталгаажсаны дараа дараагийн алхам нь owner login эрхээ ашиглах болно.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {plans.map((plan) => (
+          <button
+            key={plan.name}
+            type="button"
+            onClick={() => setSelectedPlan(plan)}
+            className={`w-full border p-4 text-left transition ${
+              selectedPlan.name === plan.name
+                ? 'border-[#f2ca50] bg-[#f2ca50]/10'
+                : 'border-[#3d372e] bg-[#15130f] hover:border-[#f2ca50]/60'
+            }`}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h4 className="text-sm font-black text-[#e8e1db]">{plan.name}</h4>
+                <p className="mt-1 text-xs text-[#d0c5af]">{plan.description}</p>
+              </div>
+              <span className="shrink-0 text-sm font-black text-[#f2ca50]">
+                {plan.amount.toLocaleString()} ₮
+              </span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-5 rounded-xl border border-[#3d372e] bg-[#15130f] p-4 text-xs leading-5 text-[#d0c5af]">
+        <p className="font-bold text-[#f2ca50]">Stripe test card</p>
+        <p className="mt-1">4242 4242 4242 4242, future date, any 3 digit CVC</p>
+      </div>
+
+      <button
+        type="button"
+        onClick={onPay}
+        disabled={loading}
+        className="mt-6 inline-flex w-full items-center justify-center gap-2 bg-[#f2ca50] px-6 py-3 text-sm font-black text-[#211a04] transition hover:brightness-110 disabled:opacity-60"
+      >
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
+        Stripe төлбөр хийх
+      </button>
+
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <button type="button" onClick={onRegister} className="border border-[#3d372e] px-4 py-2 text-xs font-bold text-[#d0c5af] hover:border-[#f2ca50]/60">
+          Бүртгэл засах
+        </button>
+        <button type="button" onClick={onLogin} className="border border-[#3d372e] px-4 py-2 text-xs font-bold text-[#f2ca50] hover:border-[#f2ca50]/60">
+          Login
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function LoginPortal({ form, setForm, loading, onSubmit, onRegister }) {
   return (
     <form onSubmit={onSubmit} className="border border-[#3d372e] bg-[#1d1b17] p-6 shadow-2xl">
+      <div className="mb-6">
+        <h3 className="text-2xl font-extrabold text-[#e8e1db]">Owner Login</h3>
+        <p className="mt-2 text-sm text-[#d0c5af]">Stripe төлбөр баталгаажсан owner dashboard руу нэвтэрнэ.</p>
+      </div>
+
       <div className="space-y-4">
         <PortalInput
           label="Имэйл"
@@ -369,21 +575,18 @@ function LoginPortal({ form, setForm, loading, onSubmit, onRegister }) {
         Нэвтрэх
       </button>
 
-      <div className="mt-5 border-t border-[#3d372e] pt-5">
-        <button
-          type="button"
-          onClick={onRegister}
-          className="inline-flex w-full items-center justify-center gap-2 border border-[#f2ca50] px-6 py-3 text-sm font-black text-[#f2ca50] transition hover:bg-[#f2ca50]/10"
-        >
-          <Handshake className="h-4 w-4" />
-          Register
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={onRegister}
+        className="mt-4 inline-flex w-full items-center justify-center border border-[#3d372e] px-6 py-3 text-xs font-bold text-[#d0c5af] hover:border-[#f2ca50]/60"
+      >
+        Шинээр owner access авах
+      </button>
     </form>
   );
 }
 
-function RegisterPortal({ form, setForm, loading, onSubmit, onLogin }) {
+function RegisterPortal({ form, setForm, loading, onSubmit, onBack }) {
   const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
   return (
@@ -391,10 +594,10 @@ function RegisterPortal({ form, setForm, loading, onSubmit, onLogin }) {
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h3 className="text-2xl font-extrabold text-[#e8e1db]">Owner Register</h3>
-          <p className="mt-2 text-sm text-[#a99f8d]">Бүртгүүлээд буцаад login хийнэ.</p>
+          <p className="mt-2 text-sm text-[#d0c5af]">Бүртгэл үүсгээд дараагийн алхамд Stripe төлбөр хийнэ.</p>
         </div>
-        <button type="button" onClick={onLogin} className="text-sm font-bold text-[#f2ca50] hover:underline">
-          Login
+        <button type="button" onClick={onBack} className="text-sm font-bold text-[#f2ca50] hover:underline">
+          Буцах
         </button>
       </div>
 
@@ -436,8 +639,8 @@ function RegisterPortal({ form, setForm, loading, onSubmit, onLogin }) {
         disabled={loading}
         className="mt-6 inline-flex w-full items-center justify-center gap-2 border border-[#f2ca50] px-6 py-3 text-sm font-black text-[#f2ca50] transition hover:bg-[#f2ca50]/10 disabled:opacity-60"
       >
-        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Handshake className="h-4 w-4" />}
-        Бүртгүүлэх
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+        Бүртгээд Stripe алхам руу орох
       </button>
     </form>
   );

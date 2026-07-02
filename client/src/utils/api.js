@@ -2,8 +2,8 @@ const API_URL = import.meta.env.VITE_API_URL || '/api';
 const SOCKET_URL = import.meta.env.VITE_API_URL || window.location.origin;
 
 export async function request(path, options = {}) {
-  const tokenKey = options.tokenKey || 'owner_token';
-  const token = localStorage.getItem(tokenKey);
+  const tokenKey = options.tokenKey === undefined ? 'owner_token' : options.tokenKey;
+  const token = tokenKey ? localStorage.getItem(tokenKey) : null;
   const timeoutMs = options.timeoutMs || 30000;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -131,6 +131,15 @@ export const api = {
     request('/payments/stripe/create-checkout-session', {
       method: 'POST',
       body: JSON.stringify({ amount, planType, successUrl, cancelUrl, periodDays }),
+    }),
+  createStripeCheckoutWithToken: (token, amount, planType, successUrl, cancelUrl, periodDays = 30) =>
+    request('/payments/stripe/create-checkout-session', {
+      method: 'POST',
+      body: JSON.stringify({ amount, planType, successUrl, cancelUrl, periodDays }),
+      tokenKey: null,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }),
   createStripePortal: (returnUrl) =>
     request('/payments/stripe/customer-portal', {

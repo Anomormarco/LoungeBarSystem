@@ -826,15 +826,15 @@ export default function Home() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#15130f]/95 via-[#15130f]/35 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <span className="mb-2 inline-flex rounded-sm bg-[#f2ca50] px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-[#3c2f00]">
+                  <span className="mb-2 inline-flex rounded-sm bg-[#f1d27a] px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-[#2a251f] shadow-[0_0_16px_rgba(241,210,122,0.22)]">
                     Featured
                   </span>
                   <h2 className="text-2xl font-semibold text-[#e8e1db]">{featuredOrg?.name || 'Cloud 9 Lounge'}</h2>
                   <div className="mt-3 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-sm font-bold text-[#f2ca50]">
+                    <div className="flex items-center gap-2 text-sm font-bold text-[#f1d27a]">
                       <span className="flex items-center gap-0.5">
                         {[0, 1, 2, 3, 4].map((item) => (
-                          <Star key={item} className="h-4 w-4 fill-[#f2ca50] text-[#f2ca50]" />
+                          <Star key={item} className="h-4 w-4 fill-[#f1d27a] text-[#f1d27a] drop-shadow-[0_0_5px_rgba(241,210,122,0.28)]" />
                         ))}
                       </span>
                       <span className="text-[#d0c5af]">({featuredRating.rating})</span>
@@ -849,7 +849,7 @@ export default function Home() {
                             openLandingOrganization(featuredOrg);
                           }
                         }}
-                        className="rounded-lg border border-[#f2ca50]/60 bg-[#15130f]/70 px-3 py-1.5 text-xs font-extrabold text-[#f2ca50] backdrop-blur transition hover:bg-[#f2ca50] hover:text-[#3c2f00]"
+                        className="rounded-lg border border-[#f1d27a]/70 bg-[#15130f]/70 px-3 py-1.5 text-xs font-extrabold text-[#f1d27a] backdrop-blur transition hover:bg-[#f1d27a] hover:text-[#2a251f]"
                       >
                         Дэлгэрэнгүй
                       </button>
@@ -858,7 +858,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex h-32 items-center gap-6 rounded-xl border border-[#3d372e] bg-[#211f1b] p-6">
-                <div className="rounded-full bg-[#f2ca50]/10 p-3 text-[#f2ca50]">
+                <div className="rounded-full bg-[#f1d27a]/12 p-3 text-[#f1d27a] shadow-[0_0_18px_rgba(241,210,122,0.16)]">
                   <Table2 className="h-8 w-8" />
                 </div>
                 <div>

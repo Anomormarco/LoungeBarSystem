@@ -38,13 +38,31 @@ const SEED_OWNER_ORGANIZATIONS = [
   "Prime Table",
 ];
 
+function seedOwnerEmailFromName(name) {
+  return `${String(name).toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "")}@gmail.com`;
+}
+
+function seedOwnerEmail(ownerNumber) {
+  const organizationName = SEED_OWNER_ORGANIZATIONS[ownerNumber - 1];
+  return organizationName ? seedOwnerEmailFromName(organizationName) : null;
+}
+
 function seedOwnerNumber(email) {
-  const match = /^owner([1-9]|[12][0-9]|30)@gmail\.com$/i.exec(email);
+  const normalizedEmail = normalizeEmail(email);
+  const markerIndex = SEED_OWNER_ORGANIZATIONS.findIndex(
+    (organizationName) => seedOwnerEmailFromName(organizationName) === normalizedEmail
+  );
+
+  if (markerIndex !== -1) {
+    return markerIndex + 1;
+  }
+
+  const match = /^owner([1-9]|[12][0-9]|30)@(gmail\.com|loungebar\.mn)$/i.exec(normalizedEmail);
   return match ? Number(match[1]) : null;
 }
 
-function legacySeedOwnerEmail(ownerNumber) {
-  return `owner${ownerNumber}@loungebar.mn`;
+function legacySeedOwnerEmails(ownerNumber) {
+  return [`owner${ownerNumber}@gmail.com`, `owner${ownerNumber}@loungebar.mn`];
 }
 
 function normalizeEmail(email) {
@@ -69,8 +87,8 @@ async function restoreSeedOwner({ ownerNumber, email, password }) {
   const hashedPassword = await bcrypt.hash(SEED_OWNER_PASSWORD, 10);
   return authRepository.createManagerStaff({
     organizationId: organization.id,
-    name: `${organization.name} Manager`,
-    email,
+    name: organization.name,
+    email: seedOwnerEmail(ownerNumber) || email,
     phone: organization.phone || null,
     password: hashedPassword,
   });
@@ -89,13 +107,25 @@ async function ownerLogin({ email, password }) {
 
   let staff = await authRepository.findManagerByEmail(normalizedEmail);
   const ownerNumber = seedOwnerNumber(normalizedEmail);
+  const targetSeedEmail = ownerNumber ? seedOwnerEmail(ownerNumber) : null;
 
   if (!staff && ownerNumber) {
-    const legacyStaff = await authRepository.findManagerByEmail(legacySeedOwnerEmail(ownerNumber));
+    const candidates = [targetSeedEmail, ...legacySeedOwnerEmails(ownerNumber)].filter(
+      (candidate, index, all) => candidate && candidate !== normalizedEmail && all.indexOf(candidate) === index
+    );
+    let legacyStaff = null;
+
+    for (const candidate of candidates) {
+      legacyStaff = await authRepository.findManagerByEmail(candidate);
+      if (legacyStaff) {
+        break;
+      }
+    }
 
     if (legacyStaff && password === SEED_OWNER_PASSWORD) {
       staff = await authRepository.updateStaffById(legacyStaff.id, {
-        email: normalizedEmail,
+        name: legacyStaff.organization?.name || legacyStaff.name,
+        email: targetSeedEmail || normalizedEmail,
         password: await bcrypt.hash(SEED_OWNER_PASSWORD, 10),
         role: "manager",
       });
@@ -107,7 +137,12 @@ async function ownerLogin({ email, password }) {
   }
 
   if (staff && ownerNumber && password === SEED_OWNER_PASSWORD && !(await verifyPassword(password, staff.password))) {
-    staff = await authRepository.updateStaffById(staff.id, {
+    const existingTarget = targetSeedEmail ? await authRepository.findManagerByEmail(targetSeedEmail) : null;
+    const staffToUpdate = existingTarget && existingTarget.id !== staff.id ? existingTarget : staff;
+
+    staff = await authRepository.updateStaffById(staffToUpdate.id, {
+      name: staffToUpdate.organization?.name || staffToUpdate.name,
+      email: targetSeedEmail || staffToUpdate.email,
       password: await bcrypt.hash(SEED_OWNER_PASSWORD, 10),
       role: "manager",
     });

@@ -69,8 +69,16 @@ const restaurants = [
   closingTime: index % 4 === 0 ? "02:00" : "00:00",
 }));
 
+function ownerEmailFromName(name) {
+  return `${String(name).toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "")}@gmail.com`;
+}
+
 function ownerEmail(index) {
-  return `owner${index + 1}@gmail.com`;
+  return ownerEmailFromName(restaurants[index].name);
+}
+
+function legacyOwnerEmails(index) {
+  return [`owner${index + 1}@gmail.com`, `owner${index + 1}@loungebar.mn`];
 }
 
 const menuImages = {
@@ -172,28 +180,41 @@ async function main() {
       });
     }
 
-    await prisma.staff.upsert({
-      where: {
-        organizationId_email: {
-          organizationId: organization.id,
-          email: ownerEmail(index),
+    const email = ownerEmail(index);
+    const existingOwner =
+      (await prisma.staff.findFirst({ where: { organizationId: organization.id, email } })) ||
+      (await prisma.staff.findFirst({
+        where: { organizationId: organization.id, email: { in: legacyOwnerEmails(index) } },
+      }));
+
+    if (existingOwner) {
+      await prisma.staff.update({
+        where: { id: existingOwner.id },
+        data: {
+          name: organization.name,
+          email,
+          phone: restaurant.phone,
+          password,
+          role: "manager",
         },
-      },
-      update: { password, role: "manager" },
-      create: {
-        organizationId: organization.id,
-        name: `${organization.name} Manager`,
-        email: ownerEmail(index),
-        phone: restaurant.phone,
-        password,
-        role: "manager",
-      },
-    });
+      });
+    } else {
+      await prisma.staff.create({
+        data: {
+          organizationId: organization.id,
+          name: organization.name,
+          email,
+          phone: restaurant.phone,
+          password,
+          role: "manager",
+        },
+      });
+    }
   }
 
   console.log(`Seeded ${restaurants.length} restaurants with tables, menu items, owners, and admin account.`);
   console.log("Admin: admin@loungebar.mn / Password123!");
-  console.log("Owners: owner1@gmail.com ... owner30@gmail.com / Password123!");
+  console.log("Owners: lounge-name@gmail.com accounts / Password123!");
 }
 
 main()

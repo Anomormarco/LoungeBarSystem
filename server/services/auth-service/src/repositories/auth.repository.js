@@ -30,6 +30,26 @@ function updateStaffById(id, data) {
   });
 }
 
+function findOrganizationByName(name) {
+  return prisma.organization.findFirst({
+    where: {
+      name: { equals: name, mode: "insensitive" },
+    },
+  });
+}
+
+function createManagerStaff(data) {
+  return prisma.staff.create({
+    data: {
+      ...data,
+      role: "manager",
+    },
+    include: {
+      organization: true,
+    },
+  });
+}
+
 function findAdminByEmail(email) {
   return prisma.admin.findFirst({
     where: {
@@ -72,6 +92,8 @@ module.exports = {
   findManagerByEmail,
   findStaffByEmail,
   updateStaffById,
+  findOrganizationByName,
+  createManagerStaff,
   findAdminByEmail,
   createOwnerOrganization,
   getAdminStatistics,

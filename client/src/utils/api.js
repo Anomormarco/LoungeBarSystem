@@ -1,9 +1,18 @@
 const PROD_GATEWAY_URL = 'https://lounge-gateway.onrender.com';
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? PROD_GATEWAY_URL : '/api');
+const configuredApiUrl = import.meta.env.VITE_API_URL;
+const configuredSocketUrl = import.meta.env.VITE_SOCKET_URL || configuredApiUrl;
+
+function resolveServiceUrl(configuredUrl, fallbackUrl) {
+  if (import.meta.env.PROD && configuredUrl && /localhost|127\.0\.0\.1/.test(configuredUrl)) {
+    return fallbackUrl;
+  }
+
+  return configuredUrl || fallbackUrl;
+}
+
+const API_URL = resolveServiceUrl(configuredApiUrl, import.meta.env.PROD ? PROD_GATEWAY_URL : '/api');
 const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ||
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD ? PROD_GATEWAY_URL : window.location.origin);
+  resolveServiceUrl(configuredSocketUrl, import.meta.env.PROD ? PROD_GATEWAY_URL : window.location.origin);
 
 export async function request(path, options = {}) {
   const tokenKey = options.tokenKey === undefined ? 'owner_token' : options.tokenKey;

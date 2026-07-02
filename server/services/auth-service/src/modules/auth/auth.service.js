@@ -5,6 +5,38 @@ const { isGmail, isStrongPassword, passwordRuleMessage } = require("../../utils/
 const authRepository = require("../../repositories/auth.repository");
 
 const SEED_OWNER_PASSWORD = "Password123!";
+const SEED_OWNER_ORGANIZATIONS = [
+  "Skyline Lounge",
+  "Noir Social Club",
+  "Velvet Room",
+  "Amber Terrace",
+  "Mellow Garden",
+  "The Brass Bar",
+  "Aurora Lounge",
+  "Nomad Table",
+  "Crown & Smoke",
+  "Saffron Rooftop",
+  "Luna Bistro",
+  "Echo Lounge",
+  "Golden Hour",
+  "Urban Flame",
+  "Opal Room",
+  "Mint Social",
+  "Horizon Grill",
+  "Cedar Lounge",
+  "Ivory Table",
+  "Copper House",
+  "Jade Garden",
+  "Monarch Lounge",
+  "Naran Terrace",
+  "Pearl Bistro",
+  "Aria Lounge",
+  "Tempo Kitchen",
+  "Breeze Rooftop",
+  "Onyx Social",
+  "Lotus Lounge",
+  "Prime Table",
+];
 
 function seedOwnerNumber(email) {
   const match = /^owner([1-9]|[12][0-9]|30)@gmail\.com$/i.exec(email);
@@ -17,6 +49,31 @@ function legacySeedOwnerEmail(ownerNumber) {
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
+}
+
+async function restoreSeedOwner({ ownerNumber, email, password }) {
+  if (!ownerNumber || password !== SEED_OWNER_PASSWORD) {
+    return null;
+  }
+
+  const organizationName = SEED_OWNER_ORGANIZATIONS[ownerNumber - 1];
+  if (!organizationName) {
+    return null;
+  }
+
+  const organization = await authRepository.findOrganizationByName(organizationName);
+  if (!organization) {
+    return null;
+  }
+
+  const hashedPassword = await bcrypt.hash(SEED_OWNER_PASSWORD, 10);
+  return authRepository.createManagerStaff({
+    organizationId: organization.id,
+    name: `${organization.name} Manager`,
+    email,
+    phone: organization.phone || null,
+    password: hashedPassword,
+  });
 }
 
 async function ownerLogin({ email, password }) {
@@ -42,6 +99,10 @@ async function ownerLogin({ email, password }) {
         password: await bcrypt.hash(SEED_OWNER_PASSWORD, 10),
         role: "manager",
       });
+    }
+
+    if (!staff) {
+      staff = await restoreSeedOwner({ ownerNumber, email: normalizedEmail, password });
     }
   }
 

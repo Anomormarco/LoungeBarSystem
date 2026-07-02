@@ -14,13 +14,22 @@ const renderDefaults = {
   notification: "https://lounge-notification-service.onrender.com",
 };
 
-const defaults = process.env.RENDER || process.env.RENDER_SERVICE_ID ? renderDefaults : dockerDefaults;
+const isRender = Boolean(process.env.RENDER || process.env.RENDER_SERVICE_ID);
+const defaults = isRender ? renderDefaults : dockerDefaults;
+
+function serviceUrl(envValue, fallback, dockerHost) {
+  if (isRender && envValue && envValue.includes(`//${dockerHost}:`)) {
+    return fallback;
+  }
+
+  return envValue || fallback;
+}
 
 module.exports = {
-  auth: process.env.AUTH_SERVICE_URL || defaults.auth,
-  lounge: process.env.LOUNGE_SERVICE_URL || defaults.lounge,
-  reservation: process.env.RESERVATION_SERVICE_URL || defaults.reservation,
-  payment: process.env.PAYMENT_SERVICE_URL || defaults.payment,
-  notification: process.env.NOTIFICATION_SERVICE_URL || defaults.notification,
+  auth: serviceUrl(process.env.AUTH_SERVICE_URL, defaults.auth, "auth-service"),
+  lounge: serviceUrl(process.env.LOUNGE_SERVICE_URL, defaults.lounge, "lounge-service"),
+  reservation: serviceUrl(process.env.RESERVATION_SERVICE_URL, defaults.reservation, "reservation-service"),
+  payment: serviceUrl(process.env.PAYMENT_SERVICE_URL, defaults.payment, "payment-service"),
+  notification: serviceUrl(process.env.NOTIFICATION_SERVICE_URL, defaults.notification, "notification-service"),
   clientOrigin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
 };

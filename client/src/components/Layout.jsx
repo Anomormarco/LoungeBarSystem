@@ -23,7 +23,7 @@ import {
 
 const OWNER_THEMES = [
   { id: 'dark', name: 'Dark', color: '#2a251f' },
-  { id: 'gold', name: 'Gold', color: '#d8aa52' },
+  { id: 'gold', name: 'Gold', color: '#e6c77f' },
   { id: 'light', name: 'Light', color: '#fff8ec' },
 ];
 

@@ -1227,7 +1227,7 @@ export default function Home() {
                 ))}
               </div>
 
-              <div className="relative grid overflow-hidden rounded-2xl border border-lounge-accent/45 bg-lounge-accent/10 p-6 shadow-[0_0_32px_rgba(216,170,82,0.12)] md:grid-cols-[1fr_360px] md:items-center md:gap-12 md:p-12">
+              <div className="relative grid overflow-hidden rounded-2xl border border-lounge-accent/45 bg-lounge-accent/10 p-6 shadow-[0_0_32px_rgba(230,199,127,0.11)] md:grid-cols-[1fr_360px] md:items-center md:gap-12 md:p-12">
                 <div className="absolute -right-32 -top-32 h-64 w-64 rounded-full bg-lounge-accent/15 blur-[100px]" />
                 <div>
                   <h2 className="mb-6 text-3xl font-extrabold leading-tight text-lounge-accent sm:text-5xl">Онцгой эрх хүлээн авах</h2>
@@ -1240,12 +1240,12 @@ export default function Home() {
                       placeholder="Таны имэйл хаяг"
                       type="email"
                     />
-                    <button className="rounded-lg bg-lounge-accent px-6 py-3 text-sm font-bold text-lounge-black shadow-[0_0_18px_rgba(216,170,82,0.18)] transition hover:bg-lounge-accent-dark">
+                    <button className="rounded-lg bg-lounge-accent px-6 py-3 text-sm font-bold text-lounge-black shadow-[0_0_18px_rgba(230,199,127,0.16)] transition hover:bg-lounge-accent-dark">
                       Илгээх
                     </button>
                   </div>
                 </div>
-                <div className="relative z-10 mt-8 hidden aspect-square rounded-[1.4rem] border border-lounge-accent/55 bg-lounge-accent/10 p-3 shadow-[0_0_28px_rgba(216,170,82,0.18)] md:mt-0 md:block">
+                <div className="relative z-10 mt-8 hidden aspect-square rounded-[1.4rem] border border-lounge-accent/55 bg-lounge-accent/10 p-3 shadow-[0_0_28px_rgba(230,199,127,0.16)] md:mt-0 md:block">
                   <img
                     src={REFERENCE_IMAGES.invitation}
                     alt="Luxury invitation"

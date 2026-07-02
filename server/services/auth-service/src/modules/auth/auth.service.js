@@ -151,14 +151,26 @@ async function ownerRegister(payload) {
   const password = String(payload.password || "");
   const phone = normalizePhone(payload.phone);
   const organizationName = normalizeText(payload.organizationName);
-  const address = normalizeText(payload.address);
   const latitude = Number(payload.latitude);
   const longitude = Number(payload.longitude);
+  const address = normalizeText(payload.address) ||
+    (Number.isFinite(latitude) && Number.isFinite(longitude)
+      ? `Map location ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`
+      : "");
   const openingTime = normalizeText(payload.openingTime);
   const closingTime = normalizeText(payload.closingTime);
 
   if (!ownerName || !email || !password || !organizationName || !address || !openingTime || !closingTime) {
-    throw httpError(400, "Owner нэр, имэйл, нууц үг, байгууллагын нэр, хаяг, нээх цаг болон хаах цаг шаардлагатай.");
+    const missingFields = [
+      !ownerName && "Owner нэр",
+      !email && "имэйл",
+      !password && "нууц үг",
+      !organizationName && "байгууллагын нэр",
+      !address && "хаяг",
+      !openingTime && "нээх цаг",
+      !closingTime && "хаах цаг",
+    ].filter(Boolean);
+    throw httpError(400, `${missingFields.join(", ")} шаардлагатай.`);
   }
 
   if (!isGmail(email)) {

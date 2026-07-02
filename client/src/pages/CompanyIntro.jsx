@@ -115,10 +115,15 @@ export default function CompanyIntro() {
     setLoading(true);
 
     try {
+      const latitude = Number(registerForm.latitude);
+      const longitude = Number(registerForm.longitude);
+      const address = String(registerForm.address || '').trim() || `Map location ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+
       await api.registerOwner({
         ...registerForm,
-        latitude: Number(registerForm.latitude),
-        longitude: Number(registerForm.longitude),
+        address,
+        latitude,
+        longitude,
       });
 
       setLoginForm({ email: registerForm.email, password: '' });

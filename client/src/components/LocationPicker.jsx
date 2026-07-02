@@ -48,6 +48,7 @@ export default function LocationPicker({
   onChange,
   onAddressChange,
   disabled = false,
+  required = true,
 }) {
   const lat = Number(latitude) || UB_CENTER.lat;
   const lng = Number(longitude) || UB_CENTER.lng;
@@ -81,6 +82,7 @@ export default function LocationPicker({
             value={address}
             onChange={(event) => onAddressChange?.(event.target.value)}
             disabled={disabled}
+            required={required}
             placeholder="Ulaanbaatar, SBD"
             className="w-full rounded-xl border border-slate-700 bg-slate-950 py-3 pl-10 pr-4 text-sm text-slate-200 outline-none transition-colors placeholder:text-slate-600 focus:border-amber-500 disabled:opacity-60"
           />

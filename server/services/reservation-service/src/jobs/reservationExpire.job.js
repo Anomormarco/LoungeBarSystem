@@ -8,43 +8,22 @@ function localDateString(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
-function timeToMinutes(time) {
-  const [hours, minutes] = String(time || "").split(":").map(Number);
-  if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return null;
-  return hours * 60 + minutes;
-}
-
-function isClosedForToday(organization, now = new Date()) {
-  const openingMinutes = timeToMinutes(organization.openingTime);
-  const closingMinutesRaw = timeToMinutes(organization.closingTime);
-  if (openingMinutes === null || closingMinutesRaw === null) return false;
-
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-  const closingMinutes = closingMinutesRaw <= openingMinutes ? closingMinutesRaw + 1440 : closingMinutesRaw;
-  const normalizedNowMinutes = nowMinutes < openingMinutes && closingMinutesRaw <= openingMinutes
-    ? nowMinutes + 1440
-    : nowMinutes;
-
-  return normalizedNowMinutes >= closingMinutes;
-}
-
 async function expireClosedDayReservations() {
   const today = localDateString();
   const reservationDate = new Date(`${today}T00:00:00`);
   const organizations = await prisma.organization.findMany({
-    select: { id: true, openingTime: true, closingTime: true },
+    select: { id: true },
   });
 
   let expiredCount = 0;
 
   for (const organization of organizations) {
-    if (!isClosedForToday(organization)) continue;
-
     const reservations = await prisma.reservation.findMany({
       where: {
         organizationId: organization.id,
         reservationDate,
         status: { in: ["pending", "confirmed"] },
+        endTime: { lte: new Date() },
       },
       select: { id: true, tableId: true },
     });

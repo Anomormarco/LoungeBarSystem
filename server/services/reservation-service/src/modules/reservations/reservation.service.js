@@ -44,6 +44,10 @@ function expiresInMinutes(minutes) {
   return new Date(Date.now() + minutes * 60 * 1000);
 }
 
+function isPastDateTime(date) {
+  return date.getTime() <= Date.now();
+}
+
 async function sendReservationOtp({ email, reservationId }) {
   const normalizedEmail = String(email || "").trim().toLowerCase();
   const parsedReservationId = reservationId ? Number(reservationId) : null;
@@ -215,6 +219,10 @@ async function createReservation(payload) {
       throw httpError(400, "Захиалгын эхлэх цаг ажлын цагт багтахгүй байна.");
     }
 
+    if (isPastDateTime(data.startTime)) {
+      throw httpError(400, "Reservation time has already passed.");
+    }
+
     const overlappingReservation = await tx.reservation.findFirst({
       where: {
         tableId: data.tableId,
@@ -267,7 +275,6 @@ async function verifyReservationOtp({ email, code, reservationId }) {
         email: normalizedEmail,
         code,
         reservationId: parsedReservationId,
-        isUsed: false,
         expiresAt: { gt: new Date() },
       },
       orderBy: { createdAt: "desc" },
@@ -279,10 +286,28 @@ async function verifyReservationOtp({ email, code, reservationId }) {
 
     const existingReservation = await tx.reservation.findUnique({
       where: { id: parsedReservationId },
+      include: { table: true },
     });
 
-    if (!existingReservation || existingReservation.status !== "pending") {
+    if (!existingReservation) {
       throw httpError(400, "Энэ захиалгыг баталгаажуулах боломжгүй байна.");
+    }
+
+    if (existingReservation.status === "confirmed") {
+      await tx.verificationCode.update({
+        where: { id: verificationCode.id },
+        data: { isUsed: true },
+      });
+
+      return existingReservation;
+    }
+
+    if (existingReservation.status !== "pending") {
+      throw httpError(400, "This reservation cannot be confirmed.");
+    }
+
+    if (verificationCode.isUsed) {
+      throw httpError(400, "Verification code has already been used.");
     }
 
     const lockedTables = await tx.$queryRaw`

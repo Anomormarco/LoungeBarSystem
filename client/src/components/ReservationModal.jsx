@@ -22,10 +22,26 @@ export default function ReservationModal({ organization, table, onClose, onSucce
   const [otpCode, setOtpCode] = useState('');
   const [devOtpCode, setDevOtpCode] = useState('');
 
-  const today = new Date().toISOString().split('T')[0];
+  const formatDateInputValue = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  const today = formatDateInputValue(new Date());
+  const getNextReservationStart = () => {
+    const next = new Date();
+    next.setHours(next.getHours() + 1, 0, 0, 0);
+    return {
+      date: formatDateInputValue(next),
+      time: `${String(next.getHours()).padStart(2, '0')}:00`,
+    };
+  };
+  const defaultReservationStart = getNextReservationStart();
+
   const [form, setForm] = useState({
-    reservationDate: today,
-    startTime: '18:00',
+    reservationDate: defaultReservationStart.date,
+    startTime: defaultReservationStart.time,
     guestCount: Math.min(2, table?.capacity || 2),
     guestName: '',
     guestPhone: '',

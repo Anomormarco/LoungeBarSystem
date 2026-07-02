@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import UserLayout from '../../components/UserLayout';
 import ReservationModal from '../../components/ReservationModal';
 import LoungeMap from '../../components/LoungeMap';
@@ -222,6 +222,34 @@ export default function Home() {
     if (typeof window === 'undefined') return true;
     return window.localStorage.getItem(MAP_INFO_DISMISSED_KEY) !== 'true';
   });
+
+  const resetHomeView = useCallback(() => {
+    setLocation({ lat: DEFAULT_LOCATION.lat, lng: DEFAULT_LOCATION.lng, updatedAt: Date.now() });
+    setLocationLabel(DEFAULT_LOCATION.label);
+    setLocationError('');
+    setLoadingLocation(false);
+    setRadius(9);
+    setSearchQuery('');
+    setTableType('all');
+    setAvailableOnly(false);
+    setActiveNeed('all');
+    setSelectedOrgId(null);
+    setSelectedDetail(null);
+    setDetailLoading(false);
+    setDetailOverlayOpen(false);
+    setStickyPreviewId(null);
+    setSelectedTable(null);
+    setTableViewFilter('all');
+    setSelectedMedia(null);
+    setActiveMenuCategory('all');
+    setSelectedMenuItemId(null);
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('ubtable:home-reset', resetHomeView);
+    return () => window.removeEventListener('ubtable:home-reset', resetHomeView);
+  }, [resetHomeView]);
 
   const selectedSummary = organizations.find((org) => org.id === selectedOrgId);
   const mapBounds = UB_MAP_BOUNDS;

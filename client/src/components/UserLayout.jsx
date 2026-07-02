@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Compass, Home, Info, Menu, PhoneCall, Store, UtensilsCrossed, X } from 'lucide-react';
 
 const navItems = [
@@ -12,6 +12,18 @@ const navItems = [
 
 export default function UserLayout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogoClick = (event) => {
+    event.preventDefault();
+    setMobileOpen(false);
+    navigate('/', { state: { resetAt: Date.now() } });
+    window.dispatchEvent(new CustomEvent('ubtable:home-reset'));
+    window.setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('ubtable:home-reset'));
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    }, 0);
+  };
 
   const navLinkClass = ({ isActive }) =>
     `rounded-lg px-3 py-2 text-xs font-extrabold transition-colors ${
@@ -26,7 +38,7 @@ export default function UserLayout({ children }) {
 
       <header className="relative z-10 w-full border-b border-lounge-border/40 bg-[#12110e]/88 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-3">
+        <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3">
           <span className="ub-script-logo" aria-label="UBTable Logo">
             <UtensilsCrossed className="ub-script-logo-icon" aria-hidden="true" />
             UBTable
@@ -62,12 +74,12 @@ export default function UserLayout({ children }) {
           />
           <aside className="absolute right-0 top-0 h-full w-[min(82vw,320px)] border-l border-lounge-border bg-[#12110e] p-5 shadow-2xl">
             <div className="mb-6 flex items-center justify-between">
-              <div className="flex items-center gap-3">
+              <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3">
                 <span className="ub-script-logo ub-script-logo-sm" aria-label="UBTable Logo">
                   <UtensilsCrossed className="ub-script-logo-icon" aria-hidden="true" />
                   UBTable
                 </span>
-              </div>
+              </Link>
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}

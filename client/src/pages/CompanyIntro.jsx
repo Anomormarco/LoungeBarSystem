@@ -138,10 +138,17 @@ export default function CompanyIntro() {
     setSuccess('');
   };
 
+  const handleLogoClick = () => {
+    window.setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('ubtable:home-reset'));
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    }, 0);
+  };
+
   return (
     <div className="min-h-screen bg-lounge-black text-white">
       <header className="mx-auto flex h-14 max-w-7xl items-center border-b border-lounge-border px-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-3">
+        <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-lounge-yellow text-base font-black text-lounge-black">
             L
           </div>

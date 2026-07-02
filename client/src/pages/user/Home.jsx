@@ -1227,29 +1227,29 @@ export default function Home() {
                 ))}
               </div>
 
-              <div className="relative grid overflow-hidden rounded-2xl border border-[#f2ca50]/20 bg-[#f2ca50]/5 p-6 md:grid-cols-[1fr_360px] md:items-center md:gap-12 md:p-12">
-                <div className="absolute -right-32 -top-32 h-64 w-64 rounded-full bg-[#f2ca50]/10 blur-[100px]" />
+              <div className="relative grid overflow-hidden rounded-2xl border border-lounge-accent/45 bg-lounge-accent/10 p-6 shadow-[0_0_32px_rgba(240,189,85,0.14)] md:grid-cols-[1fr_360px] md:items-center md:gap-12 md:p-12">
+                <div className="absolute -right-32 -top-32 h-64 w-64 rounded-full bg-lounge-accent/15 blur-[100px]" />
                 <div>
-                  <h2 className="mb-6 text-3xl font-extrabold leading-tight text-[#e8e1db] sm:text-5xl">Онцгой эрх хүлээн авах</h2>
-                  <p className="mb-8 max-w-lg text-base leading-relaxed text-[#d0c5af] sm:text-lg">
+                  <h2 className="mb-6 text-3xl font-extrabold leading-tight text-lounge-accent sm:text-5xl">Онцгой эрх хүлээн авах</h2>
+                  <p className="mb-8 max-w-lg text-base leading-relaxed text-lounge-muted sm:text-lg">
                     UBTable-ийн гишүүн болсноор шинээр нээгдэж буй лоунжуудын урилга, тусгай хөнгөлөлт болон арга хэмжээний мэдээллийг түрүүлж авах боломжтой.
                   </p>
                   <div className="flex w-full max-w-md gap-2">
                     <input
-                      className="min-w-0 flex-1 rounded-lg border border-[#4d4635] bg-[#100e0a] px-4 py-3 text-sm text-[#e8e1db] outline-none transition-all placeholder:text-[#d0c5af] focus:border-[#f2ca50]"
+                      className="min-w-0 flex-1 rounded-lg border border-lounge-accent/35 bg-lounge-black px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-lounge-muted focus:border-lounge-accent"
                       placeholder="Таны имэйл хаяг"
                       type="email"
                     />
-                    <button className="rounded-lg bg-[#f2ca50] px-6 py-3 text-sm font-bold text-[#3c2f00] transition hover:brightness-110">
+                    <button className="rounded-lg bg-lounge-accent px-6 py-3 text-sm font-bold text-lounge-black shadow-[0_0_18px_rgba(240,189,85,0.2)] transition hover:bg-lounge-accent-dark">
                       Илгээх
                     </button>
                   </div>
                 </div>
-                <div className="relative z-10 mt-8 hidden aspect-square md:mt-0 md:block">
+                <div className="relative z-10 mt-8 hidden aspect-square rounded-[1.4rem] border border-lounge-accent/55 bg-lounge-accent/10 p-3 shadow-[0_0_28px_rgba(240,189,85,0.22)] md:mt-0 md:block">
                   <img
                     src={REFERENCE_IMAGES.invitation}
                     alt="Luxury invitation"
-                    className="h-full w-full rotate-3 scale-110 rounded-xl border border-[#3d372e] object-cover shadow-2xl"
+                    className="h-full w-full rotate-3 scale-105 rounded-xl border border-lounge-accent/45 object-cover shadow-2xl"
                   />
                 </div>
               </div>

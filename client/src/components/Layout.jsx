@@ -22,9 +22,9 @@ import {
 } from 'lucide-react';
 
 const OWNER_THEMES = [
+  { id: 'dark', name: 'Dark', color: '#2a251f' },
   { id: 'gold', name: 'Gold', color: '#f0bd55' },
-  { id: 'rose', name: 'Rose', color: '#f3a6b8' },
-  { id: 'emerald', name: 'Emerald', color: '#74d8a5' },
+  { id: 'light', name: 'Light', color: '#fff8ec' },
 ];
 
 export default function Layout({ children }) {
@@ -40,7 +40,10 @@ export default function Layout({ children }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [subscription, setSubscription] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [ownerTheme, setOwnerTheme] = useState(() => localStorage.getItem('owner_theme') || 'gold');
+  const [ownerTheme, setOwnerTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('owner_theme');
+    return OWNER_THEMES.some((theme) => theme.id === savedTheme) ? savedTheme : 'dark';
+  });
   const navigate = useNavigate();
   const location = useLocation();
 

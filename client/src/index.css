@@ -220,6 +220,20 @@ body {
 }
 
 .owner-theme {
+  --owner-bg: #15130f;
+  --owner-panel: #1d1b17;
+  --owner-panel-soft: #2c2a25;
+  --owner-border: #3d372e;
+  --owner-text: #f4f0e8;
+  --owner-muted: #cdbf9f;
+  --owner-accent: #d4af37;
+  --owner-accent-hover: #b68e24;
+  --owner-accent-soft: rgba(212, 175, 55, 0.13);
+  --owner-accent-border: rgba(212, 175, 55, 0.42);
+  --owner-on-accent: #211a04;
+}
+
+.owner-theme[data-owner-theme='gold'] {
   --owner-bg: #2a251f;
   --owner-panel: #342d25;
   --owner-panel-soft: #40382d;
@@ -233,32 +247,18 @@ body {
   --owner-on-accent: #2a251f;
 }
 
-.owner-theme[data-owner-theme='rose'] {
-  --owner-bg: #2d2226;
-  --owner-panel: #3a2b31;
-  --owner-panel-soft: #493640;
-  --owner-border: #a87887;
-  --owner-text: #fff4f7;
-  --owner-muted: #e2bdc8;
-  --owner-accent: #f3a6b8;
-  --owner-accent-hover: #dc8099;
-  --owner-accent-soft: rgba(243, 166, 184, 0.16);
-  --owner-accent-border: rgba(243, 166, 184, 0.48);
-  --owner-on-accent: #2b171e;
-}
-
-.owner-theme[data-owner-theme='emerald'] {
-  --owner-bg: #1f2923;
-  --owner-panel: #29372f;
-  --owner-panel-soft: #33473c;
-  --owner-border: #6a9a7e;
-  --owner-text: #f0fff7;
-  --owner-muted: #b6d7c4;
-  --owner-accent: #74d8a5;
-  --owner-accent-hover: #4fbd82;
-  --owner-accent-soft: rgba(116, 216, 165, 0.16);
-  --owner-accent-border: rgba(116, 216, 165, 0.46);
-  --owner-on-accent: #122218;
+.owner-theme[data-owner-theme='light'] {
+  --owner-bg: #f7f2e8;
+  --owner-panel: #fffaf0;
+  --owner-panel-soft: #efe3cd;
+  --owner-border: #d6c39f;
+  --owner-text: #2a251f;
+  --owner-muted: #796a54;
+  --owner-accent: #b88a2b;
+  --owner-accent-hover: #9a7220;
+  --owner-accent-soft: rgba(184, 138, 43, 0.13);
+  --owner-accent-border: rgba(184, 138, 43, 0.42);
+  --owner-on-accent: #fffaf0;
 }
 
 .owner-theme.bg-slate-950,
@@ -299,6 +299,7 @@ body {
 .owner-theme .text-slate-100,
 .owner-theme .text-slate-200,
 .owner-theme .text-slate-300,
+.owner-theme[data-owner-theme='light'] .text-white,
 .owner-theme .hover\:text-slate-100:hover,
 .owner-theme .hover\:text-slate-200:hover,
 .owner-theme .hover\:text-slate-300:hover {

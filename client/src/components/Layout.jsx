@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Palette,
   Table2,
   Users,
   UtensilsCrossed,
@@ -19,6 +20,12 @@ import {
   WifiOff,
   X,
 } from 'lucide-react';
+
+const OWNER_THEMES = [
+  { id: 'gold', name: 'Gold', color: '#f0bd55' },
+  { id: 'rose', name: 'Rose', color: '#f3a6b8' },
+  { id: 'emerald', name: 'Emerald', color: '#74d8a5' },
+];
 
 export default function Layout({ children }) {
   const {
@@ -33,6 +40,7 @@ export default function Layout({ children }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [subscription, setSubscription] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [ownerTheme, setOwnerTheme] = useState(() => localStorage.getItem('owner_theme') || 'gold');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -49,6 +57,11 @@ export default function Layout({ children }) {
     localStorage.removeItem('owner_token');
     localStorage.removeItem('owner_user');
     window.location.href = '/login';
+  };
+
+  const handleThemeChange = (themeId) => {
+    setOwnerTheme(themeId);
+    localStorage.setItem('owner_theme', themeId);
   };
 
   const openSpotlightReservation = () => {
@@ -87,7 +100,7 @@ export default function Layout({ children }) {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex">
+    <div className="owner-theme min-h-screen bg-slate-950 text-slate-100 flex" data-owner-theme={ownerTheme}>
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 border-r border-slate-800 flex flex-col transform transition-transform duration-300 lg:translate-x-0 lg:static ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 border-b border-slate-800 flex justify-between items-center">
           <div className="flex items-center gap-3">
@@ -170,6 +183,31 @@ export default function Layout({ children }) {
           </div>
 
           <div className="flex items-center gap-3 relative">
+            <div className="flex max-w-[48vw] items-center gap-2 overflow-x-auto rounded-2xl border border-slate-700/60 bg-slate-800/70 p-1.5 shadow-sm sm:max-w-none">
+              <div className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-amber-400 sm:flex">
+                <Palette className="h-4 w-4" />
+              </div>
+              {OWNER_THEMES.map((theme) => (
+                <button
+                  key={theme.id}
+                  type="button"
+                  onClick={() => handleThemeChange(theme.id)}
+                  className={`flex h-9 shrink-0 items-center gap-2 rounded-xl border px-2 text-xs font-black transition-all sm:px-3 ${
+                    ownerTheme === theme.id
+                      ? 'border-amber-400 bg-amber-400 text-slate-950 shadow-lg shadow-amber-500/15'
+                      : 'border-transparent text-slate-400 hover:bg-slate-900 hover:text-slate-100'
+                  }`}
+                  title={`${theme.name} theme`}
+                >
+                  <span
+                    className="h-3 w-3 rounded-full border border-white/30"
+                    style={{ backgroundColor: theme.color }}
+                  />
+                  <span className="hidden lg:inline">{theme.name}</span>
+                </button>
+              ))}
+            </div>
+
             <button
               onClick={() => {
                 requestBrowserNotifications();

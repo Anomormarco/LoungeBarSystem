@@ -219,6 +219,154 @@ body {
   }
 }
 
+.owner-theme {
+  --owner-bg: #2a251f;
+  --owner-panel: #342d25;
+  --owner-panel-soft: #40382d;
+  --owner-border: #8f7a58;
+  --owner-text: #fff8ec;
+  --owner-muted: #d4c5a8;
+  --owner-accent: #f0bd55;
+  --owner-accent-hover: #d79d2b;
+  --owner-accent-soft: rgba(240, 189, 85, 0.14);
+  --owner-accent-border: rgba(240, 189, 85, 0.44);
+  --owner-on-accent: #2a251f;
+}
+
+.owner-theme[data-owner-theme='rose'] {
+  --owner-bg: #2d2226;
+  --owner-panel: #3a2b31;
+  --owner-panel-soft: #493640;
+  --owner-border: #a87887;
+  --owner-text: #fff4f7;
+  --owner-muted: #e2bdc8;
+  --owner-accent: #f3a6b8;
+  --owner-accent-hover: #dc8099;
+  --owner-accent-soft: rgba(243, 166, 184, 0.16);
+  --owner-accent-border: rgba(243, 166, 184, 0.48);
+  --owner-on-accent: #2b171e;
+}
+
+.owner-theme[data-owner-theme='emerald'] {
+  --owner-bg: #1f2923;
+  --owner-panel: #29372f;
+  --owner-panel-soft: #33473c;
+  --owner-border: #6a9a7e;
+  --owner-text: #f0fff7;
+  --owner-muted: #b6d7c4;
+  --owner-accent: #74d8a5;
+  --owner-accent-hover: #4fbd82;
+  --owner-accent-soft: rgba(116, 216, 165, 0.16);
+  --owner-accent-border: rgba(116, 216, 165, 0.46);
+  --owner-on-accent: #122218;
+}
+
+.owner-theme.bg-slate-950,
+.owner-theme .bg-slate-950 {
+  background-color: var(--owner-bg) !important;
+}
+
+.owner-theme .bg-slate-900,
+.owner-theme .bg-slate-900\/40,
+.owner-theme .bg-slate-900\/60 {
+  background-color: var(--owner-panel) !important;
+}
+
+.owner-theme .bg-slate-800,
+.owner-theme .bg-slate-800\/40,
+.owner-theme .bg-slate-800\/50,
+.owner-theme .bg-slate-800\/70,
+.owner-theme .bg-slate-800\/80 {
+  background-color: var(--owner-panel-soft) !important;
+}
+
+.owner-theme .hover\:bg-slate-900:hover,
+.owner-theme .hover\:bg-slate-800:hover,
+.owner-theme .hover\:bg-slate-800\/50:hover {
+  background-color: var(--owner-accent-soft) !important;
+}
+
+.owner-theme .border-slate-900,
+.owner-theme .border-slate-800,
+.owner-theme .border-slate-800\/60,
+.owner-theme .border-slate-800\/80,
+.owner-theme .border-slate-700,
+.owner-theme .border-slate-700\/50,
+.owner-theme .border-slate-700\/60 {
+  border-color: var(--owner-border) !important;
+}
+
+.owner-theme .text-slate-100,
+.owner-theme .text-slate-200,
+.owner-theme .text-slate-300,
+.owner-theme .hover\:text-slate-100:hover,
+.owner-theme .hover\:text-slate-200:hover,
+.owner-theme .hover\:text-slate-300:hover {
+  color: var(--owner-text) !important;
+}
+
+.owner-theme .text-slate-400,
+.owner-theme .text-slate-500,
+.owner-theme .text-slate-600 {
+  color: var(--owner-muted) !important;
+}
+
+.owner-theme .bg-amber-400,
+.owner-theme .bg-amber-500,
+.owner-theme .bg-amber-600,
+.owner-theme .bg-lounge-yellow {
+  background-color: var(--owner-accent) !important;
+}
+
+.owner-theme .hover\:bg-amber-500:hover,
+.owner-theme .hover\:bg-amber-600:hover,
+.owner-theme .hover\:bg-lounge-yellow-dark:hover {
+  background-color: var(--owner-accent-hover) !important;
+}
+
+.owner-theme .bg-amber-400\/10,
+.owner-theme .bg-amber-500\/5,
+.owner-theme .bg-amber-500\/10,
+.owner-theme .bg-lounge-yellow\/10 {
+  background-color: var(--owner-accent-soft) !important;
+}
+
+.owner-theme .border-amber-400,
+.owner-theme .border-amber-400\/50,
+.owner-theme .border-amber-500,
+.owner-theme .border-amber-500\/20,
+.owner-theme .border-amber-500\/30,
+.owner-theme .border-lounge-yellow,
+.owner-theme .border-lounge-yellow\/40 {
+  border-color: var(--owner-accent-border) !important;
+}
+
+.owner-theme .text-amber-300,
+.owner-theme .text-amber-400,
+.owner-theme .text-amber-500,
+.owner-theme .hover\:text-lounge-yellow:hover,
+.owner-theme .text-lounge-yellow {
+  color: var(--owner-accent) !important;
+}
+
+.owner-theme .focus\:border-amber-500:focus,
+.owner-theme .focus\:border-lounge-yellow:focus,
+.owner-theme .focus-within\:border-lounge-yellow:focus-within {
+  border-color: var(--owner-accent) !important;
+}
+
+.owner-theme .text-slate-950,
+.owner-theme .text-lounge-black {
+  color: var(--owner-on-accent) !important;
+}
+
+.owner-theme .shadow-amber-400\/30,
+.owner-theme .shadow-amber-500\/10,
+.owner-theme .shadow-amber-500\/15,
+.owner-theme .shadow-amber-500\/20 {
+  --tw-shadow-color: var(--owner-accent-border) !important;
+}
+
 @layer utilities {
   .bg-\[\#15130f\],
   .bg-\[\#12110e\],

@@ -1,14 +1,32 @@
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
+function handleProxyError(target) {
+  return (err, req, res) => {
+    console.error(`[gateway] proxy error ${req.method} ${req.originalUrl} -> ${target}:`, err.message);
+
+    if (res.headersSent) {
+      return;
+    }
+
+    res.status(502).json({
+      message: "Gateway service connection failed.",
+      target,
+    });
+  };
+}
+
 function serviceProxy(target, options = {}) {
+  const { on, ...proxyOptions } = options;
+
   return createProxyMiddleware({
     target,
     changeOrigin: true,
     pathRewrite: (_path, req) => req.originalUrl,
-    onError: (_err, _req, res) => {
-      res.status(502).json({ message: "Дотоод сервис рүү холбогдоход алдаа гарлаа." });
+    ...proxyOptions,
+    on: {
+      error: handleProxyError(target),
+      ...on,
     },
-    ...options,
   });
 }
 
@@ -18,6 +36,9 @@ function socketProxy(target) {
     ws: true,
     changeOrigin: true,
     pathRewrite: (_path, req) => req.originalUrl,
+    on: {
+      error: handleProxyError(target),
+    },
   });
 }
 

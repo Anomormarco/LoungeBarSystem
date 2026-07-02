@@ -1,5 +1,9 @@
-const API_URL = import.meta.env.VITE_API_URL || '/api';
-const SOCKET_URL = import.meta.env.VITE_API_URL || window.location.origin;
+const PROD_GATEWAY_URL = 'https://lounge-gateway.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? PROD_GATEWAY_URL : '/api');
+const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL ||
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? PROD_GATEWAY_URL : window.location.origin);
 
 export async function request(path, options = {}) {
   const tokenKey = options.tokenKey === undefined ? 'owner_token' : options.tokenKey;

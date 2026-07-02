@@ -72,11 +72,14 @@ async function sendReservationOtp({ email, reservationId }) {
     },
   });
 
-  await sendEmail({
-    to: normalizedEmail,
-    subject: "Lounge Reserve баталгаажуулах код",
-    text: `Таны Lounge Reserve баталгаажуулах код: ${code}. Код 5 минутын дараа хүчингүй болно.`,
-    html: `
+  let deliveryMode = "email";
+
+  try {
+    await sendEmail({
+      to: normalizedEmail,
+      subject: "Lounge Reserve баталгаажуулах код",
+      text: `Таны Lounge Reserve баталгаажуулах код: ${code}. Код 5 минутын дараа хүчингүй болно.`,
+      html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #111827;">
         <h2 style="margin: 0 0 12px;">Lounge Reserve</h2>
         <p>Таны захиалга баталгаажуулах код:</p>
@@ -85,12 +88,18 @@ async function sendReservationOtp({ email, reservationId }) {
         <p style="color: #6b7280; font-size: 12px;">Хэрэв та энэ кодыг хүсээгүй бол энэ имэйлийг үл тоож болно.</p>
       </div>
     `,
-  });
+    });
+  } catch (error) {
+    deliveryMode = "mock";
+    console.warn("[reservation-otp] email delivery failed; using mock OTP:", error.message);
+  }
 
   return {
     id: verificationCode.id,
     email: verificationCode.email,
     expiresAt: verificationCode.expiresAt,
+    deliveryMode,
+    devCode: deliveryMode === "mock" || process.env.OTP_INCLUDE_CODE === "true" ? code : undefined,
   };
 }
 

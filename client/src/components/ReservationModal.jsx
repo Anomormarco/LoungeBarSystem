@@ -20,6 +20,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
   const [successMessage, setSuccessMessage] = useState('');
   const [reservationId, setReservationId] = useState(null);
   const [otpCode, setOtpCode] = useState('');
+  const [devOtpCode, setDevOtpCode] = useState('');
 
   const today = new Date().toISOString().split('T')[0];
   const [form, setForm] = useState({
@@ -64,7 +65,12 @@ export default function ReservationModal({ organization, table, onClose, onSucce
       const id = res.data.id;
       setReservationId(id);
 
-      await publicApi.sendOtp(form.guestEmail, id);
+      const otpRes = await publicApi.sendOtp(form.guestEmail, id);
+      const fallbackCode = otpRes?.data?.devCode || otpRes?.data?.code || '';
+      setDevOtpCode(fallbackCode);
+      if (fallbackCode) {
+        setOtpCode(String(fallbackCode));
+      }
       setStep(2);
     } catch (err) {
       setError(err.message || 'Захиалга үүсгэхэд алдаа гарлаа.');
@@ -233,6 +239,12 @@ export default function ReservationModal({ organization, table, onClose, onSucce
                   <strong className="text-white">{form.guestEmail}</strong> хаяг руу 6 оронтой код илгээлээ.
                 </p>
               </div>
+
+              {devOtpCode && (
+                <div className="rounded-xl border border-lounge-accent/30 bg-lounge-accent/10 px-4 py-3 text-center text-sm text-lounge-gold">
+                  OTP code: <span className="font-mono font-extrabold tracking-[0.25em]">{devOtpCode}</span>
+                </div>
+              )}
 
               <input
                 type="text"

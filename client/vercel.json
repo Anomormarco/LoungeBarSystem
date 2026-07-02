@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "https://lounge-gateway.onrender.com/$1"
+    },
+    {
+      "source": "/socket.io/(.*)",
+      "destination": "https://lounge-gateway.onrender.com/socket.io/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

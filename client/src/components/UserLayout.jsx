@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Home, Info, Menu, PhoneCall, Store, UtensilsCrossed, X } from 'lucide-react';
+import { Compass, Home, Info, Menu, PhoneCall, Store, UtensilsCrossed, X } from 'lucide-react';
 
 const navItems = [
   { label: 'Нүүр', shortLabel: 'Нүүр', path: '/', icon: Home },
   { label: 'Restaurant & Lounge', shortLabel: 'Rest', path: '/restaurants-lounges', icon: Store },
+  { label: 'Таны хэрэгцээнд', shortLabel: 'Хэрэгцээ', path: '/needs', icon: Compass },
   { label: 'Холбоо барих', shortLabel: 'Холбогдох', path: '/contact', icon: PhoneCall },
   { label: 'Танилцуулга', shortLabel: 'Бидний тухай', path: '/about', icon: Info },
 ];
@@ -101,7 +102,7 @@ export default function UserLayout({ children }) {
       </footer>
 
       <nav className="fixed inset-x-0 bottom-0 z-[85] border-t border-lounge-border/70 bg-[#12110e]/95 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-18px_45px_rgba(0,0,0,0.38)] backdrop-blur md:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-4 gap-1">
+        <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
           {navItems.map((item) => {
             const Icon = item.icon;
 

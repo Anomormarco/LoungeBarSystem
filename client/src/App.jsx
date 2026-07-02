@@ -9,6 +9,7 @@ import LoungeDetail from './pages/user/LoungeDetail';
 import About from './pages/user/About';
 import RestaurantsLounges from './pages/user/RestaurantsLounges';
 import Contact from './pages/user/Contact';
+import NeedsDiscovery from './pages/user/NeedsDiscovery';
 
 // Company Intro
 import CompanyIntro from './pages/CompanyIntro';
@@ -56,6 +57,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/restaurants-lounges" element={<RestaurantsLounges />} />
+        <Route path="/needs" element={<NeedsDiscovery />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/lounge/:id" element={<LoungeDetail />} />
 

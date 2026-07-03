@@ -144,12 +144,14 @@ export const api = {
     request('/payments/stripe/create-checkout-session', {
       method: 'POST',
       body: JSON.stringify({ amount, planType, successUrl, cancelUrl, periodDays }),
+      timeoutMs: 90000,
     }),
   createStripeCheckoutWithToken: (token, amount, planType, successUrl, cancelUrl, periodDays = 30) =>
     request('/payments/stripe/create-checkout-session', {
       method: 'POST',
       body: JSON.stringify({ amount, planType, successUrl, cancelUrl, periodDays }),
       tokenKey: null,
+      timeoutMs: 90000,
       headers: {
         Authorization: `Bearer ${token}`,
       },

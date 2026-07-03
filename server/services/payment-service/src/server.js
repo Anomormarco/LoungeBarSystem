@@ -5,8 +5,14 @@ const { startSubscriptionExpireJob } = require("./jobs/subscriptionExpire.job");
 const PORT = process.env.PORT || 3004;
 const server = http.createServer(app);
 
-startSubscriptionExpireJob();
-
 server.listen(PORT, () => {
-  console.log(`Төлбөрийн сервис ${PORT} порт дээр аслаа.`);
+  console.log(`Payment service is running on port ${PORT}.`);
+
+  setTimeout(() => {
+    try {
+      startSubscriptionExpireJob();
+    } catch (error) {
+      console.error("[payment-service] subscription jobs failed to start:", error);
+    }
+  }, 0);
 });

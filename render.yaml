@@ -1,0 +1,166 @@
+services:
+  # =========================
+  # DATABASE
+  # =========================
+  - type: pserv
+    name: lounge-db
+    env: docker
+    image: postgres:16-alpine
+    envVars:
+      - key: POSTGRES_USER
+        value: loungebar_user
+      - key: POSTGRES_PASSWORD
+        value: loungebar_password
+      - key: POSTGRES_DB
+        value: loungebar
+    disk:
+      name: db-data
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 10
+
+  # =========================
+  # GATEWAY
+  # =========================
+  - type: web
+    name: lounge-gateway
+    env: docker
+    dockerfilePath: ./server/services/gateway/Dockerfile
+    rootDir: ./server
+    envVars:
+      - key: CLIENT_ORIGIN
+        value: https://your-client.onrender.com
+      - key: AUTH_SERVICE_URL
+        value: http://lounge-auth-service:3001
+      - key: LOUNGE_SERVICE_URL
+        value: http://lounge-lounge-service:3002
+      - key: RESERVATION_SERVICE_URL
+        value: http://lounge-reservation-service:3003
+      - key: PAYMENT_SERVICE_URL
+        value: http://lounge-payment-service:3004
+      - key: NOTIFICATION_SERVICE_URL
+        value: http://lounge-notification-service:3005
+
+  # =========================
+  # AUTH SERVICE
+  # =========================
+  - type: web
+    name: lounge-auth-service
+    env: docker
+    dockerfilePath: ./server/services/auth-service/Dockerfile
+    rootDir: ./server
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lounge-db
+          property: connectionString
+      - key: JWT_SECRET
+        value: supersecretjwtkey
+      - key: JWT_EXPIRES_IN
+        value: 7d
+
+  # =========================
+  # LOUNGE SERVICE
+  # =========================
+  - type: web
+    name: lounge-lounge-service
+    env: docker
+    dockerfilePath: ./server/services/lounge-service/Dockerfile
+    rootDir: ./server
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lounge-db
+          property: connectionString
+      - key: READ_DATABASE_URL
+        fromDatabase:
+          name: lounge-db
+          property: connectionString
+      - key: JWT_SECRET
+        value: supersecretjwtkey
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: TZ
+        value: Asia/Ulaanbaatar
+      - key: RESERVATION_DURATION_MINUTES
+        value: "120"
+      - key: RESERVATION_EXPIRE_JOB_INTERVAL_MS
+        value: "60000"
+
+  # =========================
+  # RESERVATION SERVICE
+  # =========================
+  - type: web
+    name: lounge-reservation-service
+    env: docker
+    dockerfilePath: ./server/services/reservation-service/Dockerfile
+    rootDir: ./server
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lounge-db
+          property: connectionString
+      - key: JWT_SECRET
+        value: supersecretjwtkey
+      - key: JWT_EXPIRES_IN
+        value: 7d
+
+  # =========================
+  # PAYMENT SERVICE
+  # =========================
+  - type: web
+    name: lounge-payment-service
+    env: docker
+    dockerfilePath: ./server/services/payment-service/Dockerfile
+    rootDir: ./server
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lounge-db
+          property: connectionString
+      - key: JWT_SECRET
+        value: supersecretjwtkey
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: STRIPE_CURRENCY
+        value: usd
+
+  # =========================
+  # NOTIFICATION SERVICE
+  # =========================
+  - type: web
+    name: lounge-notification-service
+    env: docker
+    dockerfilePath: ./server/services/notification-service/Dockerfile
+    rootDir: ./server
+    envVars:
+      - key: CLIENT_ORIGIN
+        value: https://your-client.onrender.com
+
+  # =========================
+  # DB MIGRATION (RUN ON DEPLOY)
+  # =========================
+  - type: job
+    name: lounge-db-migrate
+    env: docker
+    dockerfilePath: ./server/services/auth-service/Dockerfile
+    rootDir: ./server
+    plan: starter
+    command: npx prisma migrate deploy --schema=./prisma/schema.prisma
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lounge-db
+          property: connectionString
+
+  # =========================
+  # CLIENT
+  # =========================
+  - type: web
+    name: lounge-client
+    env: static
+    rootDir: ./client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_PROXY_TARGET
+        value: https://lounge-gateway.onrender.com

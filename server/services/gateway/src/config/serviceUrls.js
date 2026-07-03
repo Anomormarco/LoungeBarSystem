@@ -18,11 +18,27 @@ const isRender = Boolean(process.env.RENDER || process.env.RENDER_SERVICE_ID);
 const defaults = isRender ? renderDefaults : dockerDefaults;
 
 function serviceUrl(envValue, fallback, dockerHost) {
+  const value = envValue || fallback;
+
+  if (isRender && value) {
+    try {
+      const url = new URL(value);
+      const isDockerHost = url.hostname === dockerHost || url.hostname === `lounge-${dockerHost}`;
+      const isPublicRenderUrl = url.hostname.endsWith(".onrender.com");
+
+      if (isDockerHost && !isPublicRenderUrl) {
+        return fallback;
+      }
+    } catch (error) {
+      return fallback;
+    }
+  }
+
   if (isRender && envValue && envValue.includes(`//${dockerHost}:`)) {
     return fallback;
   }
 
-  return envValue || fallback;
+  return value;
 }
 
 module.exports = {

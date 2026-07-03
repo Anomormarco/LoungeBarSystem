@@ -30,15 +30,15 @@ services:
       - key: CLIENT_ORIGIN
         value: https://your-client.onrender.com
       - key: AUTH_SERVICE_URL
-        value: http://lounge-auth-service:3001
+        value: https://lounge-auth-service.onrender.com
       - key: LOUNGE_SERVICE_URL
-        value: http://lounge-lounge-service:3002
+        value: https://lounge-lounge-service.onrender.com
       - key: RESERVATION_SERVICE_URL
-        value: http://lounge-reservation-service:3003
+        value: https://lounge-reservation-service.onrender.com
       - key: PAYMENT_SERVICE_URL
-        value: http://lounge-payment-service:3004
+        value: https://lounge-payment-service.onrender.com
       - key: NOTIFICATION_SERVICE_URL
-        value: http://lounge-notification-service:3005
+        value: https://lounge-notification-service.onrender.com
 
   # =========================
   # AUTH SERVICE

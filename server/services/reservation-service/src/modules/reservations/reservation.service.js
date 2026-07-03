@@ -64,6 +64,21 @@ async function sendReservationOtp({ email, reservationId }) {
     throw httpError(400, "Захиалгын ID буруу байна.");
   }
 
+  if (parsedReservationId) {
+    const reservation = await prisma.reservation.findUnique({
+      where: { id: parsedReservationId },
+      select: { id: true, guestEmail: true },
+    });
+
+    if (!reservation) {
+      throw httpError(404, "Reservation not found.");
+    }
+
+    if (reservation.guestEmail && reservation.guestEmail.toLowerCase() !== normalizedEmail) {
+      throw httpError(400, "Reservation email does not match.");
+    }
+  }
+
   const code = generateOtp();
   const expiresAt = expiresInMinutes(5);
 

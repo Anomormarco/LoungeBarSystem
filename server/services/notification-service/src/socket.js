@@ -6,10 +6,31 @@ function organizationRoom(organizationId) {
   return `organization:${organizationId}`;
 }
 
+function allowedOrigins() {
+  const configured = String(process.env.CLIENT_ORIGIN || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  return new Set([
+    ...configured,
+    "https://lounge-bar-system.vercel.app",
+    "http://localhost:5173",
+  ]);
+}
+
+function corsOrigin(origin, callback) {
+  if (!origin || allowedOrigins().has(origin)) {
+    return callback(null, true);
+  }
+
+  return callback(new Error(`Socket origin not allowed: ${origin}`));
+}
+
 function initSocket(server) {
   io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_ORIGIN || "*",
+      origin: corsOrigin,
       methods: ["GET", "POST"],
     },
   });

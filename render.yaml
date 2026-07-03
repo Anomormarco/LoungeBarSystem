@@ -28,7 +28,7 @@ services:
     rootDir: ./server
     envVars:
       - key: CLIENT_ORIGIN
-        value: https://your-client.onrender.com
+        value: https://lounge-bar-system.vercel.app
       - key: AUTH_SERVICE_URL
         value: https://lounge-auth-service.onrender.com
       - key: LOUNGE_SERVICE_URL
@@ -134,7 +134,7 @@ services:
     rootDir: ./server
     envVars:
       - key: CLIENT_ORIGIN
-        value: https://your-client.onrender.com
+        value: https://lounge-bar-system.vercel.app
 
   # =========================
   # DB MIGRATION (RUN ON DEPLOY)

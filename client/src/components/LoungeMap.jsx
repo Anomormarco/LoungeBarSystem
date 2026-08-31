@@ -123,12 +123,10 @@ export default function LoungeMap({
         ) : mapStyle === 'light' ? (
           <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
         ) : (
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            subdomains="abcd"
-            maxZoom={20}
-            className="lounge-dark-map-tiles"
-          />
+          <>
+            <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}" />
+            <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}" />
+          </>
         )}
         <RecenterMap center={center} />
 
@@ -196,9 +194,6 @@ export default function LoungeMap({
       </div>
 
       <style>{`
-        .lounge-dark-map-tiles {
-          filter: brightness(1.22) contrast(1.15) saturate(1.08);
-        }
         .leaflet-control-attribution,
         .leaflet-control-zoom {
           display: none !important;

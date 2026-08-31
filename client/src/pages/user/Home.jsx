@@ -426,9 +426,7 @@ export default function Home() {
         : geoError?.code === 3
           ? 'Байршил татах хугацаа хэтэрлээ.'
           : 'Байршил татахад алдаа гарлаа.';
-      useDefaultLocation(`${reason} Browser settings дээр location зөвшөөрөөд дахин оролдоорой. Түр УБ төвөөр хайж байна.`, {
-        stopWatching: false,
-      });
+      useDefaultLocation(`${reason} Browser settings дээр location зөвшөөрөөд дахин оролдоорой. Түр УБ төвөөр хайж байна.`);
     };
 
     const finishWithLocation = (pos) => {
@@ -436,31 +434,15 @@ export default function Home() {
       applyBrowserLocation(pos);
     };
 
-    locationWatchRef.current = navigator.geolocation.watchPosition(
-      finishWithLocation,
-      (geoError) => {
-        if (locationRequestRef.current !== requestId) return;
-        const reason = geoError?.code === 1
-          ? 'Байршлын зөвшөөрөл олгоогүй.'
-          : geoError?.code === 3
-            ? 'GPS уншиж байна, түр хүлээгээрэй.'
-            : 'Байршил уншихад алдаа гарлаа.';
-        setLocationError(reason);
-      },
-      { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
-    );
-
-    navigator.geolocation.getCurrentPosition(
-      finishWithLocation,
-      () => {
-        navigator.geolocation.getCurrentPosition(
-          finishWithLocation,
-          finishWithFallback,
-          { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
-        );
-      },
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 30000 }
-    );
+    // Single fast fix: low accuracy (WiFi/IP, not GPS) resolves in ~1-2s and a
+    // 5-minute cache lets a page refresh reuse the last fix instantly instead
+    // of re-negotiating location every time. No chained high-accuracy retry —
+    // that was adding up to ~28s of extra waiting before falling back anyway.
+    navigator.geolocation.getCurrentPosition(finishWithLocation, finishWithFallback, {
+      enableHighAccuracy: false,
+      timeout: 6000,
+      maximumAge: 300000,
+    });
   };
 
   useEffect(() => {

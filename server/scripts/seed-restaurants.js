@@ -27,35 +27,32 @@ const interiorImages = [
 
 const restaurants = [
   ["Skyline Lounge", "Sukhbaatar Square west side", 47.9184, 106.9177],
-  ["Noir Social Club", "State Department Store area", 47.9162, 106.9097],
-  ["Velvet Room", "Peace Avenue central west", 47.9178, 106.9024],
-  ["Amber Terrace", "Tengis area, Chingeltei District", 47.9244, 106.9091],
-  ["Mellow Garden", "Tedy Center west side", 47.9189, 106.8992],
-  ["The Brass Bar", "Gandan, Bayangol District", 47.9219, 106.8957],
-  ["Aurora Lounge", "Modnii 2 area", 47.9167, 106.8908],
-  ["Nomad Table", "Khoroolol, Bayangol District", 47.9105, 106.8736],
-  ["Crown & Smoke", "Sansar, Bayanzurkh District", 47.9314, 106.9498],
-  ["Saffron Rooftop", "Zaisan, Khan-Uul District", 47.8846, 106.9164],
-  ["Luna Bistro", "3rd District, Bayangol District", 47.9146, 106.8849],
-  ["Echo Lounge", "13th Microdistrict, Bayanzurkh District", 47.9234, 106.9589],
-  ["Golden Hour", "Bars west corridor", 47.9132, 106.8798],
-  ["Urban Flame", "Ikh Mongol Street, Bayanzurkh District", 47.9107, 106.9698],
-  ["Opal Room", "Gemtel hospital area", 47.9092, 106.8618],
-  ["Mint Social", "Khoroolol north side", 47.9186, 106.8764],
-  ["Horizon Grill", "100 Ail, Sukhbaatar District", 47.9372, 106.9228],
-  ["Cedar Lounge", "National Garden Park east side", 47.9072, 106.9706],
-  ["Ivory Table", "Gemtel west side", 47.9048, 106.8589],
-  ["Copper House", "Naran Tuul east side", 47.9109, 106.9766],
-  ["Jade Garden", "3rd school area", 47.9356, 106.9048],
-  ["Monarch Lounge", "Peace Avenue west line", 47.9121, 106.8872],
-  ["Naran Terrace", "Shar Khad, Bayanzurkh District", 47.9416, 106.9834],
-  ["Pearl Bistro", "Gemtel south west road", 47.9006, 106.8548],
-  ["Aria Lounge", "Amgalan, Bayanzurkh District", 47.9139, 106.9985],
-  ["Tempo Kitchen", "Nisekh, Khan-Uul District", 47.8724, 106.7796],
-  ["Breeze Rooftop", "Songino Khairkhan west area", 47.9588, 106.7184],
-  ["Onyx Social", "Botanical Garden area, Bayanzurkh District", 47.8427, 107.0846],
-  ["Lotus Lounge", "Tolgoit west road", 48.0187, 106.7448],
-  ["Prime Table", "Eastern edge, Amgalan Road", 47.8658, 107.1489],
+  ["Noir Social Club", "State Department Store area", 47.9168, 106.9055],
+  ["Velvet Room", "Peace Avenue central west", 47.9212, 106.8948],
+  ["Amber Terrace", "Tengis area, Chingeltei District", 47.9264, 106.9068],
+  ["Mellow Garden", "Tedy Center west side", 47.9128, 106.8978],
+  ["The Brass Bar", "Gandan, Bayangol District", 47.9238, 106.8846],
+  ["Aurora Lounge", "Modnii 2 area", 47.9138, 106.8862],
+  ["Nomad Table", "Khoroolol, Bayangol District", 47.9064, 106.8768],
+  ["Crown & Smoke", "Sansar, Bayanzurkh District", 47.9298, 106.9412],
+  ["Saffron Rooftop", "Zaisan, Khan-Uul District", 47.8952, 106.9157],
+  ["Luna Bistro", "3rd District, Bayangol District", 47.9146, 106.8824],
+  ["Echo Lounge", "13th Microdistrict, Bayanzurkh District", 47.9226, 106.9544],
+  ["Golden Hour", "Bars west corridor", 47.9098, 106.8914],
+  ["Urban Flame", "Ikh Mongol Street, Bayanzurkh District", 47.9114, 106.9632],
+  ["Opal Room", "Gemtel hospital area", 47.9066, 106.8658],
+  ["Mint Social", "Khoroolol north side", 47.9189, 106.8754],
+  ["Horizon Grill", "100 Ail, Sukhbaatar District", 47.9356, 106.9198],
+  ["Cedar Lounge", "National Garden Park east side", 47.9048, 106.9664],
+  ["Ivory Table", "Gemtel west side", 47.9018, 106.8589],
+  ["Copper House", "Naran Tuul east side", 47.9096, 106.9742],
+  ["Jade Garden", "3rd school area", 47.9342, 106.9048],
+  ["Monarch Lounge", "Peace Avenue west line", 47.9116, 106.8872],
+  ["Naran Terrace", "Shar Khad, Bayanzurkh District", 47.9402, 106.9824],
+  ["Pearl Bistro", "Gemtel south west road", 47.8988, 106.8568],
+  ["Aria Lounge", "Amgalan, Bayanzurkh District", 47.9134, 106.9928],
+  ["Tempo Kitchen", "Nisekh, Khan-Uul District", 47.8916, 106.8738],
+  ["Breeze Rooftop", "Songino Khairkhan west area", 47.9424, 106.8584],
 ].map(([name, address, latitude, longitude], index) => ({
   name,
   address,
@@ -132,6 +129,14 @@ async function main() {
   if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is required");
   }
+
+  await prisma.organization.deleteMany({
+    where: {
+      name: {
+        in: ["Onyx Social", "Lotus Lounge", "Prime Table"],
+      },
+    },
+  });
 
   const password = await bcrypt.hash("Password123!", 10);
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { MapContainer, Marker, TileLayer, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
@@ -35,8 +35,8 @@ function createLoungeIcon(active) {
   return L.divIcon({
     className: 'lounge-map-marker',
     html: `<span class="lounge-pin ${active ? 'is-active' : ''}"><span></span></span>`,
-    iconSize: [44, 52],
-    iconAnchor: [22, 46],
+    iconSize: [34, 42],
+    iconAnchor: [17, 38],
     popupAnchor: [0, -36],
     tooltipAnchor: [0, -32],
   });
@@ -44,13 +44,13 @@ function createLoungeIcon(active) {
 
 export default function LoungeMap({
   location,
+  locationLabel,
   organizations,
   selectedOrgId,
   onOrganizationSelect,
   onOrganizationOpen,
 }) {
   const [mapStyle, setMapStyle] = useState('dark');
-  const lastTouchRef = useRef(0);
   const center = useMemo(() => {
     if (location?.lat && location?.lng) return [Number(location.lat), Number(location.lng)];
     return DEFAULT_CENTER;
@@ -89,16 +89,9 @@ export default function LoungeMap({
           if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
           const active = org.id === selectedOrgId;
-          const handleMarkerTarget = (event, source) => {
-            if (source === 'touch') {
-              lastTouchRef.current = Date.now();
-            } else if (Date.now() - lastTouchRef.current < 650) {
-              return;
-            }
-
-            if (event.originalEvent) {
-              L.DomEvent.stop(event.originalEvent);
-            }
+          const handleMarkerTarget = (event) => {
+            event.originalEvent?.stopPropagation?.();
+            event.originalEvent?.preventDefault?.();
             if (active) {
               onOrganizationOpen?.(org, { source: 'marker' });
               return;
@@ -111,10 +104,9 @@ export default function LoungeMap({
               key={org.id}
               position={[lat, lng]}
               icon={createLoungeIcon(active)}
-              bubblingMouseEvents={false}
               eventHandlers={{
-                click: (event) => handleMarkerTarget(event, 'click'),
-                touchend: (event) => handleMarkerTarget(event, 'touch'),
+                click: handleMarkerTarget,
+                touchend: handleMarkerTarget,
               }}
             >
               <Tooltip direction="top" offset={[0, -34]} opacity={1} className="lounge-name-tooltip">

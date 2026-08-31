@@ -72,10 +72,7 @@ export async function request(path, options = {}) {
 
 export const publicApi = {
   getNearbyOrganizations: (lat, lng, radius = 10, filters = {}) => {
-    const params = new URLSearchParams({ radius });
-
-    if (Number.isFinite(Number(lat))) params.set('lat', lat);
-    if (Number.isFinite(Number(lng))) params.set('lng', lng);
+    const params = new URLSearchParams({ lat, lng, radius });
 
     if (filters.q) params.set('q', filters.q);
     if (filters.tableType && filters.tableType !== 'all') params.set('tableType', filters.tableType);

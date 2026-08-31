@@ -464,7 +464,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    useDefaultLocation();
+    requestLocation();
     return () => {
       stopLocationWatch();
     };

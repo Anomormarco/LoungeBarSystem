@@ -77,117 +77,6 @@ const STATUS_CONFIG = {
   custom: { label: 'Тусгай', color: 'bg-lounge-accent/20 text-lounge-accent border-lounge-accent/30' },
 };
 
-const FALLBACK_RESTAURANTS = [
-  ['Skyline Lounge', 'Sukhbaatar Square west side', 47.9184, 106.9177],
-  ['Noir Social Club', 'State Department Store area', 47.9168, 106.9055],
-  ['Velvet Room', 'Peace Avenue central west', 47.9212, 106.8948],
-  ['Amber Terrace', 'Tengis area, Chingeltei District', 47.9264, 106.9068],
-  ['Mellow Garden', 'Tedy Center west side', 47.9128, 106.8978],
-  ['The Brass Bar', 'Gandan, Bayangol District', 47.9238, 106.8846],
-  ['Aurora Lounge', 'Modnii 2 area', 47.9138, 106.8862],
-  ['Nomad Table', 'Khoroolol, Bayangol District', 47.9064, 106.8768],
-  ['Crown & Smoke', 'Sansar, Bayanzurkh District', 47.9298, 106.9412],
-  ['Saffron Rooftop', 'Zaisan, Khan-Uul District', 47.8952, 106.9157],
-  ['Luna Bistro', '3rd District, Bayangol District', 47.9146, 106.8824],
-  ['Echo Lounge', '13th Microdistrict, Bayanzurkh District', 47.9226, 106.9544],
-  ['Golden Hour', 'Bars west corridor', 47.9098, 106.8914],
-  ['Urban Flame', 'Ikh Mongol Street, Bayanzurkh District', 47.9114, 106.9632],
-  ['Opal Room', 'Gemtel hospital area', 47.9066, 106.8658],
-  ['Mint Social', 'Khoroolol north side', 47.9189, 106.8754],
-  ['Horizon Grill', '100 Ail, Sukhbaatar District', 47.9356, 106.9198],
-  ['Cedar Lounge', 'National Garden Park east side', 47.9048, 106.9664],
-  ['Ivory Table', 'Gemtel west side', 47.9018, 106.8589],
-  ['Copper House', 'Naran Tuul east side', 47.9096, 106.9742],
-  ['Jade Garden', '3rd school area', 47.9342, 106.9048],
-  ['Monarch Lounge', 'Peace Avenue west line', 47.9116, 106.8872],
-  ['Naran Terrace', 'Shar Khad, Bayanzurkh District', 47.9402, 106.9824],
-  ['Pearl Bistro', 'Gemtel south west road', 47.8988, 106.8568],
-  ['Aria Lounge', 'Amgalan, Bayanzurkh District', 47.9134, 106.9928],
-  ['Tempo Kitchen', 'Nisekh, Khan-Uul District', 47.8916, 106.8738],
-  ['Breeze Rooftop', 'Songino Khairkhan west area', 47.9424, 106.8584],
-];
-
-const FALLBACK_MENU = [
-  { id: 'fallback-menu-coffee', category: 'Coffee', name: 'Signature Americano', description: 'Fresh espresso coffee', price: 8500, image: REFERENCE_IMAGES.featuredFood, isAvailable: true },
-  { id: 'fallback-menu-tea', category: 'Drink', name: 'Honey Ginger Tea', description: 'Honey and ginger hot tea', price: 7500, image: REFERENCE_IMAGES.lounges[0], isAvailable: true },
-  { id: 'fallback-menu-chicken', category: 'Food', name: 'Grilled Chicken Bowl', description: 'Chicken, rice and seasonal vegetables', price: 28500, image: REFERENCE_IMAGES.restaurants[0], isAvailable: true },
-  { id: 'fallback-menu-beef', category: 'Food', name: 'Beef Tenderloin', description: 'Tender beef with potato mash and house sauce', price: 52000, image: REFERENCE_IMAGES.restaurants[1], isAvailable: true },
-  { id: 'fallback-menu-dessert', category: 'Dessert', name: 'Chocolate Lava Cake', description: 'Warm chocolate dessert', price: 16500, image: REFERENCE_IMAGES.restaurants[2], isAvailable: true },
-  { id: 'fallback-menu-cocktail', category: 'Alcohol', name: 'House Cocktail', description: 'Signature lounge cocktail', price: 24500, image: REFERENCE_IMAGES.lounges[1], isAvailable: true },
-];
-
-function toRadians(value) {
-  return (Number(value) * Math.PI) / 180;
-}
-
-function getDistanceMeters(aLat, aLng, bLat, bLng) {
-  const earthRadius = 6371000;
-  const dLat = toRadians(bLat - aLat);
-  const dLng = toRadians(bLng - aLng);
-  const lat1 = toRadians(aLat);
-  const lat2 = toRadians(bLat);
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-  return earthRadius * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
-}
-
-function buildFallbackTables(organizationId) {
-  return Array.from({ length: 12 }, (_, index) => ({
-    id: `${organizationId}-table-${index + 1}`,
-    organizationId,
-    tableNumber: String(index + 1).padStart(2, '0'),
-    capacity: index % 4 === 0 ? 6 : index % 3 === 0 ? 4 : 2,
-    type: index % 5 === 0 ? 'vip' : 'normal',
-    status: index % 7 === 0 ? 'reserved' : 'available',
-  }));
-}
-
-function buildFallbackOrganizations(currentLocation, currentRadius, options = {}) {
-  const origin = currentLocation || DEFAULT_LOCATION;
-  const radiusMeters = Number(currentRadius || 9) * 1000;
-  const normalizedSearch = String(options.q || '').trim().toLowerCase();
-  const requestedTableType = options.tableType === 'vip' || options.tableType === 'normal' ? options.tableType : 'all';
-
-  return FALLBACK_RESTAURANTS.map(([name, address, latitude, longitude], index) => {
-    const id = `fallback-restaurant-${index + 1}`;
-    const tables = buildFallbackTables(id);
-    const distanceMeters = getDistanceMeters(Number(origin.lat), Number(origin.lng), latitude, longitude);
-    const availableTableCount = tables.filter((table) => table.status === 'available').length;
-    const vipTableCount = tables.filter((table) => table.type === 'vip').length;
-
-    return {
-      id,
-      name,
-      address,
-      latitude,
-      longitude,
-      lat: latitude,
-      lng: longitude,
-      description: `${name} offers nearby table reservations, VIP rooms, dinner service and a lounge atmosphere.`,
-      phone: `+976 77${String(100000 + index).slice(1)}`,
-      exteriorImages: [REFERENCE_IMAGES.lounges[index % REFERENCE_IMAGES.lounges.length], REFERENCE_IMAGES.restaurants[index % REFERENCE_IMAGES.restaurants.length]],
-      interiorImages: [REFERENCE_IMAGES.restaurants[(index + 1) % REFERENCE_IMAGES.restaurants.length], REFERENCE_IMAGES.lounges[(index + 1) % REFERENCE_IMAGES.lounges.length]],
-      openingTime: index % 3 === 0 ? '10:00' : '11:00',
-      closingTime: index % 4 === 0 ? '02:00' : '00:00',
-      subscriptionStatus: 'active',
-      isApproved: true,
-      distanceMeters,
-      tableCount: tables.length,
-      availableTableCount,
-      vipTableCount,
-      tables,
-      menuItems: FALLBACK_MENU.map((item) => ({ ...item, id: `${id}-${item.id}` })),
-      isFallback: true,
-    };
-  })
-    .filter((org) => org.distanceMeters <= radiusMeters)
-    .filter((org) => !normalizedSearch || `${org.name} ${org.address}`.toLowerCase().includes(normalizedSearch))
-    .filter((org) => requestedTableType === 'all' || org.tables.some((table) => table.type === requestedTableType))
-    .filter((org) => !options.availableOnly || org.availableTableCount > 0)
-    .sort(sortByDistance);
-}
-
 function getStatusLabel(table) {
   if (table.status === 'custom' && table.customStatusLabel) {
     return table.customStatusLabel;
@@ -594,14 +483,8 @@ export default function Home() {
           availableOnly,
         });
         setOrganizations(res.data || []);
-      } catch (_err) {
-        setOrganizations(buildFallbackOrganizations(location, radius, {
-          q: searchQuery,
-          tableType,
-          availableOnly,
-        }));
-        setError('');
-        return;
+      } catch (err) {
+        setError(err.message || 'Lounge жагсаалт ачаалахад алдаа гарлаа.');
       } finally {
         setLoading(false);
       }
@@ -632,18 +515,6 @@ export default function Home() {
     setSelectedOrgId(org.id);
     setDetailLoading(true);
     setSelectedDetail(null);
-
-    if (org.isFallback) {
-      setSelectedDetail({
-        ...org,
-        tables: org.tables || buildFallbackTables(org.id),
-        menuItems: org.menuItems || FALLBACK_MENU.map((item) => ({ ...item, id: `${org.id}-${item.id}` })),
-      });
-      setDetailLoading(false);
-      setError('');
-      return;
-    }
-
     try {
       const [orgRes, tablesRes, menuRes] = await Promise.all([
         publicApi.getOrganization(org.id),

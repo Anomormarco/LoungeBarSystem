@@ -127,6 +127,14 @@ body {
   transition: all 0.2s ease;
 }
 
+.lounge-map-marker {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
 .lounge-pin.is-active {
   background: #c9b38a;
   box-shadow: 0 0 16px rgba(201, 179, 138, 0.48), 0 0 6px rgba(230, 199, 127, 0.22);
@@ -177,7 +185,133 @@ body {
   transform: translateX(-50%) !important;
 }
 
+.reservation-modal-open {
+  overscroll-behavior: none;
+}
+
+body.reservation-modal-open #root {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.reservation-modal-open footer,
+body.reservation-modal-open nav.fixed {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none;
+}
+
+.reservation-modal-root {
+  position: fixed !important;
+  top: var(--reservation-modal-top, 0px) !important;
+  right: 0 !important;
+  bottom: auto !important;
+  left: 0 !important;
+  z-index: 2147483647 !important;
+  display: block !important;
+  height: var(--reservation-modal-height, 100dvh) !important;
+  overflow: hidden !important;
+  isolation: isolate;
+  overscroll-behavior: none;
+  transform: none !important;
+}
+
+.reservation-modal-panel,
+.reservation-modal-scroll {
+  touch-action: pan-y;
+}
+
 @media (max-width: 640px) {
+  .reservation-modal-panel {
+    position: fixed !important;
+    top: var(--reservation-modal-top, 0px) !important;
+    right: 0 !important;
+    bottom: auto !important;
+    left: 0 !important;
+    display: block !important;
+    height: var(--reservation-modal-height, 100dvh) !important;
+    max-height: var(--reservation-modal-height, 100dvh) !important;
+    overflow: hidden !important;
+    border-width: 0 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  .reservation-modal-header {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0;
+    left: 0;
+    height: 54px;
+    min-height: 54px;
+  }
+
+  .reservation-modal-header h2 {
+    font-size: 14px;
+    line-height: 1.1;
+  }
+
+  .reservation-modal-header p {
+    font-size: 10px;
+    line-height: 1.1;
+  }
+
+  .reservation-modal-scroll {
+    -webkit-overflow-scrolling: touch;
+    position: absolute !important;
+    top: 54px !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow-y: scroll !important;
+    overscroll-behavior: contain;
+    padding-top: 10px !important;
+    padding-right: 12px !important;
+    padding-left: 12px !important;
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)) !important;
+    touch-action: pan-y;
+  }
+
+  .reservation-booking-form {
+    gap: 10px !important;
+  }
+
+  .reservation-booking-form label {
+    margin-bottom: 4px !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+  }
+
+  .reservation-booking-form input {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    min-height: 34px;
+  }
+
+  .reservation-booking-form p {
+    margin-top: 4px !important;
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+  }
+
+  .lounge-map-marker {
+    width: 48px !important;
+    height: 56px !important;
+  }
+
+  .lounge-pin {
+    width: 28px;
+    height: 28px;
+  }
+
+  .lounge-pin span {
+    width: 10px;
+    height: 10px;
+  }
+
   .leaflet-tooltip.lounge-name-tooltip {
     max-width: min(180px, calc(100vw - 48px));
     overflow: hidden;

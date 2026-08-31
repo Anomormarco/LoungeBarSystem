@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { publicApi } from '../utils/api';
 import {
   X,
@@ -21,6 +22,48 @@ export default function ReservationModal({ organization, table, onClose, onSucce
   const [reservationId, setReservationId] = useState(null);
   const [otpCode, setOtpCode] = useState('');
   const [devOtpCode, setDevOtpCode] = useState('');
+
+  useEffect(() => {
+    const scrollY = window.scrollY;
+    const previousOverflow = document.body.style.overflow;
+    const previousPosition = document.body.style.position;
+    const previousTop = document.body.style.top;
+    const previousWidth = document.body.style.width;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const root = document.documentElement;
+
+    const syncViewport = () => {
+      const viewport = window.visualViewport;
+      root.style.setProperty('--reservation-modal-top', `${viewport?.offsetTop || 0}px`);
+      root.style.setProperty('--reservation-modal-height', `${viewport?.height || window.innerHeight}px`);
+    };
+
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    document.body.classList.add('reservation-modal-open');
+    syncViewport();
+    window.visualViewport?.addEventListener('resize', syncViewport);
+    window.visualViewport?.addEventListener('scroll', syncViewport);
+    window.addEventListener('resize', syncViewport);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', syncViewport);
+      window.visualViewport?.removeEventListener('scroll', syncViewport);
+      window.removeEventListener('resize', syncViewport);
+      root.style.removeProperty('--reservation-modal-top');
+      root.style.removeProperty('--reservation-modal-height');
+      document.body.classList.remove('reservation-modal-open');
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousOverflow;
+      document.body.style.position = previousPosition;
+      document.body.style.top = previousTop;
+      document.body.style.width = previousWidth;
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
 
   const formatDateInputValue = (date) => {
     const year = date.getFullYear();
@@ -116,12 +159,12 @@ export default function ReservationModal({ organization, table, onClose, onSucce
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={onClose} />
+  const modalContent = (
+    <div className="reservation-modal-root fixed inset-0 flex items-start justify-center p-0 sm:items-center sm:p-4">
+      <div className="absolute inset-0 z-0 bg-black/85 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-lounge-primary/30 bg-lounge-card shadow-[0_0_30px_rgba(249,115,22,0.25)] sm:max-w-lg sm:rounded-3xl">
-        <div className="sticky top-0 z-10 bg-lounge-card/95 border-b border-lounge-border/60 px-6 py-4 flex items-center justify-between">
+      <div className="reservation-modal-panel relative z-10 flex min-h-0 w-full flex-col overflow-hidden border border-lounge-primary/30 bg-lounge-card shadow-[0_0_30px_rgba(249,115,22,0.25)] sm:max-w-lg sm:rounded-3xl">
+        <div className="reservation-modal-header sticky top-0 z-10 bg-lounge-card/95 border-b border-lounge-border/60 px-4 py-2.5 flex items-center justify-between sm:px-6 sm:py-4">
           <div>
             <h2 className="font-extrabold text-lg text-white">Ширээ захиалах</h2>
             <p className="text-xs text-lounge-muted">
@@ -133,7 +176,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+        <div className="reservation-modal-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-6 sm:pb-6">
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
               {error}
@@ -148,8 +191,8 @@ export default function ReservationModal({ organization, table, onClose, onSucce
           )}
 
           {step === 1 && (
-            <form onSubmit={handleCreateReservation} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleCreateReservation} className="reservation-booking-form space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <label className="text-xs text-lounge-muted uppercase tracking-wider mb-1.5 flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5 text-lounge-accent" /> Огноо
@@ -271,7 +314,7 @@ export default function ReservationModal({ organization, table, onClose, onSucce
                 placeholder="000000"
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full px-4 py-4 bg-lounge-black border border-lounge-border rounded-xl text-center text-2xl font-mono tracking-[0.5em] focus:outline-none focus:border-lounge-accent focus:shadow-[0_0_12px_rgba(6,182,212,0.2)] transition-all"
+                className="w-full px-4 py-4 bg-lounge-black border border-lounge-border rounded-xl text-center text-2xl font-mono tracking-[0.22em] focus:outline-none focus:border-lounge-accent focus:shadow-[0_0_12px_rgba(6,182,212,0.2)] transition-all sm:tracking-[0.5em]"
                 required
               />
 
@@ -288,4 +331,6 @@ export default function ReservationModal({ organization, table, onClose, onSucce
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

@@ -107,7 +107,7 @@ export default function UserLayout({ children }) {
 
       <main className="relative z-10 pb-24 md:pb-0">{children}</main>
 
-      <footer className="relative z-10 mt-12 w-full border-t border-lounge-border pb-24 md:pb-0">
+      <footer className="relative z-10 mt-12 hidden w-full border-t border-lounge-border md:block md:pb-0">
         <div className="mx-auto w-full max-w-[1440px] px-4 py-8 text-center text-xs text-lounge-muted sm:px-6 lg:px-8">
           <p>&copy; {new Date().getFullYear()} Lounge Table Reservation Platform</p>
         </div>

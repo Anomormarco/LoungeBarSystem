@@ -1,23 +1,11 @@
-services:
-  # =========================
-  # DATABASE
-  # =========================
-  - type: pserv
-    name: lounge-db
-    env: docker
-    image: postgres:16-alpine
-    envVars:
-      - key: POSTGRES_USER
-        value: loungebar_user
-      - key: POSTGRES_PASSWORD
-        value: loungebar_password
-      - key: POSTGRES_DB
-        value: loungebar
-    disk:
-      name: db-data
-      mountPath: /var/lib/postgresql/data
-      sizeGB: 10
+databases:
+  - name: lounge-db
+    plan: free
+    postgresMajorVersion: "16"
+    databaseName: loungebar
+    user: loungebar_user
 
+services:
   # =========================
   # GATEWAY
   # =========================

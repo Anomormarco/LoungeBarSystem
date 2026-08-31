@@ -175,6 +175,8 @@ export const SocketProvider = ({ children }) => {
         time: new Date(),
         data: reservation,
       };
+
+
       setNotifications((prev) => [newNotif, ...prev]);
       setUnreadCount((prev) => prev + 1);
     });
@@ -191,6 +193,8 @@ export const SocketProvider = ({ children }) => {
       document.title = originalTitle;
       newSocket.emit('organization:leave', orgId);
       newSocket.disconnect();
+
+      
     };
   }, []);
 

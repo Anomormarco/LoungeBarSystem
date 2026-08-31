@@ -1,5 +1,5 @@
-const prisma = require("../utils/prisma");
 
+const prisma = require("../utils/prisma");
 function findNearby({ parsedLat, parsedLng, radiusMeters, search, requestedTableType, onlyAvailable }) {
   const likeEscape = "\\";
 

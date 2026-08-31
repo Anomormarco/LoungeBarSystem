@@ -5,12 +5,19 @@ import { Loader2, MapPin, Search, Star, UtensilsCrossed } from 'lucide-react';
 import { publicApi } from '../../utils/api';
 
 const UB_CENTER = { lat: 47.9184, lng: 106.9177 };
+const fallbackImage = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80';
 
 function coverImage(org) {
   const images = org.exteriorImages || org.exterior_images || org.interiorImages || org.interior_images || [];
   return Array.isArray(images) && images.length
     ? images[0]
-    : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80';
+    : fallbackImage;
+}
+
+function handleImageError(event) {
+  if (event.currentTarget.src !== fallbackImage) {
+    event.currentTarget.src = fallbackImage;
+  }
 }
 
 export default function RestaurantsLounges() {
@@ -90,6 +97,7 @@ export default function RestaurantsLounges() {
                   <img
                     src={coverImage(org)}
                     alt={org.name}
+                    onError={handleImageError}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <span className="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-black text-white backdrop-blur">

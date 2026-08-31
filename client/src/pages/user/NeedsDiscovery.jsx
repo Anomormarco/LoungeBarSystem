@@ -82,6 +82,12 @@ function coverImage(org) {
   return Array.isArray(images) && images.length ? images[0] : fallbackImage;
 }
 
+function handleImageError(event) {
+  if (event.currentTarget.src !== fallbackImage) {
+    event.currentTarget.src = fallbackImage;
+  }
+}
+
 function searchableText(org) {
   return [org.name, org.address, org.description].filter(Boolean).join(' ').toLowerCase();
 }
@@ -177,6 +183,7 @@ export default function NeedsDiscovery() {
                 <img
                   src={persona.image}
                   alt={persona.title}
+                  onError={handleImageError}
                   className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#15130f] via-[#15130f]/20 to-transparent" />
@@ -264,6 +271,7 @@ function LoungeCard({ org }) {
         <img
           src={coverImage(org)}
           alt={org.name}
+          onError={handleImageError}
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
         />
         <div className="absolute right-4 top-4 flex items-center gap-1 bg-[#15130f]/80 px-3 py-1 text-xs font-black text-lounge-accent backdrop-blur">

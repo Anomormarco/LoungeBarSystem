@@ -4,8 +4,6 @@ WORKDIR /usr/src/app
 
 COPY services/gateway/package*.json ./
 
-RUN npm config set strict-ssl false
-
 RUN npm install
 
 COPY services/gateway/src ./src

@@ -1,7 +1,4 @@
-require("./loadEnv");
-
 const { PrismaPg } = require("@prisma/adapter-pg");
-const { PrismaClient } = require("@prisma/client");
 
 function isLocalDatabase(connectionString) {
   try {
@@ -12,7 +9,7 @@ function isLocalDatabase(connectionString) {
   }
 }
 
-function createAdapter(connectionString) {
+function createPrismaPgAdapter(connectionString) {
   if (!connectionString) {
     throw new Error("DATABASE_URL is required");
   }
@@ -30,7 +27,4 @@ function createAdapter(connectionString) {
   return new PrismaPg(config);
 }
 
-const adapter = createAdapter(process.env.DATABASE_URL);
-const prisma = new PrismaClient({ adapter });
-
-module.exports = prisma;
+module.exports = { createPrismaPgAdapter };

@@ -1,8 +1,8 @@
 require("dotenv/config");
 
 const bcrypt = require("bcryptjs");
-const { PrismaPg } = require("@prisma/adapter-pg");
 const { PrismaClient } = require("@prisma/client");
+const { createPrismaPgAdapter } = require("./prismaAdapter");
 
 const OWNER_PASSWORD = "Password123!";
 
@@ -52,7 +52,7 @@ async function main() {
     throw new Error("DATABASE_URL is required");
   }
 
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+  const adapter = createPrismaPgAdapter(process.env.DATABASE_URL);
   const prisma = new PrismaClient({ adapter });
   const password = await bcrypt.hash(OWNER_PASSWORD, 10);
   let updated = 0;

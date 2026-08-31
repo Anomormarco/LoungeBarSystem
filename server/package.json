@@ -13,6 +13,7 @@
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "db:seed": "node scripts/seed-restaurants.js",
+    "db:restore:source": "powershell -ExecutionPolicy Bypass -File scripts/restore-from-source.ps1",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

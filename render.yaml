@@ -53,6 +53,12 @@ services:
         fromDatabase:
           name: lounge-db
           property: connectionString
+      - key: DATABASE_REQUIRE_SSL
+        value: "true"
+      - key: DATABASE_SSL_MODE
+        value: require
+      - key: DATABASE_SSL_REJECT_UNAUTHORIZED
+        value: "true"
       - key: JWT_SECRET
         value: supersecretjwtkey
       - key: JWT_EXPIRES_IN
@@ -75,6 +81,12 @@ services:
         fromDatabase:
           name: lounge-db
           property: connectionString
+      - key: DATABASE_REQUIRE_SSL
+        value: "true"
+      - key: DATABASE_SSL_MODE
+        value: require
+      - key: DATABASE_SSL_REJECT_UNAUTHORIZED
+        value: "true"
       - key: JWT_SECRET
         value: supersecretjwtkey
       - key: JWT_EXPIRES_IN
@@ -99,6 +111,12 @@ services:
         fromDatabase:
           name: lounge-db
           property: connectionString
+      - key: DATABASE_REQUIRE_SSL
+        value: "true"
+      - key: DATABASE_SSL_MODE
+        value: require
+      - key: DATABASE_SSL_REJECT_UNAUTHORIZED
+        value: "true"
       - key: JWT_SECRET
         value: supersecretjwtkey
       - key: JWT_EXPIRES_IN
@@ -117,6 +135,12 @@ services:
         fromDatabase:
           name: lounge-db
           property: connectionString
+      - key: DATABASE_REQUIRE_SSL
+        value: "true"
+      - key: DATABASE_SSL_MODE
+        value: require
+      - key: DATABASE_SSL_REJECT_UNAUTHORIZED
+        value: "true"
       - key: JWT_SECRET
         value: supersecretjwtkey
       - key: JWT_EXPIRES_IN
@@ -151,6 +175,12 @@ services:
         fromDatabase:
           name: lounge-db
           property: connectionString
+      - key: DATABASE_REQUIRE_SSL
+        value: "true"
+      - key: DATABASE_SSL_MODE
+        value: require
+      - key: DATABASE_SSL_REJECT_UNAUTHORIZED
+        value: "true"
 
   # =========================
   # CLIENT

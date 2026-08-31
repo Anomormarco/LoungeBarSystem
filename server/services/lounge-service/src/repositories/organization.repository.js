@@ -1,6 +1,8 @@
 const prisma = require("../utils/prisma");
 
 function findNearby({ parsedLat, parsedLng, radiusMeters, search, requestedTableType, onlyAvailable }) {
+  const likeEscape = "\\";
+
   return prisma.$read.$queryRaw`
     WITH nearby AS (
       SELECT
@@ -42,7 +44,7 @@ function findNearby({ parsedLat, parsedLng, radiusMeters, search, requestedTable
       WHERE
         o.is_approved = true
         AND o.subscription_status = 'active'
-        AND (${search}::text IS NULL OR o.name ILIKE ${search} OR o.address ILIKE ${search})
+        AND (${search}::text IS NULL OR o.name ILIKE ${search} ESCAPE ${likeEscape} OR o.address ILIKE ${search} ESCAPE ${likeEscape})
         AND (${requestedTableType}::"TableType" IS NULL OR EXISTS (
           SELECT 1 FROM tables ft
           WHERE ft.organization_id = o.id AND ft.type = ${requestedTableType}::"TableType"

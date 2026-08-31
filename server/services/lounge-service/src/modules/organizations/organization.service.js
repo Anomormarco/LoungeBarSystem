@@ -7,12 +7,17 @@ function toNumber(value) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function escapeLikePattern(value) {
+  return String(value).replace(/[\\%_]/g, "\\$&");
+}
+
 async function getNearbyOrganizations({ lat, lng, radius, q, tableType, availableOnly }) {
   const parsedLat = toNumber(lat);
   const parsedLng = toNumber(lng);
   const radiusKm = toNumber(radius) || 10;
   const radiusMeters = radiusKm * 1000;
-  const search = q ? `%${String(q).trim()}%` : null;
+  const searchText = String(q || "").trim();
+  const search = searchText ? `%${escapeLikePattern(searchText)}%` : null;
   const onlyAvailable = String(availableOnly) === "true";
   const requestedTableType = ["normal", "vip"].includes(tableType) ? tableType : null;
 

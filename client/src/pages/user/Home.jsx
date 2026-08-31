@@ -28,6 +28,8 @@ const DEFAULT_LOCATION = {
   label: 'Улаанбаатар төв',
 };
 
+const CITY_MARKER_RADIUS_KM = 18;
+
 const MAP_CENTER = {
   lat: 47.9135,
   lng: 106.895,
@@ -221,7 +223,7 @@ export default function Home() {
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [radius, setRadius] = useState(35);
+  const [radius, setRadius] = useState(CITY_MARKER_RADIUS_KM);
   const [searchQuery, setSearchQuery] = useState('');
   const [tableType, setTableType] = useState('all');
   const [availableOnly, setAvailableOnly] = useState(false);
@@ -246,7 +248,6 @@ export default function Home() {
     setLocationLabel(DEFAULT_LOCATION.label);
     setLocationError('');
     setLoadingLocation(false);
-    setRadius(35);
     setSearchQuery('');
     setTableType('all');
     setAvailableOnly(false);
@@ -459,7 +460,7 @@ export default function Home() {
       setLoading(true);
       setError('');
       try {
-        const res = await publicApi.getNearbyOrganizations(location.lat, location.lng, radius, {
+        const res = await publicApi.getNearbyOrganizations(DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng, CITY_MARKER_RADIUS_KM, {
           q: searchQuery,
           tableType,
           availableOnly,
@@ -473,7 +474,7 @@ export default function Home() {
     };
 
     fetchNearby();
-  }, [location, radius, searchQuery, tableType, availableOnly]);
+  }, [location, searchQuery, tableType, availableOnly]);
 
   const clearOrganizationPreview = () => {
     detailRequestRef.current += 1;
@@ -911,7 +912,7 @@ export default function Home() {
                 Шүүлтүүр
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3 [&>div:nth-child(2)]:hidden">
                 <div className="flex flex-col">
                   <label className="mb-1 block h-4 text-xs text-lounge-muted">
                     Нэр, хаяг

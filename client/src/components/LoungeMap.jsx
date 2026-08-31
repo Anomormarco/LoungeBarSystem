@@ -43,20 +43,33 @@ const FALLBACK_MARKERS = [
   isMapFallback: true,
 }));
 
-function RecenterMap({ center }) {
+function FitMapView({ center, markers }) {
   const map = useMap();
 
   useEffect(() => {
-    if (!center) return;
-    map.invalidateSize();
-    map.setView(center, Math.max(map.getZoom(), 14), { animate: true });
-    const timer = window.setTimeout(() => {
-      map.invalidateSize();
-      map.setView(center, Math.max(map.getZoom(), 14), { animate: true });
-    }, 250);
+    const points = [];
+    if (center) points.push(center);
+    markers.forEach((marker) => {
+      const lat = Number(marker.lat ?? marker.latitude);
+      const lng = Number(marker.lng ?? marker.longitude);
+      if (Number.isFinite(lat) && Number.isFinite(lng)) points.push([lat, lng]);
+    });
 
+    const applyFit = () => {
+      map.invalidateSize();
+      if (points.length === 0 && center) {
+        map.setView(center, 14, { animate: true });
+        return;
+      }
+      // Frame the user's location together with every marker so nothing
+      // sits outside the viewport, however far apart they are.
+      map.fitBounds(L.latLngBounds(points), { padding: [48, 48], maxZoom: 15, animate: true });
+    };
+
+    applyFit();
+    const timer = window.setTimeout(applyFit, 250);
     return () => window.clearTimeout(timer);
-  }, [center, map]);
+  }, [center, markers, map]);
 
   return null;
 }
@@ -137,7 +150,7 @@ export default function LoungeMap({
             />
           </>
         )}
-        <RecenterMap center={center} />
+        <FitMapView center={center} markers={visibleOrganizations} />
 
         {location?.lat && location?.lng && (
           <Marker position={[Number(location.lat), Number(location.lng)]} icon={userIcon} />

@@ -28,7 +28,7 @@ const DEFAULT_LOCATION = {
   label: 'Улаанбаатар төв',
 };
 
-const CITY_MARKER_RADIUS_KM = 18;
+const CITY_MARKER_RADIUS_KM = 20;
 
 const MAP_CENTER = {
   lat: 47.9135,

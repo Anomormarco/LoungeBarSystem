@@ -123,8 +123,9 @@ export default function LoungeMap({
           />
         ) : (
           <TileLayer
-            attribution="Tiles &copy; Esri"
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+            className="lounge-dark-map-tiles"
           />
         )}
         <RecenterMap center={center} />
@@ -168,10 +169,6 @@ export default function LoungeMap({
         })}
       </MapContainer>
 
-      {mapStyle === 'dark' && (
-        <div className="pointer-events-none absolute inset-0 z-10 bg-[#050504]/45 mix-blend-multiply" />
-      )}
-
       <div className="absolute bottom-5 left-5 z-20 rounded-xl border border-lounge-border bg-lounge-black/90 px-4 py-2 text-sm font-extrabold text-white shadow-xl shadow-black/40 backdrop-blur">
         {visibleOrganizations.length} lounges
       </div>
@@ -199,6 +196,12 @@ export default function LoungeMap({
           </button>
         ))}
       </div>
+
+      <style>{`
+        .lounge-dark-map-tiles {
+          filter: invert(1) hue-rotate(180deg) brightness(0.33) contrast(1.35) saturate(0.45);
+        }
+      `}</style>
     </div>
   );
 }

@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 
 COPY prisma ./prisma
 COPY prisma.config.ts ./prisma.config.ts
+COPY scripts ./scripts
 
 COPY services/auth-service/package*.json ./
 

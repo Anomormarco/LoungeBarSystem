@@ -169,7 +169,7 @@ services:
     dockerfilePath: ./server/services/auth-service/Dockerfile
     rootDir: ./server
     plan: starter
-    command: npx prisma migrate deploy --schema=./prisma/schema.prisma
+    command: node scripts/apply-migrations-with-pg.js
     envVars:
       - key: DATABASE_URL
         fromDatabase:

@@ -29,17 +29,29 @@ try {
 
   Write-Host "Generating Prisma client..."
   npx prisma generate --schema=./prisma/schema.prisma
+  if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+  }
 
   Write-Host "Applying database migrations..."
-  npx prisma migrate deploy --schema=./prisma/schema.prisma
+  node scripts/apply-migrations-with-pg.js
+  if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+  }
 
   if (-not $SkipSeed) {
     Write-Host "Seeding restaurants, tables, menu items, owners, and admin..."
     node scripts/seed-restaurants.js
+    if ($LASTEXITCODE -ne 0) {
+      exit $LASTEXITCODE
+    }
 
     if ($IncludeGateSeed) {
       Write-Host "Seeding Gate lounges..."
       node scripts/seed-gate2.js
+      if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+      }
     }
   }
 

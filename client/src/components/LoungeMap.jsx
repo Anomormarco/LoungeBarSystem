@@ -123,9 +123,10 @@ export default function LoungeMap({
           />
         ) : (
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-            className="lounge-dark-map-tiles"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            subdomains="abcd"
+            maxZoom={20}
           />
         )}
         <RecenterMap center={center} />
@@ -196,12 +197,6 @@ export default function LoungeMap({
           </button>
         ))}
       </div>
-
-      <style>{`
-        .lounge-dark-map-tiles {
-          filter: invert(1) hue-rotate(180deg) brightness(0.33) contrast(1.35) saturate(0.45);
-        }
-      `}</style>
     </div>
   );
 }

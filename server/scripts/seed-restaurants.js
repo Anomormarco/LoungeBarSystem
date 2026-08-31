@@ -133,7 +133,7 @@ async function main() {
   await prisma.organization.deleteMany({
     where: {
       name: {
-        in: ["Onyx Social", "Lotus Lounge", "Prime Table"],
+        in: ["Onyx Social", "Lotus Lounge", "Prime Table", "Gate1", "Gate2"],
       },
     },
   });

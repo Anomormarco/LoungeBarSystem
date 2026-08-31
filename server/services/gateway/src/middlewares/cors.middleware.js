@@ -11,6 +11,17 @@ function isAllowedDevOrigin(origin) {
   }
 }
 
+function isAllowedVercelOrigin(origin) {
+  if (!origin) return false;
+
+  try {
+    const url = new URL(origin);
+    return url.protocol === "https:" && url.hostname.endsWith(".vercel.app");
+  } catch (_error) {
+    return false;
+  }
+}
+
 function corsMiddleware(req, res, next) {
   const allowedOrigins = new Set([
     clientOrigin,
@@ -20,7 +31,7 @@ function corsMiddleware(req, res, next) {
   ]);
   const origin = req.headers.origin;
 
-  if (origin && (allowedOrigins.has(origin) || isAllowedDevOrigin(origin))) {
+  if (origin && (allowedOrigins.has(origin) || isAllowedDevOrigin(origin) || isAllowedVercelOrigin(origin))) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
 

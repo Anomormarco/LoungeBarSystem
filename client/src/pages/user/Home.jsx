@@ -566,50 +566,44 @@ export default function Home() {
         <div className="mx-auto w-full max-w-[1440px] overflow-hidden px-4 sm:px-6 lg:px-8">
           <div className="space-y-16">
             <div className="grid gap-6 lg:grid-cols-12 lg:items-stretch">
-              <div className="flex min-h-[330px] flex-col justify-between gap-6 sm:min-h-[430px] lg:col-span-4">
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    onClick={requestLocation}
-                    className="rounded-lg bg-lounge-primary px-5 py-3 text-sm font-extrabold text-white shadow-[0_0_16px_rgba(255,168,0,0.24)] transition-all duration-300 hover:bg-lounge-accent"
-                  >
-                    Байршил ашиглах
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => useDefaultLocation()}
-                    className="rounded-lg border border-lounge-border bg-lounge-black px-5 py-3 text-sm font-extrabold text-lounge-muted transition-all duration-300 hover:border-lounge-accent hover:text-white"
-                  >
-                    Байршил оруулах
-                  </button>
+              <div className="hidden">
+                <div className="p-2 rounded-lg bg-lounge-accent/10 text-lounge-accent shadow-[0_0_10px_rgba(255,168,0,0.15)]">
+                  <Navigation className="w-5 h-5" />
                 </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Таны байршил</p>
+                  {loadingLocation ? (
+                    <p className="text-xs text-lounge-muted flex items-center gap-2 mt-1">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" /> Байршил татаж байна...
+                    </p>
+                  ) : location ? (
+                    <div className="mt-1 space-y-1">
+                      <p className="text-xs text-lounge-accent font-bold">
+                        {locationLabel || 'Сонгосон байршил'}
+                      </p>
+                      <p className="text-xs text-lounge-muted">
+                        {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-lounge-danger mt-1">{locationError}</p>
+                  )}
+                </div>
+              </div>
 
-                <div className="rounded-2xl border border-lounge-border bg-lounge-card/80 p-5 shadow-[0_0_30px_rgba(0,0,0,0.22)]">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-lounge-primary/15 text-lounge-accent shadow-[0_0_18px_rgba(255,168,0,0.18)]">
-                      <Navigation className="h-6 w-6" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-extrabold text-white">Таны байршил</p>
-                      {loadingLocation ? (
-                        <p className="mt-1 flex items-center gap-2 text-xs text-lounge-muted">
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Байршил татаж байна...
-                        </p>
-                      ) : location ? (
-                        <div className="mt-1 space-y-1">
-                          <p className="text-sm font-extrabold text-lounge-accent">
-                            {locationLabel || 'Сонгосон байршил'}
-                          </p>
-                          <p className="text-sm text-lounge-muted">
-                            {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="mt-1 text-xs text-lounge-danger">{locationError}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
+              <div className="hidden">
+                <button
+                  onClick={requestLocation}
+                  className="rounded-lg bg-lounge-primary px-4 py-2.5 text-xs font-extrabold text-white shadow-[0_0_12px_rgba(255,168,0,0.25)] transition-all duration-300 hover:bg-lounge-accent"
+                >
+                  Байршил ашиглах
+                </button>
+                <button
+                  onClick={() => useDefaultLocation()}
+                  className="rounded-lg border border-lounge-border bg-lounge-black px-4 py-2.5 text-xs font-extrabold text-lounge-muted transition-all duration-300 hover:border-lounge-accent hover:text-white"
+                >
+                  Байршил оруулах
+                </button>
               </div>
 
             <div

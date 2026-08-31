@@ -4,36 +4,36 @@ import L from 'leaflet';
 
 const DEFAULT_CENTER = [47.9184, 106.9177];
 
-// Kept in sync with server/scripts/seed-restaurants.js - clustered across
-// restaurant-heavy Ulaanbaatar areas without forming a radius ring.
+// Kept in sync with server/scripts/seed-restaurants.js - organic scatter
+// (not a ring) stretched further toward the city's north and south edges.
 const FALLBACK_MARKERS = [
-  ['Skyline Lounge', 47.9151, 106.9114],
-  ['Noir Social Club', 47.9202, 106.9078],
-  ['Velvet Room', 47.9127, 106.9249],
-  ['Amber Terrace', 47.9189, 106.9316],
-  ['Mellow Garden', 47.9078, 106.9186],
-  ['The Brass Bar', 47.9246, 106.9189],
-  ['Aurora Lounge', 47.9182, 106.8876],
-  ['Nomad Table', 47.9106, 106.8798],
-  ['Crown & Smoke', 47.8954, 106.9025],
-  ['Saffron Rooftop', 47.8843, 106.9156],
-  ['Luna Bistro', 47.889, 106.9445],
-  ['Echo Lounge', 47.894, 106.879],
-  ['Golden Hour', 47.9032, 106.8478],
-  ['Urban Flame', 47.9288, 106.8587],
-  ['Opal Room', 47.9406, 106.8849],
-  ['Mint Social', 47.9135, 106.805],
-  ['Horizon Grill', 47.9492, 106.8217],
-  ['Cedar Lounge', 47.9665, 106.93],
-  ['Ivory Table', 47.9814, 106.9568],
-  ['Copper House', 47.9962, 106.9385],
-  ['Jade Garden', 47.9255, 106.947],
-  ['Monarch Lounge', 47.913, 106.9482],
-  ['Naran Terrace', 47.909, 106.988],
-  ['Pearl Bistro', 47.9178, 107.018],
-  ['Aria Lounge', 47.8836, 106.985],
-  ['Tempo Kitchen', 47.894, 106.879],
-  ['Breeze Rooftop', 47.948, 106.965],
+  ['Skyline Lounge', 47.7693, 106.8131],
+  ['Noir Social Club', 47.9732, 106.8225],
+  ['Velvet Room', 47.8897, 107.0182],
+  ['Amber Terrace', 47.8402, 107.029],
+  ['Mellow Garden', 47.966, 106.8976],
+  ['The Brass Bar', 47.9498, 106.8024],
+  ['Aurora Lounge', 47.7639, 106.9257],
+  ['Nomad Table', 47.8025, 106.9807],
+  ['Crown & Smoke', 48.0073, 106.9324],
+  ['Saffron Rooftop', 47.8196, 106.9767],
+  ['Luna Bistro', 48.0765, 106.8346],
+  ['Echo Lounge', 47.851, 106.9123],
+  ['Golden Hour', 47.7765, 106.9593],
+  ['Urban Flame', 47.9364, 106.8654],
+  ['Opal Room', 47.8735, 106.9861],
+  ['Mint Social', 47.789, 106.9526],
+  ['Horizon Grill', 47.9921, 107.0035],
+  ['Cedar Lounge', 48.0514, 106.8426],
+  ['Ivory Table', 47.9849, 106.9016],
+  ['Copper House', 48.0361, 106.8467],
+  ['Jade Garden', 48.0298, 106.9418],
+  ['Monarch Lounge', 47.8304, 106.8641],
+  ['Naran Terrace', 48.0226, 106.9566],
+  ['Pearl Bistro', 48.0612, 107.0102],
+  ['Aria Lounge', 48.0666, 106.8721],
+  ['Tempo Kitchen', 47.8609, 106.8896],
+  ['Breeze Rooftop', 47.895, 106.9954],
 ].map(([name, lat, lng], index) => ({
   id: `map-fallback-${index + 1}`,
   name,
@@ -46,10 +46,7 @@ function FitMapView({ center, markers }) {
   const map = useMap();
 
   useEffect(() => {
-    const points = [
-      ...(center ? [center] : []),
-      ...markers.map((marker) => [marker.lat, marker.lng]),
-    ];
+    const points = markers.map((marker) => [marker.lat, marker.lng]);
 
     const applyFit = () => {
       map.invalidateSize();
@@ -57,8 +54,8 @@ function FitMapView({ center, markers }) {
         map.setView(center, 14, { animate: true });
         return;
       }
-      // Frame the user's location together with every marker so nothing
-      // sits outside the viewport, however far apart they are.
+      // Frame the restaurants only; the user dot should not make the
+      // distribution look like a radius around their position.
       map.fitBounds(L.latLngBounds(points), { padding: [48, 48], maxZoom: 15, animate: true });
     };
 

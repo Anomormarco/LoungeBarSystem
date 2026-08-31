@@ -131,8 +131,18 @@ body {
   display: flex !important;
   align-items: center;
   justify-content: center;
+  overflow: visible !important;
   pointer-events: auto;
   touch-action: manipulation;
+}
+
+.leaflet-marker-pane {
+  z-index: 700 !important;
+}
+
+.leaflet-marker-icon.lounge-map-marker {
+  border: 0 !important;
+  background: transparent !important;
 }
 
 .lounge-pin.is-active {

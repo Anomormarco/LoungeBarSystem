@@ -47,13 +47,10 @@ function FitMapView({ center, markers }) {
   const map = useMap();
 
   useEffect(() => {
-    const points = [];
-    if (center) points.push(center);
-    markers.forEach((marker) => {
-      const lat = Number(marker.lat ?? marker.latitude);
-      const lng = Number(marker.lng ?? marker.longitude);
-      if (Number.isFinite(lat) && Number.isFinite(lng)) points.push([lat, lng]);
-    });
+    const points = [
+      ...(center ? [center] : []),
+      ...markers.map((marker) => [marker.lat, marker.lng]),
+    ];
 
     const applyFit = () => {
       map.invalidateSize();
@@ -122,7 +119,18 @@ export default function LoungeMap({
   }, [location]);
 
   const userIcon = useMemo(() => createUserIcon(), []);
-  const visibleOrganizations = organizations.length > 0 ? organizations : FALLBACK_MARKERS;
+  const visibleOrganizations = useMemo(() => {
+    const source = organizations.length > 0 ? organizations : FALLBACK_MARKERS;
+
+    return source
+      .map((org) => {
+        const lat = Number(org.lat ?? org.latitude);
+        const lng = Number(org.lng ?? org.longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+        return { ...org, lat, lng };
+      })
+      .filter(Boolean);
+  }, [organizations]);
 
   return (
     <div className="relative h-full w-full">
@@ -157,10 +165,6 @@ export default function LoungeMap({
         )}
 
         {visibleOrganizations.map((org) => {
-          const lat = Number(org.lat ?? org.latitude);
-          const lng = Number(org.lng ?? org.longitude);
-          if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-
           const active = org.id === selectedOrgId;
           const handleMarkerTarget = (event) => {
             event.originalEvent?.stopPropagation?.();
@@ -176,8 +180,10 @@ export default function LoungeMap({
           return (
             <Marker
               key={org.id}
-              position={[lat, lng]}
+              position={[org.lat, org.lng]}
               icon={createLoungeIcon(active)}
+              pane="markerPane"
+              zIndexOffset={active ? 1200 : 900}
               eventHandlers={{
                 click: handleMarkerTarget,
                 touchend: handleMarkerTarget,

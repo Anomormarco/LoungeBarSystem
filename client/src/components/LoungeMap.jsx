@@ -60,7 +60,7 @@ export default function LoungeMap({
 
   return (
     <div className="relative h-full w-full">
-      <MapContainer center={center} zoom={14} scrollWheelZoom className="h-full w-full">
+      <MapContainer center={center} zoom={14} zoomControl={false} scrollWheelZoom className="h-full w-full">
         {mapStyle === 'satellite' ? (
           <TileLayer
             attribution="Tiles &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"

@@ -14,6 +14,7 @@
     "db:studio": "prisma studio",
     "db:migrate:sql": "node scripts/apply-migrations-with-pg.js",
     "db:seed": "node scripts/seed-restaurants.js",
+    "db:update-locations": "node scripts/update-restaurant-locations.js",
     "db:restore:source": "powershell -ExecutionPolicy Bypass -File scripts/restore-from-source.ps1",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

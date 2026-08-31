@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, Marker, TileLayer, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
@@ -35,8 +35,8 @@ function createLoungeIcon(active) {
   return L.divIcon({
     className: 'lounge-map-marker',
     html: `<span class="lounge-pin ${active ? 'is-active' : ''}"><span></span></span>`,
-    iconSize: [34, 42],
-    iconAnchor: [17, 38],
+    iconSize: [44, 52],
+    iconAnchor: [22, 46],
     popupAnchor: [0, -36],
     tooltipAnchor: [0, -32],
   });
@@ -44,13 +44,13 @@ function createLoungeIcon(active) {
 
 export default function LoungeMap({
   location,
-  locationLabel,
   organizations,
   selectedOrgId,
   onOrganizationSelect,
   onOrganizationOpen,
 }) {
   const [mapStyle, setMapStyle] = useState('dark');
+  const lastTouchRef = useRef(0);
   const center = useMemo(() => {
     if (location?.lat && location?.lng) return [Number(location.lat), Number(location.lng)];
     return DEFAULT_CENTER;
@@ -68,13 +68,13 @@ export default function LoungeMap({
           />
         ) : mapStyle === 'light' ? (
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
         ) : (
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
         )}
         <RecenterMap center={center} />
@@ -89,9 +89,16 @@ export default function LoungeMap({
           if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
           const active = org.id === selectedOrgId;
-          const handleMarkerTarget = (event) => {
-            event.originalEvent?.stopPropagation?.();
-            event.originalEvent?.preventDefault?.();
+          const handleMarkerTarget = (event, source) => {
+            if (source === 'touch') {
+              lastTouchRef.current = Date.now();
+            } else if (Date.now() - lastTouchRef.current < 650) {
+              return;
+            }
+
+            if (event.originalEvent) {
+              L.DomEvent.stop(event.originalEvent);
+            }
             if (active) {
               onOrganizationOpen?.(org, { source: 'marker' });
               return;
@@ -104,9 +111,10 @@ export default function LoungeMap({
               key={org.id}
               position={[lat, lng]}
               icon={createLoungeIcon(active)}
+              bubblingMouseEvents={false}
               eventHandlers={{
-                click: handleMarkerTarget,
-                touchend: handleMarkerTarget,
+                click: (event) => handleMarkerTarget(event, 'click'),
+                touchend: (event) => handleMarkerTarget(event, 'touch'),
               }}
             >
               <Tooltip direction="top" offset={[0, -34]} opacity={1} className="lounge-name-tooltip">

@@ -41,23 +41,24 @@ const UB_MAP_BOUNDS = {
 };
 
 const MAP_INFO_DISMISSED_KEY = 'ubtable-map-info-dismissed';
+const FALLBACK_COVER_IMAGE = 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=1200&q=85';
 
 const REFERENCE_IMAGES = {
   featuredFood:
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuDi5-8CFDWKfA415UMk9NGPz24Ea8oJBxwm1se3vvbkzFNP13TVpfC3CliM9Vm5dMCtjQmWjQZVMyyeQR_dOC3I4OwZD7L_WMLlp3Rjhy1jbPj2cnrkvedPeyFhXrAvgCF1xzTb6anetWXMTELqwUHoU8Wg9DyqKIZMQHkpd2OaGKAepoN3_ifzHlUev81uaP7dTU3g0K2gTCdGEXrUTphPRrCMU5cBbj8R2FJybDPMP9iiVggB7ic-S7kg4V5jlfnVIzKitvxVPzb4',
+    'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1400&q=85',
   lounges: [
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuD_FoYr5v0tzmIw_npK3m7zSnomQJAB0a8uqDXKIiWsf0eWv7wQERjD48_AVDRHxNK7cFqTxDjZuE-uB5i4RXmTyzz9SsjPnU8BN16UcG3pV9bOdFska0vrVDBJ2etcOYNfBq3Dv6B2n_eYHGO5NYfGB_Vm2uP0hbPrPAk5jZG9jHmJzEQI0Z17jWMeHPb_-yHF8C2OoFJNRQedIwa8qCm0Uw5nPHNDo4MIkdgoYJMZLS8v7CTlZ5cTIKk2KSsWa0FLHwUii63Xn0BJ',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuCBY6nw8gko5ByfFhmjUKiuueyAAHmqlKSD-r11iZ-nrnxeJUQ5WdZK-xJUiqiI6zeoNO8JktNXpDfAN2yx-QrJVZ2Lxiv9j5uXwvmRWWTm_qNjYUTnMHyqa3IPgmh5xmc_PvQjY7ED5VLicaxCXNUXbzIxfwSA6tP9hDOrf0GBsi0_lq48VJT0lMcScosPcabmdw-2MJHtghsxpesieTeDCgx7CUfmvFr9-wunbW6-V3wQZ1nsX6Tj8RCODsl7Lae2eDFugnAS1-cR',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuBxiBjgEzrePl1n0vJ4Xm1AFL-X5WGJ212M3db_YwI5EpV9ZS-LrQyOKgYVDn553BeL4qh55au17k_IQ37G-MkTNMry8JYSdBfeAmVGZPdKN_uOMsAZJeTt9xjJ0gYhjgyIDHmWnd5oyWx9kjcCvJi_Z1LOJxxW1LqoZrRlCQ7SBN_CtJG4x_I11f7g6Iwm4_nu_6uPgpn6JOgv53IPkfFwv_8uu2vXk-9crtyW-iQJOtZO69b-ovyf0OSNNnoxWDWCBheTi0V1bTyd',
+    'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=1200&q=85',
+    'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=1200&q=85',
+    'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=1200&q=85',
   ],
   restaurants: [
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuBNZ7fYcAqRrmZBb4yrvpHWCdtLv5w6EQCl9__Jjws8Q8wExyFLG2xtnLJbGFq-1HzRGKhC7vOa-GiD0dsTgpHBCf2_CITeOKNd9Yknu9Td5lEmBoO1mijeLrrtFkQgZBDTOnd9I7X0a6Pp01R7pHxUu8KMURtMXQuW0xmzIH_oZnOUDYN7Jx9MCnlGnll7cSdPNKY6K7gmQz3ZY8O-q9lrmOysvjY5q-T7E_qfO4AhTo3ULxYXwZXKe85K_iQU8zffJBeWsMlRv9tp',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuB723HqnGSDKXqiuLqYq5G0qH3EuqYNgo6KisjY0K7qlgea9nXNfr6L0HsMQZVwVW0J3RWNy95K9DBDbxSiKISyOOryKyB67jYwQX2Khp3YgDlAFtKMIOvIx1mHpEeWlZ7Ri87OteKcj5v09aUD4vwZTilXZarVZumA34_s4YgTtZopNW_7SDrNCKeRtsAj1PND3OkPaE0nqai7CQnmLOjHrOU2OItcrkiS4GykfEPDldE5mCErlThq1eHus66_kQLAm7EHhLd19Nd3',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuDsPN43z9hfHYTfJwssyhr5-4aznoddQfybbjTjUKvFfhzYmq5CkT8N9gprb1_c4yLlONoevEYLv_uPbnG8zzftAWInQhMGthvK8v1F9Qgq2xMNVaWs4dGCugVoLS0kTtsm0cBwRUOBNkz4AOdhNsELrtxR9yFr1Ls2k7eSC-Fp7EMOdrfT20CSqUN3Vioxm8vA-egeYkOKRdJv6shHmgdRZAIdyC05Ax_w-vKzUTr1DpIO-AynywSKX3R-whD_jmjqe830Fdd37PRf',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuAQ9m5ijF7FxMtfmaHAzxlGy9fFSbG34yzbRyZVYW8_HHE04Q7mjydI18Zm9IcOXTVEIIx043Qe1hNkmNajYARnnzWlCalekcz6-g9gdMzWqZREEjtZ8FcdUoEOUcMT916ro43rlfFOjXPR1beLLWcy9K8TSiCLudV8S6F7-1u2VyAtsCe6OPa78mkRDxj6CyApyiATVuvgQLgGJuN75c8PHewbhuMsEoJvH2LzD_b0V9_Zdh5PmJjJlJdquQfAsLiKSJpvCH4rWE-1',
+    'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=85',
+    'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=1200&q=85',
+    'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=1200&q=85',
+    'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=85',
   ],
   invitation:
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuAPanQuvEZbF7CjXY4tzP8mYQ0JDvgFTxjQM7Iu3RA8NqgZZ0FXxNfbkPSiC0iVd2I32dDE1aCf4U2t1tbPacEF3-zmx08QmaIHDkwdyQkJHLhde4kf9Eth4OblYL09WrhdMyFTugE0PCI_trhNDY_WwpGK5fhUYxzq1oi47RFdkOV_6CrhjgehfE_vLZ4msOOHeveWzRO1s93xHQpcpKQ5Gw0cI69-nva6LMPrny7cheK952vTnNmKYWET1oujvx2kGNvWMGYHKq9-',
+    'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1400&q=85',
 };
 
 const STATUS_LABELS = {
@@ -102,7 +103,24 @@ function formatPrice(value) {
 function getCoverImage(org) {
   const images = org?.exteriorImages || org?.exterior_images;
   if (Array.isArray(images) && images.length > 0) return images[0];
-  return 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=900&q=80';
+  return FALLBACK_COVER_IMAGE;
+}
+
+function fallbackImage(index = 0) {
+  const images = [
+    FALLBACK_COVER_IMAGE,
+    ...REFERENCE_IMAGES.lounges,
+    ...REFERENCE_IMAGES.restaurants,
+    REFERENCE_IMAGES.featuredFood,
+  ];
+  return images[Math.abs(index) % images.length];
+}
+
+function handleImageError(event, index = 0) {
+  const nextSrc = fallbackImage(index);
+  if (event.currentTarget.src !== nextSrc) {
+    event.currentTarget.src = nextSrc;
+  }
 }
 
 function getRatingData(org) {
@@ -446,7 +464,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    requestLocation();
+    useDefaultLocation();
     return () => {
       stopLocationWatch();
     };
@@ -648,6 +666,7 @@ export default function Home() {
                     <img
                       src={getCoverImage(selectedDetail || selectedSummary)}
                       alt={selectedSummary.name}
+                      onError={(event) => handleImageError(event)}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-lounge-black/95 to-transparent" />
@@ -732,6 +751,7 @@ export default function Home() {
                                 key={image + index}
                                 src={image}
                                 alt=""
+                                onError={(event) => handleImageError(event, index)}
                                 className="h-14 w-full object-cover rounded-lg border border-lounge-border"
                               />
                             ))}
@@ -796,6 +816,7 @@ export default function Home() {
                     <img
                       src={getCoverImage(featuredOrg)}
                       alt={featuredOrg.name}
+                      onError={(event) => handleImageError(event)}
                       className="absolute inset-0 h-full w-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#15130f] via-[#15130f]/70 to-[#15130f]/10" />
@@ -851,6 +872,7 @@ export default function Home() {
                 <img
                   src={featuredOrg ? getCoverImage(featuredOrg) : REFERENCE_IMAGES.featuredFood}
                   alt={featuredOrg?.name || 'Featured lounge'}
+                  onError={(event) => handleImageError(event)}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#15130f]/95 via-[#15130f]/35 to-transparent" />
@@ -1001,6 +1023,7 @@ export default function Home() {
                       <img
                         src={item.image}
                         alt=""
+                        onError={(event) => handleImageError(event)}
                         className="absolute inset-0 h-full w-full object-cover opacity-55 transition-transform duration-500 group-hover:scale-105 md:hidden"
                       />
                       <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent md:hidden" />
@@ -1022,6 +1045,7 @@ export default function Home() {
                       <img
                         src={getCoverImage(org)}
                         alt={org.name}
+                        onError={(event) => handleImageError(event, org.id)}
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute right-3 top-3 rounded-full bg-[#373430]/80 px-2.5 py-0.5 text-xs font-bold text-[#e8e1db] backdrop-blur-md">
@@ -1100,6 +1124,7 @@ export default function Home() {
                       <img
                         src={org.image}
                         alt={org.name}
+                        onError={(event) => handleImageError(event, index)}
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute right-3 top-3 rounded-full bg-[#373430]/80 px-2.5 py-0.5 text-xs font-bold text-[#e8e1db] backdrop-blur-md">
@@ -1155,6 +1180,7 @@ export default function Home() {
                         <img
                           src={getCoverImage(org)}
                           alt={org.name}
+                          onError={(event) => handleImageError(event, org.id)}
                           className="absolute inset-0 h-full w-full object-cover"
                         />
                         <div className="absolute bottom-3 left-3 rounded bg-[#15130f]/80 px-2 py-1 text-[10px] font-bold text-[#f2ca50] backdrop-blur-md">
@@ -1201,6 +1227,7 @@ export default function Home() {
                         <img
                           src={org.image}
                           alt={org.name}
+                          onError={(event) => handleImageError(event, index)}
                           className="absolute inset-0 h-full w-full object-cover"
                         />
                         <div className="absolute bottom-3 left-3 rounded bg-[#15130f]/80 px-2 py-1 text-[10px] font-bold text-[#f2ca50] backdrop-blur-md">
@@ -1278,6 +1305,7 @@ export default function Home() {
                   <img
                     src={REFERENCE_IMAGES.invitation}
                     alt="Luxury invitation"
+                    onError={(event) => handleImageError(event)}
                     className="h-full w-full rotate-3 scale-105 rounded-xl border border-lounge-accent/45 object-cover shadow-2xl"
                   />
                 </div>
@@ -1301,6 +1329,7 @@ export default function Home() {
               <img
                 src={getCoverImage(selectedDetail || selectedSummary)}
                 alt={selectedSummary.name}
+                onError={(event) => handleImageError(event)}
                 className="h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-lounge-black via-lounge-black/60 to-transparent" />
@@ -1437,6 +1466,7 @@ export default function Home() {
                                   <img
                                     src={firstImage}
                                     alt={item.name}
+                                    onError={(event) => handleImageError(event, item.id)}
                                     className="h-16 w-16 shrink-0 rounded-lg border border-lounge-border object-cover"
                                   />
                                 ) : (
@@ -1508,6 +1538,7 @@ export default function Home() {
                           <img
                             src={item.image}
                             alt={item.title}
+                            onError={(event) => handleImageError(event, index)}
                             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                           <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-2 pb-2 pt-6 text-[11px] font-extrabold text-white">
@@ -1678,6 +1709,7 @@ export default function Home() {
                                 <img
                                   src={selectedMenuImages[0]}
                                   alt={selectedMenuItem.name}
+                                  onError={(event) => handleImageError(event, selectedMenuItem.id)}
                                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                 />
                               ) : (
@@ -1748,6 +1780,7 @@ export default function Home() {
                                 <img
                                   src={firstImage}
                                   alt={item.name}
+                                  onError={(event) => handleImageError(event, item.id)}
                                   className="h-14 w-14 shrink-0 rounded-lg border border-lounge-border object-cover"
                                 />
                               )}
@@ -1798,6 +1831,7 @@ export default function Home() {
               <img
                 src={selectedMedia.image}
                 alt={selectedMedia.title || 'Lounge image'}
+                onError={(event) => handleImageError(event)}
                 className="max-h-[78vh] w-full object-contain"
               />
             </div>

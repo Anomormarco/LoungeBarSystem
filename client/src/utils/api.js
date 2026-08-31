@@ -30,7 +30,6 @@ export async function request(path, options = {}) {
   }
 
   let response;
-
   const url = `${API_URL}${path}`;
 
   try {
@@ -42,20 +41,28 @@ export async function request(path, options = {}) {
   } catch (error) {
     console.error('API connection failed:', { url, error });
     if (error.name === 'AbortError') {
-      throw new Error(`API server хариу өгөхгүй байна. ${url}`);
+      throw new Error(`API server did not respond. ${url}`, { cause: error });
     }
-    throw new Error(`API server холбогдохгүй байна. ${url} (${error.message})`);
+    throw new Error(`API server connection failed. ${url} (${error.message})`, { cause: error });
   } finally {
     clearTimeout(timeout);
   }
 
   if (!response.ok) {
-    let message = 'Үйлдэл амжилтгүй боллоо';
+    let message = `Operation failed. HTTP ${response.status}`;
     try {
-      const errorData = await response.json();
-      message = errorData.message || message;
-    } catch (e) {
-      // ignore
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const errorData = await response.json();
+        message = errorData.message || errorData.error || message;
+      } else {
+        const text = await response.text();
+        if (text) {
+          message = `${message}: ${text.slice(0, 220)}`;
+        }
+      }
+    } catch {
+      // Keep the HTTP status fallback when the error body cannot be parsed.
     }
     throw new Error(message);
   }
@@ -65,7 +72,10 @@ export async function request(path, options = {}) {
 
 export const publicApi = {
   getNearbyOrganizations: (lat, lng, radius = 10, filters = {}) => {
-    const params = new URLSearchParams({ lat, lng, radius });
+    const params = new URLSearchParams({ radius });
+
+    if (Number.isFinite(Number(lat))) params.set('lat', lat);
+    if (Number.isFinite(Number(lng))) params.set('lng', lng);
 
     if (filters.q) params.set('q', filters.q);
     if (filters.tableType && filters.tableType !== 'all') params.set('tableType', filters.tableType);

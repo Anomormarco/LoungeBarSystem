@@ -2,6 +2,11 @@ const httpError = require("../../utils/httpError");
 const organizationRepository = require("../../repositories/organization.repository");
 const cache = require("../../utils/cache");
 
+const DEFAULT_LOCATION = {
+  lat: 47.9184,
+  lng: 106.9177,
+};
+
 function toNumber(value) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
@@ -12,8 +17,8 @@ function escapeLikePattern(value) {
 }
 
 async function getNearbyOrganizations({ lat, lng, radius, q, tableType, availableOnly }) {
-  const parsedLat = toNumber(lat);
-  const parsedLng = toNumber(lng);
+  const parsedLat = toNumber(lat) ?? DEFAULT_LOCATION.lat;
+  const parsedLng = toNumber(lng) ?? DEFAULT_LOCATION.lng;
   const radiusKm = toNumber(radius) || 10;
   const radiusMeters = radiusKm * 1000;
   const searchText = String(q || "").trim();

@@ -110,23 +110,24 @@ export default function LoungeMap({
 
   return (
     <div className="relative h-full w-full">
-      <MapContainer center={center} zoom={14} scrollWheelZoom className="h-full w-full">
+      <MapContainer
+        center={center}
+        zoom={14}
+        scrollWheelZoom
+        zoomControl={false}
+        attributionControl={false}
+        className="h-full w-full"
+      >
         {mapStyle === 'satellite' ? (
-          <TileLayer
-            attribution="Tiles &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-          />
+          <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
         ) : mapStyle === 'light' ? (
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+          <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
         ) : (
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             subdomains="abcd"
             maxZoom={20}
+            className="lounge-dark-map-tiles"
           />
         )}
         <RecenterMap center={center} />
@@ -170,10 +171,6 @@ export default function LoungeMap({
         })}
       </MapContainer>
 
-      <div className="absolute bottom-5 left-5 z-20 rounded-xl border border-lounge-border bg-lounge-black/90 px-4 py-2 text-sm font-extrabold text-white shadow-xl shadow-black/40 backdrop-blur">
-        {visibleOrganizations.length} lounges
-      </div>
-
       <div className="lounge-map-style-switch absolute bottom-4 left-1/2 right-auto z-20 flex -translate-x-1/2 overflow-hidden rounded-xl bg-lounge-card border border-lounge-border shadow-xl shadow-black/40">
         {[
           ['dark', 'Dark mode'],
@@ -197,6 +194,16 @@ export default function LoungeMap({
           </button>
         ))}
       </div>
+
+      <style>{`
+        .lounge-dark-map-tiles {
+          filter: brightness(1.22) contrast(1.15) saturate(1.08);
+        }
+        .leaflet-control-attribution,
+        .leaflet-control-zoom {
+          display: none !important;
+        }
+      `}</style>
     </div>
   );
 }

@@ -221,7 +221,7 @@ export default function Home() {
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [radius, setRadius] = useState(9);
+  const [radius, setRadius] = useState(35);
   const [searchQuery, setSearchQuery] = useState('');
   const [tableType, setTableType] = useState('all');
   const [availableOnly, setAvailableOnly] = useState(false);
@@ -246,7 +246,7 @@ export default function Home() {
     setLocationLabel(DEFAULT_LOCATION.label);
     setLocationError('');
     setLoadingLocation(false);
-    setRadius(9);
+    setRadius(35);
     setSearchQuery('');
     setTableType('all');
     setAvailableOnly(false);

@@ -3,8 +3,22 @@ const nodemailer = require("nodemailer");
 
 dns.setDefaultResultOrder("ipv4first");
 
-function lookupIpv4(hostname, options, callback) {
-  return dns.lookup(hostname, { ...options, family: 4 }, callback);
+// Neither `dns.setDefaultResultOrder("ipv4first")` nor nodemailer's own
+// `family: 4` / custom `lookup` option reliably kept the socket layer off
+// IPv6 here - it kept trying an AAAA address and failing with ENETUNREACH
+// (Render's outbound network can't route IPv6) regardless of implicit-TLS
+// vs STARTTLS. Resolving the A record ourselves and connecting to that
+// literal IP sidesteps whatever is re-introducing IPv6 further down the
+// stack. `tls.servername` keeps SNI/cert validation targeting the real
+// hostname even though `host` is now an IP.
+async function resolveIpv4Host(hostname) {
+  try {
+    const addresses = await dns.promises.resolve4(hostname);
+    if (addresses[0]) return addresses[0];
+  } catch (error) {
+    console.warn(`[sendEmail] IPv4 resolve failed for ${hostname}, falling back to hostname:`, error.message);
+  }
+  return hostname;
 }
 
 function hasResendConfig() {
@@ -19,13 +33,14 @@ function hasSmtpConfig() {
   return Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
 }
 
-function createSendGridTransporter() {
+async function createSendGridTransporter() {
+  const hostname = "smtp.sendgrid.net";
   return nodemailer.createTransport({
-    host: "smtp.sendgrid.net",
+    host: await resolveIpv4Host(hostname),
     port: 587,
     secure: false,
-    family: 4,
-    lookup: lookupIpv4,
+    requireTLS: true,
+    tls: { servername: hostname },
     dnsTimeout: 10000,
     connectionTimeout: 10000,
     greetingTimeout: 10000,
@@ -37,25 +52,17 @@ function createSendGridTransporter() {
   });
 }
 
-function createSmtpTransporter() {
+async function createSmtpTransporter() {
+  const hostname = process.env.SMTP_HOST || "smtp.gmail.com";
   const port = Number(process.env.SMTP_PORT || 587);
   const useImplicitTls = process.env.SMTP_SECURE === "true" || port === 465;
 
-  // Implicit TLS (port 465, secure:true) connects via tls.connect(), which -
-  // on this Node/nodemailer combination - does not consistently honor the
-  // custom `lookup`/`family` override below, so a host on a broken/absent
-  // IPv6 route (Render's outbound network, in practice) can still resolve
-  // smtp.gmail.com to an AAAA record and fail with ENETUNREACH. STARTTLS
-  // (port 587, secure:false) connects via plain net.connect() first, which
-  // does respect the override, so prefer it and only require the client to
-  // opt into implicit TLS explicitly.
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    host: await resolveIpv4Host(hostname),
     port,
     secure: useImplicitTls,
     requireTLS: !useImplicitTls,
-    family: 4,
-    lookup: lookupIpv4,
+    tls: { servername: hostname },
     dnsTimeout: 10000,
     connectionTimeout: 10000,
     greetingTimeout: 10000,
@@ -67,7 +74,7 @@ function createSmtpTransporter() {
   });
 }
 
-function createTransporter() {
+async function createTransporter() {
   if (hasSendGridConfig() && !hasResendConfig()) {
     return createSendGridTransporter();
   }
@@ -152,7 +159,7 @@ async function sendEmail({ to, subject, text, html }) {
     return sendWithSendGridApi({ from, to, subject, text, html });
   }
 
-  const transporter = createTransporter();
+  const transporter = await createTransporter();
 
   if (!transporter) {
     const error = new Error("Имэйл үйлчилгээ тохируулагдаагүй байна. RESEND_API_KEY, SENDGRID_API_KEY эсвэл SMTP_USER/SMTP_PASS шаардлагатай.");

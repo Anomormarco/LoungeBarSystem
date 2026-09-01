@@ -1,0 +1,32 @@
+name: Keep Render services awake
+
+# Render's free web services hibernate after ~15 minutes idle, and a couple
+# of requests landing on a still-sleeping service at once can get rejected
+# outright by Render's edge (x-render-routing: hibernate-rate-limited)
+# before they ever reach our app. Pinging /health every 8 minutes keeps
+# every service warm so it never has the chance to go to sleep - free,
+# since GitHub Actions scheduled workflows are unlimited on public repos.
+on:
+  schedule:
+    - cron: "*/8 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping every service's /health endpoint
+        run: |
+          urls=(
+            "https://lounge-gateway.onrender.com/health"
+            "https://lounge-auth-service.onrender.com/health"
+            "https://lounge-lounge-service.onrender.com/health"
+            "https://lounge-reservation-service.onrender.com/health"
+            "https://lounge-payment-service.onrender.com/health"
+            "https://lounge-notification-service.onrender.com/health"
+          )
+          for url in "${urls[@]}"; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -m 25 "$url" || echo "000")
+            echo "$url -> $code"
+          done
+          exit 0

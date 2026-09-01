@@ -3,10 +3,8 @@ import { api } from '../utils/api';
 import {
   Calendar,
   CheckCircle,
-  CreditCard,
   ExternalLink,
   Loader2,
-  QrCode,
   ShieldCheck,
   XCircle,
 } from 'lucide-react';
@@ -15,7 +13,6 @@ export default function SubscriptionInfo() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState(null);
   const [invoice, setInvoice] = useState(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -72,31 +69,13 @@ export default function SubscriptionInfo() {
   }, [invoice]);
 
   const handlePay = async () => {
-    if (!selectedPlan || !paymentMethod) return;
+    if (!selectedPlan) return;
     setSubmitting(true);
     setPaymentSuccess(false);
 
     try {
-      if (paymentMethod === 'stripe') {
-        const successUrl = `${window.location.origin}/subscription?success=true`;
-        const cancelUrl = window.location.href;
-        const res = await api.createStripeCheckout(
-          selectedPlan.amount,
-          selectedPlan.name,
-          successUrl,
-          cancelUrl,
-          selectedPlan.periodDays,
-        );
-
-        if (res.data.checkoutUrl) {
-          window.location.href = res.data.checkoutUrl;
-        } else {
-          alert(res.data.message || 'Stripe key тохируулагдаагүй байна. STRIPE_SECRET_KEY, STRIPE_PRICE_ID болон webhook тохируулсны дараа картын төлбөр ажиллана.');
-        }
-      } else if (paymentMethod === 'qpay') {
-        const res = await api.createQpayInvoice(selectedPlan.amount, selectedPlan.name, selectedPlan.periodDays);
-        setInvoice(res.data);
-      }
+      const res = await api.createQpayInvoice(selectedPlan.amount, selectedPlan.name, selectedPlan.periodDays);
+      setInvoice(res.data);
     } catch (err) {
       alert(err.message || 'Төлбөр гүйцэтгэхэд алдаа гарлаа.');
     } finally {
@@ -114,20 +93,6 @@ export default function SubscriptionInfo() {
       fetchSubscription();
     } catch (err) {
       alert(err.message || 'QPay төлбөр баталгаажуулахад алдаа гарлаа.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleManageStripeBilling = async () => {
-    setSubmitting(true);
-    try {
-      const res = await api.createStripePortal(window.location.href);
-      if (res.data.portalUrl) {
-        window.location.href = res.data.portalUrl;
-      }
-    } catch (err) {
-      alert(err.message || 'Stripe төлбөрийн удирдлага нээхэд алдаа гарлаа.');
     } finally {
       setSubmitting(false);
     }
@@ -183,17 +148,6 @@ export default function SubscriptionInfo() {
                 </div>
               </div>
             </div>
-
-            {data.payments.some((payment) => payment.paymentMethod === 'stripe' && payment.stripeCustomerId) && (
-              <button
-                type="button"
-                onClick={handleManageStripeBilling}
-                disabled={submitting}
-                className="w-full rounded-xl border border-lounge-yellow/40 px-4 py-3 text-sm font-extrabold text-lounge-yellow hover:bg-lounge-yellow/10 disabled:opacity-60"
-              >
-                Stripe төлбөрийн удирдлага нээх
-              </button>
-            )}
 
             <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
               <h3 className="font-bold text-slate-200 text-base">Төлбөр төлөлтийн түүх</h3>
@@ -285,36 +239,6 @@ export default function SubscriptionInfo() {
 
                 {selectedPlan && (
                   <>
-                    <div>
-                      <label className="block text-slate-400 text-xs font-semibold mb-2">Төлбөрийн хэлбэр</label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <button
-                          type="button"
-                          onClick={() => { setPaymentMethod('stripe'); setInvoice(null); }}
-                          className={`py-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all ${
-                            paymentMethod === 'stripe'
-                              ? 'border-amber-500 bg-amber-500/5 text-amber-500'
-                              : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200'
-                          }`}
-                        >
-                          <CreditCard className="w-5 h-5" />
-                          <span className="font-bold text-[9px] uppercase tracking-wider">Stripe</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setPaymentMethod('qpay'); setInvoice(null); }}
-                          className={`py-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all ${
-                            paymentMethod === 'qpay'
-                              ? 'border-amber-500 bg-amber-500/5 text-amber-500'
-                              : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200'
-                          }`}
-                        >
-                          <QrCode className="w-5 h-5" />
-                          <span className="font-bold text-[9px] uppercase tracking-wider">QPay</span>
-                        </button>
-                      </div>
-                    </div>
-
                     {invoice && (
                       <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl flex flex-col items-center space-y-3">
                         {invoice.message && (
@@ -352,30 +276,21 @@ export default function SubscriptionInfo() {
                     )}
 
                     {!invoice && (
-                      <>
-                        {paymentMethod === 'stripe' && (
-                          <div className="rounded-xl border border-slate-800 bg-slate-950 p-3 text-[11px] leading-relaxed text-slate-400">
-                            <p className="font-bold text-amber-400">Stripe test card</p>
-                            <p className="mt-1">Card: <span className="font-mono text-slate-200">4242 4242 4242 4242</span></p>
-                            <p>Date: ирээдүйн сар/жил, CVC: дурын 3 тоо</p>
-                          </div>
+                      <button
+                        type="button"
+                        onClick={handlePay}
+                        className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs flex justify-center items-center gap-2"
+                        disabled={submitting}
+                      >
+                        {submitting ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            QPay-ээр төлж, багц сунгах
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </>
                         )}
-                        <button
-                          type="button"
-                          onClick={handlePay}
-                          className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs flex justify-center items-center gap-2"
-                          disabled={submitting || !paymentMethod}
-                        >
-                          {submitting ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <>
-                              Багц сунгах
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </>
-                          )}
-                        </button>
-                      </>
+                      </button>
                     )}
                   </>
                 )}

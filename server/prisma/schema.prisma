@@ -202,6 +202,7 @@ model Payment {
   stripeSubscriptionId    String? @map("stripe_subscription_id") @db.VarChar(191)
   stripeCustomerId        String? @map("stripe_customer_id") @db.VarChar(191)
   stripeInvoiceId         String? @map("stripe_invoice_id") @db.VarChar(191)
+  qpayInvoiceId  String?       @map("qpay_invoice_id") @db.VarChar(191)
   paidAt         DateTime?     @map("paid_at")
   failureReason  String?       @map("failure_reason") @db.Text
   periodStart    DateTime      @map("period_start")
@@ -213,6 +214,7 @@ model Payment {
   @@index([stripeCheckoutSessionId])
   @@index([stripePaymentIntentId])
   @@index([stripeSubscriptionId])
+  @@index([qpayInvoiceId])
   @@map("subscriptions")
 }
 

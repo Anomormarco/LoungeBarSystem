@@ -43,8 +43,15 @@ async function stripeWebhook(req, res) {
 }
 
 async function qpayWebhook(req, res) {
-  const data = await paymentService.handleQpayWebhook(req.body);
+  const data = await paymentService.handleQpayWebhook(req.query, req.body || {});
   res.json(data);
+}
+
+async function checkQpayStatus(req, res) {
+  const data = await paymentService.checkQpayPayment(req.params.id, {
+    organizationId: req.user.organizationId,
+  });
+  res.json({ data });
 }
 
 async function ownerSubscription(req, res) {
@@ -58,5 +65,6 @@ module.exports = {
   createQpayInvoice: asyncHandler(createQpayInvoice),
   stripeWebhook: asyncHandler(stripeWebhook),
   qpayWebhook: asyncHandler(qpayWebhook),
+  checkQpayStatus: asyncHandler(checkQpayStatus),
   ownerSubscription: asyncHandler(ownerSubscription),
 };

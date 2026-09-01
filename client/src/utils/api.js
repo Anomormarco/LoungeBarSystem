@@ -178,6 +178,8 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ paymentId, status }),
     }),
+  checkQpayStatus: (paymentId) =>
+    request(`/payments/qpay/status/${paymentId}`),
 };
 
 export const adminApi = {

@@ -25,6 +25,8 @@ router.post(
 
 router.post("/payments/webhook/stripe", express.raw({ type: "application/json" }), controller.stripeWebhook);
 router.post("/payments/webhook/qpay", express.json(), controller.qpayWebhook);
+router.get("/payments/webhook/qpay", controller.qpayWebhook);
+router.get("/payments/qpay/status/:id", ownerGuard, controller.checkQpayStatus);
 
 router.get("/owner/subscription", ownerGuard, controller.ownerSubscription);
 

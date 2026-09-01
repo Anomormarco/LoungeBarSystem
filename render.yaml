@@ -135,6 +135,16 @@ services:
         value: 7d
       - key: STRIPE_CURRENCY
         value: usd
+      - key: QPAY_BASE_URL
+        value: https://merchant.qpay.mn
+      - key: QPAY_CLIENT_ID
+        sync: false
+      - key: QPAY_CLIENT_SECRET
+        sync: false
+      - key: QPAY_INVOICE_CODE
+        sync: false
+      - key: QPAY_CALLBACK_URL
+        value: https://lounge-payment-service.onrender.com/payments/webhook/qpay
 
   # =========================
   # NOTIFICATION SERVICE

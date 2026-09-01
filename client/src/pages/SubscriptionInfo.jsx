@@ -44,6 +44,33 @@ export default function SubscriptionInfo() {
     }
   }, []);
 
+  // Real QPay invoices are confirmed by asking QPay itself whether the
+  // invoice was paid - not by a button the user clicks. Poll while the QR
+  // is on screen; stop as soon as it's paid or the invoice is dismissed.
+  useEffect(() => {
+    if (!invoice || invoice.mode !== 'live') return undefined;
+
+    let active = true;
+    const interval = window.setInterval(async () => {
+      try {
+        const res = await api.checkQpayStatus(invoice.payment.id);
+        if (!active) return;
+        if (res.data?.status === 'success') {
+          setPaymentSuccess(true);
+          setInvoice(null);
+          fetchSubscription();
+        }
+      } catch (err) {
+        console.error('QPay төлбөрийн төлөв шалгахад алдаа гарлаа:', err.message);
+      }
+    }, 3000);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, [invoice]);
+
   const handlePay = async () => {
     if (!selectedPlan || !paymentMethod) return;
     setSubmitting(true);
@@ -297,19 +324,30 @@ export default function SubscriptionInfo() {
                         )}
                         <div className="p-2 bg-white rounded-xl">
                           <img
-                            src={`https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${encodeURIComponent(invoice.qrText)}`}
+                            src={
+                              invoice.qrImage
+                                ? `data:image/png;base64,${invoice.qrImage}`
+                                : `https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${encodeURIComponent(invoice.qrText)}`
+                            }
                             alt="QPay QR"
                             className="w-28 h-28"
                           />
                         </div>
-                        <button
-                          type="button"
-                          onClick={handleMockQpaySuccess}
-                          className="w-full py-2 bg-green-500 hover:bg-green-600 text-slate-950 font-bold rounded-lg text-xs"
-                          disabled={submitting}
-                        >
-                          {submitting ? 'Хүлээж байна...' : 'QR төлбөр баталгаажуулах'}
-                        </button>
+                        {invoice.mode === 'live' ? (
+                          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            QPay апп-аар уншуулаад төлбөрөө хийнэ үү. Автоматаар шалгаж байна...
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={handleMockQpaySuccess}
+                            className="w-full py-2 bg-green-500 hover:bg-green-600 text-slate-950 font-bold rounded-lg text-xs"
+                            disabled={submitting}
+                          >
+                            {submitting ? 'Хүлээж байна...' : 'QR төлбөр баталгаажуулах (test)'}
+                          </button>
+                        )}
                       </div>
                     )}
 

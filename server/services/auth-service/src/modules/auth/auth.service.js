@@ -249,6 +249,8 @@ async function ownerRegister(payload) {
     },
   });
 
+  
+
   const token = signToken({
     type: "owner",
     id: staff.id,

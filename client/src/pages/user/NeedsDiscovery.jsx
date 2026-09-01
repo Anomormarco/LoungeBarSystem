@@ -23,36 +23,36 @@ const personas = [
   {
     id: 'business',
     icon: BriefcaseBusiness,
-    eyebrow: 'Pro service',
+    eyebrow: 'Мэргэжлийн үйлчилгээ',
     title: 'Бизнес уулзалт',
-    text: 'Нам гүм орчин, VIP ширээ, хурдан үйлчилгээтэй lounge-ууд.',
+    text: 'Нам гүм орчин, ВИП ширээ, хурдан үйлчилгээтэй лаунж-ууд.',
     image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=900&q=85',
     keywords: ['vip', 'room', 'table', 'skyline', 'monarch', 'prime', 'horizon', 'reserve', 'business'],
   },
   {
     id: 'romantic',
     icon: Heart,
-    eyebrow: 'Atmospheric',
+    eyebrow: 'Уур амьсгалтай',
     title: 'Болзоо',
-    text: 'Зөөлөн гэрэл, rooftop, city view, тайван уур амьсгалтай газрууд.',
+    text: 'Зөөлөн гэрэл, дээвэр тэрраст, хотын дүр зурагтай, тайван уур амьсгалтай газрууд.',
     image: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=900&q=85',
     keywords: ['rooftop', 'terrace', 'luna', 'aria', 'aurora', 'pearl', 'golden', 'velvet', 'view'],
   },
   {
     id: 'family',
     icon: UsersRound,
-    eyebrow: 'Spacious',
+    eyebrow: 'Уужим',
     title: 'Гэр бүл',
-    text: 'Уужим ширээ, хоолны сонголт, тайван сууцтай restaurant lounge-ууд.',
+    text: 'Уужим ширээ, хоолны сонголт, тайван сууцтай ресторан лаунж-ууд.',
     image: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=900&q=85',
     keywords: ['table', 'garden', 'bistro', 'kitchen', 'cedar', 'jade', 'nomad', 'family', 'food'],
   },
   {
     id: 'friends',
     icon: Beer,
-    eyebrow: 'Vibrant',
+    eyebrow: 'Эрч хүчтэй',
     title: 'Найз нөхөд',
-    text: 'Амьд уур амьсгал, cocktail, bar, social төрлийн газрууд.',
+    text: 'Амьд уур амьсгал, коктейль, бар, нийгмийн төрлийн газрууд.',
     image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=900&q=85',
     keywords: ['bar', 'social', 'smoke', 'brass', 'onyx', 'copper', 'mint', 'lounge', 'cocktail'],
   },
@@ -61,19 +61,19 @@ const personas = [
 const personaTitles = {
   business: {
     title: 'Бизнес уулзалтад тохиромжтой',
-    desc: 'VIP ширээ, төвийн байршил, тайван орчинтой lounge-уудыг санал болгож байна.',
+    desc: 'ВИП ширээ, төвийн байршил, тайван орчинтой лаунж-уудыг санал болгож байна.',
   },
   romantic: {
     title: 'Болзоонд тохиромжтой',
-    desc: 'Rooftop, terrace, romantic нэршил болон уур амьсгалтай газруудыг түрүүлж харууллаа.',
+    desc: 'Дээвэр тэрраст, тэрраст, романтик нэршил болон уур амьсгалтай газруудыг түрүүлж харууллаа.',
   },
   family: {
     title: 'Гэр бүлээрээ зочлох',
-    desc: 'Уужим, restaurant-style, хоолны сонголттой газруудыг шүүж харуулж байна.',
+    desc: 'Уужим, ресторан маягийн, хоолны сонголттой газруудыг шүүж харуулж байна.',
   },
   friends: {
     title: 'Найз нөхдийн цугларалтад',
-    desc: 'Social, bar, lounge vibe-тэй газруудыг сонголтод тань таарууллаа.',
+    desc: 'Нийгмийн, бар, лаунж уур амьсгалтай газруудыг сонголтод тань таарууллаа.',
   },
 };
 
@@ -157,12 +157,12 @@ export default function NeedsDiscovery() {
     <UserLayout>
       <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-6 lg:px-8">
         <section className="mb-12">
-          <p className="mb-3 text-sm font-black uppercase tracking-[0.22em] text-lounge-accent">Discovery</p>
+          <p className="mb-3 text-sm font-black uppercase tracking-[0.22em] text-lounge-accent">Нээлт</p>
           <h1 className="text-4xl font-extrabold leading-tight text-[#e8e1db] sm:text-5xl">
             Таны зорилго юу вэ?
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-lounge-muted sm:text-base">
-            Сонгосон хэрэгцээнд тань нийцэх манай lounge, bar, restaurant-уудыг системээс шүүж санал болгоно.
+            Сонгосон хэрэгцээнд тань нийцэх манай лаунж, бар, ресторан-уудыг системээс шүүж санал болгоно.
           </p>
         </section>
 
@@ -230,7 +230,7 @@ export default function NeedsDiscovery() {
             </div>
           ) : visibleItems.length === 0 ? (
             <div className="border border-lounge-border bg-lounge-card p-8 text-center text-sm text-lounge-muted">
-              Энэ сонголтод тохирох lounge одоогоор олдсонгүй.
+              Энэ сонголтод тохирох лаунж одоогоор олдсонгүй.
             </div>
           ) : (
             <>
@@ -247,7 +247,7 @@ export default function NeedsDiscovery() {
                     onClick={() => setVisibleCount((count) => count + 6)}
                     className="inline-flex items-center gap-2 border border-lounge-border px-6 py-3 text-sm font-black uppercase tracking-wider text-lounge-accent transition hover:border-lounge-accent hover:bg-lounge-accent/10"
                   >
-                    Show more
+                    Илүү харах
                     <Sparkles className="h-4 w-4" />
                   </button>
                 </div>
@@ -284,7 +284,7 @@ function LoungeCard({ org }) {
           <div>
             <h3 className="text-xl font-extrabold text-white">{org.name}</h3>
             <p className="mt-1 text-xs font-black uppercase tracking-wider text-lounge-accent">
-              VIP {org.vipTableCount ?? 0} / Сул {org.availableTableCount ?? 0}
+              ВИП {org.vipTableCount ?? 0} / Сул {org.availableTableCount ?? 0}
             </p>
           </div>
           <span className="text-xs font-black text-lounge-muted">$$$</span>
@@ -296,7 +296,7 @@ function LoungeCard({ org }) {
           </span>
           <span className="flex items-center gap-1">
             <Wifi className="h-4 w-4 text-lounge-accent" />
-            Owner verified
+            Баталгаажсан эзэмшигч
           </span>
         </div>
         <span className="block border border-lounge-border py-3 text-center text-sm font-black text-lounge-accent transition group-hover:bg-lounge-accent group-hover:text-lounge-black">

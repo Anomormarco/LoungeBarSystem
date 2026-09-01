@@ -854,14 +854,14 @@ export default function Home() {
               <div className="group relative flex-1 overflow-hidden rounded-xl border border-[#3d372e] bg-[#211f1b]">
                 <img
                   src={featuredOrg ? getCoverImage(featuredOrg) : REFERENCE_IMAGES.featuredFood}
-                  alt={featuredOrg?.name || 'Featured lounge'}
+                  alt={featuredOrg?.name || 'Онцлох лаунж'}
                   onError={(event) => handleImageError(event)}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#15130f]/95 via-[#15130f]/35 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <span className="mb-2 inline-flex rounded-sm bg-[#f1d27a] px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-[#2a251f] shadow-[0_0_16px_rgba(241,210,122,0.22)]">
-                    Featured
+                    Онцлох
                   </span>
                   <h2 className="text-2xl font-semibold text-[#e8e1db]">{featuredOrg?.name || 'Cloud 9 Lounge'}</h2>
                   <div className="mt-3 flex items-center justify-between gap-3">
@@ -955,8 +955,8 @@ export default function Home() {
                     className="h-[42px] w-full cursor-pointer rounded-xl border border-lounge-border bg-lounge-black px-3 text-sm focus:border-lounge-primary focus:outline-none"
                   >
                     <option value="all">Бүгд</option>
-                    <option value="normal">Normal</option>
-                    <option value="vip">VIP</option>
+                    <option value="normal">Энгийн</option>
+                    <option value="vip">ВИП</option>
                   </select>
                 </div>
 
@@ -1365,7 +1365,7 @@ export default function Home() {
                       : 'border-lounge-border bg-lounge-black'
                   }`}
                 >
-                  <p className="text-xs text-lounge-muted">VIP</p>
+                  <p className="text-xs text-lounge-muted">ВИП</p>
                   <p className="mt-1 text-2xl font-extrabold text-lounge-primary">
                     {selectedSummary.vipTableCount ?? tables.filter((table) => table.type === 'vip').length}
                   </p>
@@ -1542,7 +1542,7 @@ export default function Home() {
                         {tableViewFilter === 'available'
                           ? 'Сул ширээнүүд'
                           : tableViewFilter === 'vip'
-                          ? 'VIP ширээнүүд'
+                          ? 'ВИП ширээнүүд'
                           : 'Сул ширээн дээр дарж захиалга өгнө.'}
                       </p>
                       {tableViewFilter !== 'all' && (

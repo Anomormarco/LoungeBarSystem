@@ -34,7 +34,7 @@ export default function RestaurantsLounges() {
         if (mounted) setItems(res.data || []);
       })
       .catch((err) => {
-        if (mounted) setError(err.message || 'Restaurant & lounge жагсаалт ачаалахад алдаа гарлаа.');
+        if (mounted) setError(err.message || 'Ресторан & лаунж жагсаалт ачаалахад алдаа гарлаа.');
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -58,8 +58,8 @@ export default function RestaurantsLounges() {
       <section className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-lounge-accent text-sm font-black mb-2">Places</p>
-            <h1 className="text-3xl sm:text-5xl font-black text-white">Restaurant & Lounge-ууд</h1>
+            <p className="text-lounge-accent text-sm font-black mb-2">Газрууд</p>
+            <h1 className="text-3xl sm:text-5xl font-black text-white">Ресторан & Лаунж-ууд</h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-lounge-muted">
               Улаанбаатар хотын ойролцоох идэвхтэй газруудыг сонгоод, дэлгэрэнгүй мэдээлэл болон сул ширээг харна.
             </p>
@@ -109,7 +109,7 @@ export default function RestaurantsLounges() {
                     <h2 className="text-lg font-black text-white">{org.name}</h2>
                     <span className="flex items-center gap-1 rounded-full bg-lounge-primary/15 px-2 py-1 text-xs font-black text-lounge-accent">
                       <Star className="h-3.5 w-3.5" />
-                      VIP {org.vipTableCount ?? 0}
+                      ВИП {org.vipTableCount ?? 0}
                     </span>
                   </div>
                   <p className="mt-2 flex items-start gap-2 text-sm text-lounge-muted">

@@ -4,7 +4,7 @@ import { Compass, Home, Info, Menu, PhoneCall, Store, UtensilsCrossed, X } from 
 
 const navItems = [
   { label: 'Нүүр', shortLabel: 'Нүүр', path: '/', icon: Home },
-  { label: 'Restaurant & Lounge', shortLabel: 'Rest', path: '/restaurants-lounges', icon: Store },
+  { label: 'Ресторан & Лаунж', shortLabel: 'Рест', path: '/restaurants-lounges', icon: Store },
   { label: 'Таны хэрэгцээнд', shortLabel: 'Хэрэгцээ', path: '/needs', icon: Compass },
   { label: 'Холбоо барих', shortLabel: 'Холбогдох', path: '/contact', icon: PhoneCall },
   { label: 'Танилцуулга', shortLabel: 'Бидний тухай', path: '/about', icon: Info },

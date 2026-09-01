@@ -112,8 +112,12 @@ services:
       # Without one of these configured, sendEmail() throws, the OTP flow
       # falls back to deliveryMode "mock", and the code gets shown directly
       # in the client instead of actually being emailed. Fill in ONE of:
-      # SMTP_USER/SMTP_PASS (Gmail app password), or RESEND_API_KEY +
-      # EMAIL_FROM (a domain verified in Resend), or SENDGRID_API_KEY.
+      # BREVO_API_KEY + EMAIL_FROM (a Brevo-verified single sender, no
+      # domain needed - the easiest path), RESEND_API_KEY + EMAIL_FROM (a
+      # domain verified in Resend), SENDGRID_API_KEY, or SMTP_USER/SMTP_PASS
+      # (Gmail app password - note raw SMTP tends to be blocked on Render).
+      - key: BREVO_API_KEY
+        sync: false
       # Port 587 + STARTTLS (secure:false), not 465 + implicit TLS: the
       # implicit-TLS path can fail with ENETUNREACH on Render's network,
       # see sendEmail.js's createSmtpTransporter for why.

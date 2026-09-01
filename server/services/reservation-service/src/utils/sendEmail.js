@@ -25,6 +25,10 @@ function hasResendConfig() {
   return Boolean(process.env.RESEND_API_KEY);
 }
 
+function hasBrevoConfig() {
+  return Boolean(process.env.BREVO_API_KEY);
+}
+
 function hasSendGridConfig() {
   return Boolean(process.env.SENDGRID_API_KEY);
 }
@@ -112,6 +116,37 @@ async function sendWithResend({ from, to, subject, text, html }) {
   return response.json();
 }
 
+// Brevo (formerly Sendinblue): unlike Resend/SendGrid, its free tier lets a
+// single verified sender email (no DNS/domain ownership needed) send to any
+// recipient - no sandbox-mode recipient restriction, no separate "trial
+// credit" gate blocking real sends. https://api.brevo.com/v3/smtp/email
+async function sendWithBrevo({ from, to, subject, text, html }) {
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": process.env.BREVO_API_KEY,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      sender: { email: from, name: "UBTable" },
+      to: [{ email: to }],
+      subject,
+      textContent: text,
+      htmlContent: html || text,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    const error = new Error(`Brevo имэйл илгээхэд алдаа гарлаа: ${body}`);
+    error.statusCode = 502;
+    throw error;
+  }
+
+  return response.json();
+}
+
 async function sendWithSendGridApi({ from, to, subject, text, html }) {
   const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
     method: "POST",
@@ -154,6 +189,10 @@ async function sendEmail({ to, subject, text, html }) {
   }
 
   const from = process.env.EMAIL_FROM || process.env.SMTP_USER;
+
+  if (hasBrevoConfig()) {
+    return sendWithBrevo({ from, to, subject, text, html });
+  }
 
   if (hasSendGridConfig()) {
     return sendWithSendGridApi({ from, to, subject, text, html });

@@ -25,39 +25,38 @@ const interiorImages = [
   "https://images.unsplash.com/photo-1560624052-449f5ddf0c31?w=1200&q=80",
 ];
 
-// 18 of 27 restaurants form a tight east-west band through the city center
-// (Officers' Palace to 10th khoroolol, barely any north-south drift); the
-// remaining 9 sit further out toward the city's outskirts in varied
-// directions. Kept in sync with
-// client/src/components/LoungeMap.jsx's FALLBACK_MARKERS.
+// 20 of 27 restaurants fill the numbered-khoroolol belt (roughly khoroolol
+// 1-13) as a real 2D neighborhood spread, not a thin line; the remaining 7
+// sit further out toward genuine outskirts in varied directions. Kept in
+// sync with client/src/components/LoungeMap.jsx's FALLBACK_MARKERS.
 const restaurants = [
-  ["Skyline Lounge", "Tolgoit north-west edge", 48.0366, 106.8158],
-  ["Noir Social Club", "Nisekh far east edge", 47.8489, 107.14],
-  ["Velvet Room", "Chingeltei north edge", 48.0104, 106.9545],
-  ["Amber Terrace", "10th khoroolol area", 47.9202, 106.8641],
-  ["Mellow Garden", "10th khoroolol west side", 47.9328, 106.8507],
-  ["The Brass Bar", "Bogd Khan foothills, south-west edge", 47.7774, 106.8411],
-  ["Aurora Lounge", "3rd khoroolol area", 47.9301, 106.8775],
-  ["Nomad Table", "5th khoroolol area", 47.9265, 106.8105],
-  ["Crown & Smoke", "Chingeltei north edge", 48.0193, 106.8912],
-  ["Saffron Rooftop", "Nisekh east edge", 47.9617, 107.0953],
-  ["Luna Bistro", "Amgalan bridge area", 47.9283, 106.9646],
-  ["Echo Lounge", "Peace Avenue east side", 47.9166, 106.9512],
-  ["Golden Hour", "Gandan area", 47.9319, 106.7971],
-  ["Urban Flame", "Officers' Palace area, city center", 47.9094, 106.9378],
-  ["Opal Room", "State Department Store area", 47.9157, 106.8909],
-  ["Mint Social", "Amgalan area", 47.9058, 107.0048],
-  ["Horizon Grill", "Bogd Khan foothills, west edge", 47.9256, 106.8239],
-  ["Cedar Lounge", "Zaisan foothill area", 47.9076, 106.8373],
-  ["Ivory Table", "Sansar area", 47.9112, 106.9244],
-  ["Copper House", "Songino Khairkhan far west edge", 47.8637, 106.6935],
-  ["Jade Garden", "Sukhbaatar Square vicinity", 47.922, 106.978],
-  ["Monarch Lounge", "Zaisan south edge", 47.8129, 106.975],
-  ["Naran Terrace", "Peace Avenue central", 47.9238, 106.9043],
-  ["Pearl Bistro", "Tolgoit far west edge", 47.9611, 106.7426],
-  ["Aria Lounge", "13th khoroolol area", 47.904, 107.0182],
-  ["Tempo Kitchen", "Nisekh far south-east edge", 47.9085, 107.0316],
-  ["Breeze Rooftop", "10th khoroolol east side", 47.9139, 106.9914],
+  ["Skyline Lounge", "Nisekh far east edge", 47.8404, 107.0563],
+  ["Noir Social Club", "8th khoroolol area", 47.9489, 106.9526],
+  ["Velvet Room", "6th khoroolol area", 47.8888, 106.8534],
+  ["Amber Terrace", "Officers' Palace area, city center", 47.9004, 106.907],
+  ["Mellow Garden", "4th khoroolol area", 47.9418, 106.9204],
+  ["The Brass Bar", "13th khoroolol area", 47.9364, 106.9954],
+  ["Aurora Lounge", "Bogd Khan foothills, far south edge", 47.7618, 106.9381],
+  ["Nomad Table", "Songino Khairkhan far west edge", 47.9465, 106.6801],
+  ["Crown & Smoke", "3rd khoroolol area", 47.9346, 106.8855],
+  ["Saffron Rooftop", "10th khoroolol area", 47.931, 106.8641],
+  ["Luna Bistro", "5th khoroolol area", 47.9265, 106.8319],
+  ["Echo Lounge", "10th khoroolol east side", 47.904, 106.8426],
+  ["Golden Hour", "Chingeltei north edge", 48.0194, 106.9879],
+  ["Urban Flame", "Tolgoit north-west edge", 48.0189, 106.7919],
+  ["Opal Room", "State Department Store area", 47.9076, 106.9847],
+  ["Mint Social", "10th khoroolol west side", 47.9507, 106.8748],
+  ["Horizon Grill", "Sukhbaatar Square vicinity", 47.9148, 106.9311],
+  ["Cedar Lounge", "Peace Avenue central", 47.9094, 106.9633],
+  ["Ivory Table", "Nisekh far east edge", 47.9368, 107.0735],
+  ["Copper House", "1st khoroolol area", 47.9462, 106.8199],
+  ["Jade Garden", "Bogd Khan foothills, west edge", 47.8986, 106.8078],
+  ["Monarch Lounge", "Amgalan area", 47.9238, 107.0169],
+  ["Naran Terrace", "Zaisan foothill area", 47.8906, 106.974],
+  ["Pearl Bistro", "Gandan area", 47.94, 106.9418],
+  ["Aria Lounge", "Sansar area", 47.8932, 106.8963],
+  ["Tempo Kitchen", "Bogd Khan foothills, south-west edge", 47.8249, 106.7514],
+  ["Breeze Rooftop", "Amgalan bridge area", 47.8861, 107.0062],
 ].map(([name, address, latitude, longitude], index) => ({
   name,
   address,

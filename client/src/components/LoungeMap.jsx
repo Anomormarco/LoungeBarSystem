@@ -4,38 +4,38 @@ import L from 'leaflet';
 
 const DEFAULT_CENTER = [47.9184, 106.9177];
 
-// Kept in sync with server/scripts/seed-restaurants.js - 18 markers form a
-// tight east-west band through the city center (barely any north-south
-// drift), the remaining 9 sit further out toward the city's outskirts in
-// varied directions (not just N/S).
+// Kept in sync with server/scripts/seed-restaurants.js - 20 markers fill the
+// numbered-khoroolol belt (roughly khoroolol 1-13) as a real 2D
+// neighborhood spread, not a thin line; the remaining 7 sit further out
+// toward genuine outskirts in varied directions.
 const FALLBACK_MARKERS = [
-  ['Skyline Lounge', 48.0366, 106.8158],
-  ['Noir Social Club', 47.8489, 107.14],
-  ['Velvet Room', 48.0104, 106.9545],
-  ['Amber Terrace', 47.9202, 106.8641],
-  ['Mellow Garden', 47.9328, 106.8507],
-  ['The Brass Bar', 47.7774, 106.8411],
-  ['Aurora Lounge', 47.9301, 106.8775],
-  ['Nomad Table', 47.9265, 106.8105],
-  ['Crown & Smoke', 48.0193, 106.8912],
-  ['Saffron Rooftop', 47.9617, 107.0953],
-  ['Luna Bistro', 47.9283, 106.9646],
-  ['Echo Lounge', 47.9166, 106.9512],
-  ['Golden Hour', 47.9319, 106.7971],
-  ['Urban Flame', 47.9094, 106.9378],
-  ['Opal Room', 47.9157, 106.8909],
-  ['Mint Social', 47.9058, 107.0048],
-  ['Horizon Grill', 47.9256, 106.8239],
-  ['Cedar Lounge', 47.9076, 106.8373],
-  ['Ivory Table', 47.9112, 106.9244],
-  ['Copper House', 47.8637, 106.6935],
-  ['Jade Garden', 47.922, 106.978],
-  ['Monarch Lounge', 47.8129, 106.975],
-  ['Naran Terrace', 47.9238, 106.9043],
-  ['Pearl Bistro', 47.9611, 106.7426],
-  ['Aria Lounge', 47.904, 107.0182],
-  ['Tempo Kitchen', 47.9085, 107.0316],
-  ['Breeze Rooftop', 47.9139, 106.9914],
+  ['Skyline Lounge', 47.8404, 107.0563],
+  ['Noir Social Club', 47.9489, 106.9526],
+  ['Velvet Room', 47.8888, 106.8534],
+  ['Amber Terrace', 47.9004, 106.907],
+  ['Mellow Garden', 47.9418, 106.9204],
+  ['The Brass Bar', 47.9364, 106.9954],
+  ['Aurora Lounge', 47.7618, 106.9381],
+  ['Nomad Table', 47.9465, 106.6801],
+  ['Crown & Smoke', 47.9346, 106.8855],
+  ['Saffron Rooftop', 47.931, 106.8641],
+  ['Luna Bistro', 47.9265, 106.8319],
+  ['Echo Lounge', 47.904, 106.8426],
+  ['Golden Hour', 48.0194, 106.9879],
+  ['Urban Flame', 48.0189, 106.7919],
+  ['Opal Room', 47.9076, 106.9847],
+  ['Mint Social', 47.9507, 106.8748],
+  ['Horizon Grill', 47.9148, 106.9311],
+  ['Cedar Lounge', 47.9094, 106.9633],
+  ['Ivory Table', 47.9368, 107.0735],
+  ['Copper House', 47.9462, 106.8199],
+  ['Jade Garden', 47.8986, 106.8078],
+  ['Monarch Lounge', 47.9238, 107.0169],
+  ['Naran Terrace', 47.8906, 106.974],
+  ['Pearl Bistro', 47.94, 106.9418],
+  ['Aria Lounge', 47.8932, 106.8963],
+  ['Tempo Kitchen', 47.8249, 106.7514],
+  ['Breeze Rooftop', 47.8861, 107.0062],
 ].map(([name, lat, lng], index) => ({
   id: `map-fallback-${index + 1}`,
   name,

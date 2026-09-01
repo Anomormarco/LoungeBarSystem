@@ -39,11 +39,21 @@ function createSendGridTransporter() {
 
 function createSmtpTransporter() {
   const port = Number(process.env.SMTP_PORT || 587);
+  const useImplicitTls = process.env.SMTP_SECURE === "true" || port === 465;
 
+  // Implicit TLS (port 465, secure:true) connects via tls.connect(), which -
+  // on this Node/nodemailer combination - does not consistently honor the
+  // custom `lookup`/`family` override below, so a host on a broken/absent
+  // IPv6 route (Render's outbound network, in practice) can still resolve
+  // smtp.gmail.com to an AAAA record and fail with ENETUNREACH. STARTTLS
+  // (port 587, secure:false) connects via plain net.connect() first, which
+  // does respect the override, so prefer it and only require the client to
+  // opt into implicit TLS explicitly.
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || "smtp.gmail.com",
     port,
-    secure: process.env.SMTP_SECURE === "true" || port === 465,
+    secure: useImplicitTls,
+    requireTLS: !useImplicitTls,
     family: 4,
     lookup: lookupIpv4,
     dnsTimeout: 10000,

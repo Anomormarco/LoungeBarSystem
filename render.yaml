@@ -114,12 +114,15 @@ services:
       # in the client instead of actually being emailed. Fill in ONE of:
       # SMTP_USER/SMTP_PASS (Gmail app password), or RESEND_API_KEY +
       # EMAIL_FROM (a domain verified in Resend), or SENDGRID_API_KEY.
+      # Port 587 + STARTTLS (secure:false), not 465 + implicit TLS: the
+      # implicit-TLS path can fail with ENETUNREACH on Render's network,
+      # see sendEmail.js's createSmtpTransporter for why.
       - key: SMTP_HOST
         value: smtp.gmail.com
       - key: SMTP_PORT
-        value: "465"
+        value: "587"
       - key: SMTP_SECURE
-        value: "true"
+        value: "false"
       - key: SMTP_USER
         sync: false
       - key: SMTP_PASS

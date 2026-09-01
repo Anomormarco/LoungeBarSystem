@@ -14,12 +14,27 @@ const API_URL = resolveServiceUrl(configuredApiUrl, import.meta.env.PROD ? PROD_
 const SOCKET_URL =
   resolveServiceUrl(configuredSocketUrl, import.meta.env.PROD ? PROD_GATEWAY_URL : window.location.origin);
 
+// Render's free-tier services sleep after ~15 min idle. The first request
+// that wakes one either waits out the cold start, or - if a couple of
+// requests land in that same window - gets rejected outright by Render's
+// own edge with `x-render-routing: hibernate-rate-limited` before our app
+// ever sees it. That's a "try again in a moment", not a real error, so we
+// retry it transparently instead of surfacing it to the user. 502/503/504
+// usually mean the same cold-start window but *did* reach our app, so only
+// retry those for safe (GET/HEAD) requests to avoid double-submitting a
+// mutating call whose first attempt may have actually gone through.
+const TRANSIENT_RETRY_STATUSES = new Set([429, 502, 503, 504]);
+const MAX_TRANSIENT_RETRIES = 3;
+const RETRY_DELAYS_MS = [1000, 2000, 4000];
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function request(path, options = {}) {
   const tokenKey = options.tokenKey === undefined ? 'owner_token' : options.tokenKey;
   const token = tokenKey ? localStorage.getItem(tokenKey) : null;
   const timeoutMs = options.timeoutMs || 30000;
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -29,45 +44,68 @@ export async function request(path, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  let response;
   const url = `${API_URL}${path}`;
+  const method = (options.method || 'GET').toUpperCase();
+  const isIdempotent = method === 'GET' || method === 'HEAD';
 
-  try {
-    response = await fetch(url, {
-      ...options,
-      headers,
-      signal: options.signal || controller.signal,
-    });
-  } catch (error) {
-    console.error('API connection failed:', { url, error });
-    if (error.name === 'AbortError') {
-      throw new Error(`API server did not respond. ${url}`, { cause: error });
-    }
-    throw new Error(`API server connection failed. ${url} (${error.message})`, { cause: error });
-  } finally {
-    clearTimeout(timeout);
-  }
+  for (let attempt = 0; attempt <= MAX_TRANSIENT_RETRIES; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    let response;
 
-  if (!response.ok) {
-    let message = `Operation failed. HTTP ${response.status}`;
     try {
-      const contentType = response.headers.get('content-type') || '';
-      if (contentType.includes('application/json')) {
-        const errorData = await response.json();
-        message = errorData.message || errorData.error || message;
-      } else {
-        const text = await response.text();
-        if (text) {
-          message = `${message}: ${text.slice(0, 220)}`;
-        }
+      response = await fetch(url, {
+        ...options,
+        headers,
+        signal: options.signal || controller.signal,
+      });
+    } catch (error) {
+      clearTimeout(timeout);
+      console.error('API connection failed:', { url, error });
+      if (error.name === 'AbortError') {
+        throw new Error(`API server did not respond. ${url}`, { cause: error });
       }
-    } catch {
-      // Keep the HTTP status fallback when the error body cannot be parsed.
+      throw new Error(`API server connection failed. ${url} (${error.message})`, { cause: error });
     }
-    throw new Error(message);
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      const canRetry =
+        attempt < MAX_TRANSIENT_RETRIES &&
+        TRANSIENT_RETRY_STATUSES.has(response.status) &&
+        (response.status === 429 || isIdempotent);
+
+      if (canRetry) {
+        const retryAfterHeader = Number(response.headers.get('retry-after'));
+        const delayMs = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
+          ? retryAfterHeader * 1000
+          : RETRY_DELAYS_MS[attempt];
+        await sleep(delayMs);
+        continue;
+      }
+
+      let message = `Operation failed. HTTP ${response.status}`;
+      try {
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const errorData = await response.json();
+          message = errorData.message || errorData.error || message;
+        } else {
+          const text = await response.text();
+          if (text) {
+            message = `${message}: ${text.slice(0, 220)}`;
+          }
+        }
+      } catch {
+        // Keep the HTTP status fallback when the error body cannot be parsed.
+      }
+      throw new Error(message);
+    }
+
+    return response.json();
   }
 
-  return response.json();
+  throw new Error('Operation failed after multiple retries.');
 }
 
 export const publicApi = {

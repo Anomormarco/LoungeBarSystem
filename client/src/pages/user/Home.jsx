@@ -454,8 +454,12 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!location) return;
-
+    // The query is always anchored to the fixed city center/radius, not the
+    // visitor's resolved location - so this must NOT depend on `location`.
+    // It used to, which fired a second, entirely redundant fetch (identical
+    // params) every time geolocation resolved after the initial mount fetch,
+    // doubling gateway traffic - and doubling the odds of tripping Render's
+    // free-tier wake-storm protection - on every single page load.
     const fetchNearby = async () => {
       setLoading(true);
       setError('');
@@ -474,7 +478,7 @@ export default function Home() {
     };
 
     fetchNearby();
-  }, [location, searchQuery, tableType, availableOnly]);
+  }, [searchQuery, tableType, availableOnly]);
 
   const clearOrganizationPreview = () => {
     detailRequestRef.current += 1;

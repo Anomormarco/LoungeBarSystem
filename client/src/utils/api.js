@@ -23,9 +23,13 @@ const SOCKET_URL =
 // usually mean the same cold-start window but *did* reach our app, so only
 // retry those for safe (GET/HEAD) requests to avoid double-submitting a
 // mutating call whose first attempt may have actually gone through.
+// Render's own docs warn a free-tier cold start "can delay requests by 50
+// seconds or more" - a 3-retry/~7s budget gave up long before that finished
+// and still showed the user a raw 429. This schedule gives ~58s of total
+// patience (8 attempts) before surfacing anything.
 const TRANSIENT_RETRY_STATUSES = new Set([429, 502, 503, 504]);
-const MAX_TRANSIENT_RETRIES = 3;
-const RETRY_DELAYS_MS = [1000, 2000, 4000];
+const RETRY_DELAYS_MS = [1000, 2000, 4000, 6000, 10000, 15000, 20000];
+const MAX_TRANSIENT_RETRIES = RETRY_DELAYS_MS.length;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));

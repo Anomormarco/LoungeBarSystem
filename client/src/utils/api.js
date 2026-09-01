@@ -23,12 +23,15 @@ const SOCKET_URL =
 // usually mean the same cold-start window but *did* reach our app, so only
 // retry those for safe (GET/HEAD) requests to avoid double-submitting a
 // mutating call whose first attempt may have actually gone through.
-// Render's own docs warn a free-tier cold start "can delay requests by 50
-// seconds or more" - a 3-retry/~7s budget gave up long before that finished
-// and still showed the user a raw 429. This schedule gives ~58s of total
-// patience (8 attempts) before surfacing anything.
+// A longer (~58s) budget was tried here to ride out Render's documented
+// "50 seconds or more" cold start, but that made a genuine failure look like
+// the page hanging for minutes instead of erroring quickly - worse than the
+// original problem when several duplicate calls each ran their own full
+// retry sequence. The real fix for cold starts is keeping services warm
+// (see .github/workflows/keep-render-awake.yml); this budget only needs to
+// cover a short, ordinary transient blip.
 const TRANSIENT_RETRY_STATUSES = new Set([429, 502, 503, 504]);
-const RETRY_DELAYS_MS = [1000, 2000, 4000, 6000, 10000, 15000, 20000];
+const RETRY_DELAYS_MS = [800, 1500, 3000];
 const MAX_TRANSIENT_RETRIES = RETRY_DELAYS_MS.length;
 
 function sleep(ms) {

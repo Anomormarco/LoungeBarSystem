@@ -125,106 +125,15 @@ async function failPayment(paymentId, failureReason = null, metadata = {}) {
   });
 }
 
-async function createStripeCheckoutSession(payload) {
-  const currency = String(payload.currency || process.env.STRIPE_CURRENCY || "usd").toLowerCase();
-  const payment = await createPendingPayment({
-    ...payload,
-    currency,
-    paymentMethod: "stripe",
-  });
-  const stripe = stripeClient();
-
-  if (!stripe) {
-    return activateMockStripePayment(payment, payload, "STRIPE_SECRET_KEY тохируулагдаагүй тул mock Stripe payment амжилттай болголоо.");
-  }
-
-  if (mockStripeEnabled()) {
-    return activateMockStripePayment(payment, payload, "STRIPE_MOCK_SUCCESS=true тул mock Stripe payment амжилттай болголоо.");
-  }
-
-  const organization = await prisma.organization.findUnique({
-    where: { id: Number(payload.organizationId) },
-    select: {
-      name: true,
-      staff: {
-        where: { role: "manager" },
-        select: { email: true, name: true },
-        take: 1,
-      },
-    },
-  });
-  const owner = organization?.staff?.[0];
-  const priceId = process.env.STRIPE_PRICE_ID;
-  const checkoutMode = priceId ? "subscription" : "payment";
-
-  const sessionPayload = {
-    mode: checkoutMode,
-    success_url: payload.successUrl || process.env.STRIPE_SUCCESS_URL || "http://localhost:5173/payment/success",
-    cancel_url: payload.cancelUrl || process.env.STRIPE_CANCEL_URL || "http://localhost:5173/payment/cancel",
-    customer_email: owner?.email,
-    client_reference_id: String(payment.organizationId),
-    metadata: {
-      paymentId: String(payment.id),
-      organizationId: String(payment.organizationId),
-      planType: String(payload.planType),
-      periodDays: String(payload.periodDays || 30),
-    },
-    line_items: [
-      priceId
-        ? { quantity: 1, price: priceId }
-        : {
-            quantity: 1,
-            price_data: {
-              currency,
-              unit_amount: Math.round(Number(payload.amount) * 100),
-              product_data: {
-                name: `${organization?.name || "LoungeBar"} ${payload.planType} subscription`,
-              },
-            },
-          },
-    ],
-  };
-
-  if (checkoutMode === "payment") {
-    sessionPayload.payment_intent_data = {
-      metadata: {
-        paymentId: String(payment.id),
-        organizationId: String(payment.organizationId),
-      },
-    };
-  } else {
-    sessionPayload.subscription_data = {
-      metadata: {
-        paymentId: String(payment.id),
-        organizationId: String(payment.organizationId),
-      },
-    };
-  }
-
-  let session;
-  try {
-    session = await stripe.checkout.sessions.create(sessionPayload);
-  } catch (error) {
-    console.error("[stripe-checkout] falling back to mock success:", error.message);
-    return activateMockStripePayment(payment, payload, "Stripe session үүсэхэд алдаа гарсан тул mock payment амжилттай болголоо.");
-  }
-  const updatedPayment = await prisma.payment.update({
-    where: { id: payment.id },
-    data: {
-      stripeCheckoutSessionId: session.id,
-      stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
-      stripePaymentIntentId: typeof session.payment_intent === "string" ? session.payment_intent : null,
-      stripeSubscriptionId: typeof session.subscription === "string" ? session.subscription : null,
-      currency,
-    },
-  });
-
-  return {
-    payment: updatedPayment,
-    checkoutSessionId: session.id,
-    checkoutUrl: session.url,
-    mode: checkoutMode,
-  };
+// Stripe was dropped from the product (QPay-only now, see SubscriptionInfo.jsx),
+// but this endpoint - and its mock-success fallback, meant only for local dev
+// without a Stripe key - was still reachable directly (or via a stale cached
+// frontend bundle still showing the old Stripe button) and would silently
+// activate a subscription with zero real payment. Refuse outright rather than
+// leave that open. (The real Stripe checkout-session logic this replaced is
+// still in git history if Stripe is ever reinstated.)
+async function createStripeCheckoutSession() {
+  throw httpError(410, "Stripe төлбөрийн сонголт идэвхгүй болсон. QPay ашиглана уу.");
 }
 
 async function createStripeCustomerPortalSession({ organizationId, returnUrl }) {

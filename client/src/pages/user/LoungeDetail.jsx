@@ -50,6 +50,7 @@ function LoungeDetailContent() {
   const [activeTab, setActiveTab] = useState('tables');
   const [selectedTable, setSelectedTable] = useState(null);
   const [galleryTab, setGalleryTab] = useState('exterior');
+  const [activeMenuCategory, setActiveMenuCategory] = useState('all');
 
   const fetchData = useCallback(async () => {
     try {
@@ -105,6 +106,11 @@ function LoungeDetailContent() {
     acc[cat].push(item);
     return acc;
   }, {});
+  const menuCategories = Object.keys(menuByCategory);
+  const filteredMenuItems =
+    activeMenuCategory === 'all'
+      ? menuItems
+      : menuItems.filter((item) => (item.category || 'Бусад') === activeMenuCategory);
 
   if (loading) {
     return (
@@ -228,26 +234,61 @@ function LoungeDetailContent() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-lounge-border/60 pb-px">
-          {[
-            { id: 'tables', label: 'Ширээний зураг', icon: Table2 },
-            { id: 'menu', label: 'Меню', icon: UtensilsCrossed },
-          ].map(({ id: tabId, label, icon: Icon }) => (
-            <button
-              key={tabId}
-              onClick={() => setActiveTab(tabId)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-colors -mb-px ${
-                activeTab === tabId
-                  ? 'border-lounge-accent text-lounge-accent font-extrabold'
-                  : 'border-transparent text-lounge-muted hover:text-white'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </button>
-          ))}
+        {/* Tabs - sticky so they (and, on the menu tab, the category pills
+            right below) stay pinned while cards scroll underneath. */}
+        <div className="sticky top-0 z-20 -mx-4 bg-[#15130f]/95 px-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+          <div className="flex gap-2 border-b border-lounge-border/60 pb-px">
+            {[
+              { id: 'tables', label: 'Ширээний зураг', icon: Table2 },
+              { id: 'menu', label: 'Меню', icon: UtensilsCrossed },
+            ].map(({ id: tabId, label, icon: Icon }) => (
+              <button
+                key={tabId}
+                onClick={() => setActiveTab(tabId)}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-colors -mb-px ${
+                  activeTab === tabId
+                    ? 'border-lounge-accent text-lounge-accent font-extrabold'
+                    : 'border-transparent text-lounge-muted hover:text-white'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {activeTab === 'menu' && menuCategories.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <button
+                type="button"
+                onClick={() => setActiveMenuCategory('all')}
+                className={`shrink-0 rounded-full border px-4 py-1.5 text-xs font-bold transition-colors ${
+                  activeMenuCategory === 'all'
+                    ? 'border-lounge-accent bg-lounge-accent text-lounge-black'
+                    : 'border-lounge-border text-lounge-muted hover:text-white'
+                }`}
+              >
+                Бүгд
+              </button>
+              {menuCategories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setActiveMenuCategory(category)}
+                  className={`shrink-0 rounded-full border px-4 py-1.5 text-xs font-bold transition-colors ${
+                    activeMenuCategory === category
+                      ? 'border-lounge-accent bg-lounge-accent text-lounge-black'
+                      : 'border-lounge-border text-lounge-muted hover:text-white'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+
+        <div className="h-6" />
 
         {/* Table map */}
         {activeTab === 'tables' && (
@@ -290,45 +331,46 @@ function LoungeDetailContent() {
           </div>
         )}
 
-        {/* Menu */}
+        {/* Menu - image-forward cards, filtered by the sticky category
+            pills above rather than every category stacked at once. */}
         {activeTab === 'menu' && (
-          <div className="space-y-8">
-            {Object.entries(menuByCategory).map(([category, items]) => (
-              <div key={category}>
-                <h3 className="text-lg font-bold text-lounge-accent mb-4 border-b border-lounge-border/60 pb-2">
-                  {category}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex gap-4 p-4 rounded-2xl bg-lounge-card border border-lounge-border/60"
-                    >
-                      {item.image && (
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-20 h-20 rounded-xl object-cover shrink-0"
-                        />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start gap-2">
-                          <h4 className="font-semibold text-white">{item.name}</h4>
-                          <span className="text-lounge-accent font-bold shrink-0">
-                            {Number(item.price).toLocaleString()} ₮
-                          </span>
-                        </div>
-                        {item.description && (
-                          <p className="text-xs text-lounge-muted mt-1 line-clamp-2">{item.description}</p>
-                        )}
+          <div>
+            <div
+              key={activeMenuCategory}
+              className="grid grid-cols-2 gap-3 [animation:lounge-fade-in_0.25s_ease-out] sm:grid-cols-3 md:grid-cols-4"
+            >
+              {filteredMenuItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="overflow-hidden rounded-2xl border border-lounge-border/60 bg-lounge-card transition-colors hover:border-lounge-accent/60"
+                >
+                  <div className="aspect-square w-full overflow-hidden bg-lounge-black/40">
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-lounge-muted">
+                        <UtensilsCrossed className="h-8 w-8" />
                       </div>
-                    </div>
-                  ))}
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <h4 className="line-clamp-1 text-sm font-bold text-white">{item.name}</h4>
+                    {item.description && (
+                      <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-lounge-muted">{item.description}</p>
+                    )}
+                    <p className="mt-2 text-sm font-extrabold text-lounge-accent">
+                      {Number(item.price).toLocaleString()} ₮
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
             {menuItems.length === 0 && (
               <p className="text-center text-lounge-muted py-12 text-sm">Меню байхгүй байна.</p>
+            )}
+            {menuItems.length > 0 && filteredMenuItems.length === 0 && (
+              <p className="text-center text-lounge-muted py-12 text-sm">Энэ ангилалд зүйл алга.</p>
             )}
           </div>
         )}

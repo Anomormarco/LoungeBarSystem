@@ -110,12 +110,18 @@ function buildTables(organizationId) {
   }));
 }
 
+function sixMonthsFromNow() {
+  const date = new Date();
+  date.setMonth(date.getMonth() + 6);
+  return date;
+}
+
 async function upsertOrganization(data) {
   const existing = await prisma.organization.findFirst({ where: { name: data.name } });
   const payload = {
     ...data,
     subscriptionStatus: "active",
-    subscriptionExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
+    subscriptionExpiry: sixMonthsFromNow(),
     isApproved: true,
   };
 
@@ -129,34 +135,70 @@ async function upsertOrganization(data) {
   return prisma.organization.create({ data: payload });
 }
 
+// Records the 6-month activation as a real "paid" entry in the payment
+// history table (what subscriptionRequired actually gates on is the
+// Organization's own subscriptionStatus/subscriptionExpiry above, set by
+// upsertOrganization - this is purely so the owner's payment history shows
+// something other than "no history" for an org whose access was granted
+// this way). Idempotent: skip if this org already has a successful payment.
+async function ensureSixMonthPaymentRecord(organizationId) {
+  const existing = await prisma.payment.findFirst({
+    where: { organizationId, paymentStatus: "success" },
+  });
+  if (existing) return existing;
+
+  const periodEnd = sixMonthsFromNow();
+  return prisma.payment.create({
+    data: {
+      organizationId,
+      planType: "6 сарын багц",
+      amount: 300000,
+      currency: "mnt",
+      paymentMethod: "qpay",
+      paymentStatus: "success",
+      paidAt: new Date(),
+      periodStart: new Date(),
+      periodEnd,
+    },
+  });
+}
+
 async function main() {
   if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is required");
   }
 
+  // Gate1/Gate2 are kept untouched now (no longer auto-deleted, and not
+  // part of the loop below - their registration, subscription and password
+  // stay exactly as they already are).
   await prisma.organization.deleteMany({
     where: {
       name: {
-        in: ["Onyx Social", "Lotus Lounge", "Prime Table", "Gate1", "Gate2"],
+        in: ["Onyx Social", "Lotus Lounge", "Prime Table"],
       },
     },
   });
 
-  const password = await bcrypt.hash("Password123!", 10);
+  // Organization owner accounts get the new shared password; the admin
+  // account is untouched (still Password123!) - the request was specifically
+  // "all organizations' password", not the platform admin.
+  const password = await bcrypt.hash("Zk94387282@", 10);
+  const adminPassword = await bcrypt.hash("Password123!", 10);
 
   await prisma.admin.upsert({
     where: { email: "admin@loungebar.mn" },
-    update: { password, role: "super_admin" },
+    update: { password: adminPassword, role: "super_admin" },
     create: {
       name: "Super Admin",
       email: "admin@loungebar.mn",
-      password,
+      password: adminPassword,
       role: "super_admin",
     },
   });
 
   for (const [index, restaurant] of restaurants.entries()) {
     const organization = await upsertOrganization(restaurant);
+    await ensureSixMonthPaymentRecord(organization.id);
 
     await prisma.menuItem.deleteMany({ where: { organizationId: organization.id } });
     await prisma.menuItem.createMany({
@@ -221,9 +263,9 @@ async function main() {
     }
   }
 
-  console.log(`Seeded ${restaurants.length} restaurants with tables, menu items, owners, and admin account.`);
+  console.log(`Seeded ${restaurants.length} restaurants with tables, menu items, owners, admin account, and 6-month активация.`);
   console.log("Admin: admin@loungebar.mn / Password123!");
-  console.log("Owners: lounge-name@gmail.com accounts / Password123!");
+  console.log("Owners: lounge-name@gmail.com accounts / Zk94387282@");
 }
 
 main()

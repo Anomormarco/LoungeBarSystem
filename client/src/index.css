@@ -358,6 +358,15 @@ body.reservation-modal-open nav.fixed {
   }
 }
 
+@keyframes lounge-drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 @keyframes lounge-ping {
   75%,
   100% {

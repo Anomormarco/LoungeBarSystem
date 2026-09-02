@@ -68,11 +68,11 @@ export default function UserLayout({ children }) {
         <div className="fixed inset-0 z-[90] md:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-black/70"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
             aria-label="Цэс хаах"
           />
-          <aside className="absolute right-0 top-0 h-full w-[min(82vw,320px)] border-l border-lounge-border bg-[#12110e] p-5 shadow-2xl">
+          <aside className="absolute left-0 top-0 h-full w-[min(82vw,320px)] border-r border-lounge-border bg-[#12110e] p-5 shadow-2xl animate-[lounge-drawer-in_0.25s_ease-out]">
             <div className="mb-6 flex items-center justify-between">
               <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3">
                 <span className="ub-script-logo ub-script-logo-sm" aria-label="UBTable Logo">
@@ -89,55 +89,40 @@ export default function UserLayout({ children }) {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <nav className="flex flex-col gap-2">
-              {navItems.map((item) => (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setMobileOpen(false)}
-                  className={navLinkClass}
-                >
-                  {item.label}
-                </NavLink>
-              ))}
+            <nav className="flex flex-col gap-1">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    end={item.path === '/'}
+                    onClick={() => setMobileOpen(false)}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 rounded-xl px-3 py-3.5 text-sm font-extrabold transition-colors ${
+                        isActive
+                          ? 'bg-lounge-primary/15 text-lounge-accent shadow-[0_0_12px_rgba(255,168,0,0.18)]'
+                          : 'text-lounge-muted hover:bg-lounge-card hover:text-lounge-accent'
+                      }`
+                    }
+                  >
+                    <Icon className="h-5 w-5 shrink-0" />
+                    {item.label}
+                  </NavLink>
+                );
+              })}
             </nav>
           </aside>
         </div>
       )}
 
-      <main className="relative z-10 pb-24 md:pb-0">{children}</main>
+      <main className="relative z-10">{children}</main>
 
-      <footer className="relative z-10 mt-12 hidden w-full border-t border-lounge-border md:block md:pb-0">
+      <footer className="relative z-10 mt-12 w-full border-t border-lounge-border">
         <div className="mx-auto w-full max-w-[1440px] px-4 py-8 text-center text-xs text-lounge-muted sm:px-6 lg:px-8">
           <p>&copy; {new Date().getFullYear()} Lounge Table Reservation Platform</p>
         </div>
       </footer>
-
-      <nav className="fixed inset-x-0 bottom-0 z-[85] border-t border-lounge-border/70 bg-[#12110e]/95 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-18px_45px_rgba(0,0,0,0.38)] backdrop-blur md:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.path === '/'}
-                className={({ isActive }) =>
-                  `flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1.5 text-center text-[10px] font-extrabold leading-tight transition-all ${
-                    isActive
-                      ? 'bg-lounge-primary/15 text-lounge-accent shadow-[0_0_14px_rgba(255,168,0,0.18)]'
-                      : 'text-lounge-muted active:bg-lounge-card active:text-white'
-                  }`
-                }
-              >
-                <Icon className="h-5 w-5" />
-                <span className="line-clamp-1">{item.shortLabel}</span>
-              </NavLink>
-            );
-          })}
-        </div>
-      </nav>
     </div>
   );
 }

@@ -1,31 +1,17 @@
-const Stripe = require("stripe");
 require("../../utils/loadEnv");
 const prisma = require("../../utils/prisma");
 const httpError = require("../../utils/httpError");
 const qpayClient = require("../../utils/qpayClient");
 
+// QPay-only: Stripe was fully removed (checkout, portal, webhook, and the
+// mock-success fallback that used to activate a subscription for free when
+// no Stripe key was configured - see git history for the old code if Stripe
+// is ever reinstated).
+
 function periodEnd(days = 30) {
   const end = new Date();
   end.setDate(end.getDate() + Number(days || 30));
   return end;
-}
-
-function stripeClient() {
-  const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
-  if (!secretKey) return null;
-  return new Stripe(secretKey);
-}
-
-function mockStripeEnabled() {
-  return String(process.env.STRIPE_MOCK_SUCCESS || "").toLowerCase() === "true";
-}
-
-function isActiveStripeStatus(status) {
-  return ["active", "trialing"].includes(status);
-}
-
-function dateFromStripeSeconds(seconds) {
-  return seconds ? new Date(seconds * 1000) : null;
 }
 
 async function createPendingPayment({ organizationId, planType, amount, paymentMethod, periodDays, currency }) {
@@ -41,7 +27,7 @@ async function createPendingPayment({ organizationId, planType, amount, paymentM
       organizationId: parsedOrganizationId,
       planType,
       amount: parsedAmount,
-      currency: String(currency || process.env.STRIPE_CURRENCY || "usd").toLowerCase(),
+      currency: String(currency || "mnt").toLowerCase(),
       paymentMethod,
       paymentStatus: "pending",
       periodStart: new Date(),
@@ -50,6 +36,10 @@ async function createPendingPayment({ organizationId, planType, amount, paymentM
   });
 }
 
+// The auto-renewal trigger: a successful payment (real QPay only - see
+// checkQpayPayment) extends the organization's access to the payment's own
+// periodEnd (set at creation time from the plan's periodDays), i.e. paying
+// adds the days and re-activates access in one step.
 async function activatePayment(paymentId, metadata = {}) {
   const parsedPaymentId = Number(paymentId);
 
@@ -63,11 +53,6 @@ async function activatePayment(paymentId, metadata = {}) {
       data: {
         paymentStatus: "success",
         paidAt: metadata.paidAt || new Date(),
-        stripeCheckoutSessionId: metadata.stripeCheckoutSessionId,
-        stripePaymentIntentId: metadata.stripePaymentIntentId,
-        stripeSubscriptionId: metadata.stripeSubscriptionId,
-        stripeCustomerId: metadata.stripeCustomerId,
-        stripeInvoiceId: metadata.stripeInvoiceId,
         currency: metadata.currency || undefined,
         failureReason: null,
       },
@@ -86,26 +71,7 @@ async function activatePayment(paymentId, metadata = {}) {
   });
 }
 
-async function activateMockStripePayment(payment, payload, reason) {
-  const checkoutSessionId = `mock_checkout_${payment.id}`;
-  const activatedPayment = await activatePayment(payment.id, {
-    stripeCheckoutSessionId: checkoutSessionId,
-    stripePaymentIntentId: `mock_pi_${payment.id}`,
-    stripeCustomerId: `mock_customer_${payment.organizationId}`,
-    currency: payment.currency,
-  });
-
-  return {
-    payment: activatedPayment,
-    checkoutSessionId,
-    checkoutUrl: payload.successUrl || process.env.STRIPE_SUCCESS_URL || "/subscription?success=true",
-    mode: "mock",
-    mock: true,
-    message: reason || "Stripe mock payment амжилттай баталгаажлаа.",
-  };
-}
-
-async function failPayment(paymentId, failureReason = null, metadata = {}) {
+async function failPayment(paymentId, failureReason = null) {
   const parsedPaymentId = Number(paymentId);
 
   if (!Number.isInteger(parsedPaymentId)) {
@@ -117,207 +83,8 @@ async function failPayment(paymentId, failureReason = null, metadata = {}) {
     data: {
       paymentStatus: "failed",
       failureReason,
-      stripeCheckoutSessionId: metadata.stripeCheckoutSessionId,
-      stripePaymentIntentId: metadata.stripePaymentIntentId,
-      stripeCustomerId: metadata.stripeCustomerId,
-      stripeInvoiceId: metadata.stripeInvoiceId,
     },
   });
-}
-
-// Stripe was dropped from the product (QPay-only now, see SubscriptionInfo.jsx),
-// but this endpoint - and its mock-success fallback, meant only for local dev
-// without a Stripe key - was still reachable directly (or via a stale cached
-// frontend bundle still showing the old Stripe button) and would silently
-// activate a subscription with zero real payment. Refuse outright rather than
-// leave that open. (The real Stripe checkout-session logic this replaced is
-// still in git history if Stripe is ever reinstated.)
-async function createStripeCheckoutSession() {
-  throw httpError(410, "Stripe төлбөрийн сонголт идэвхгүй болсон. QPay ашиглана уу.");
-}
-
-async function createStripeCustomerPortalSession({ organizationId, returnUrl }) {
-  const stripe = stripeClient();
-  if (!stripe) {
-    return {
-      portalUrl: returnUrl || process.env.STRIPE_PORTAL_RETURN_URL || "http://localhost:5173/subscription",
-      mode: "mock",
-      message: "Stripe mock billing portal.",
-    };
-  }
-
-  const payment = await prisma.payment.findFirst({
-    where: {
-      organizationId: Number(organizationId),
-      paymentMethod: "stripe",
-      stripeCustomerId: { not: null },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  if (!payment?.stripeCustomerId) {
-    throw httpError(404, "Stripe хэрэглэгч олдсонгүй. Эхлээд Stripe төлбөр хийнэ үү.");
-  }
-
-  if (payment?.stripeCustomerId && (mockStripeEnabled() || payment.stripeCustomerId.startsWith("mock_customer_"))) {
-    return {
-      portalUrl: returnUrl || process.env.STRIPE_PORTAL_RETURN_URL || "http://localhost:5173/subscription",
-      mode: "mock",
-      message: "Stripe mock billing portal.",
-    };
-  }
-
-  const session = await stripe.billingPortal.sessions.create({
-    customer: payment.stripeCustomerId,
-    return_url: returnUrl || process.env.STRIPE_PORTAL_RETURN_URL || "http://localhost:5173/subscription",
-  });
-
-  return { portalUrl: session.url };
-}
-
-async function activateStripeSubscriptionPayment(session, subscription) {
-  const paymentId = session.metadata?.paymentId || subscription.metadata?.paymentId;
-  if (!paymentId) return null;
-
-  const status = subscription.status;
-  const periodEndDate = dateFromStripeSeconds(subscription.current_period_end);
-  const periodStartDate = dateFromStripeSeconds(subscription.current_period_start);
-
-  if (!isActiveStripeStatus(status)) {
-    return failPayment(paymentId, `Stripe subscription төлөв: ${status}`, {
-      stripeCheckoutSessionId: session.id,
-      stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
-      stripeSubscriptionId: subscription.id,
-    });
-  }
-
-  return prisma.$transaction(async (tx) => {
-    const payment = await tx.payment.update({
-      where: { id: Number(paymentId) },
-      data: {
-        paymentStatus: "success",
-        paidAt: new Date(),
-        stripeCheckoutSessionId: session.id,
-        stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
-        stripeSubscriptionId: subscription.id,
-        stripeInvoiceId: typeof subscription.latest_invoice === "string" ? subscription.latest_invoice : null,
-        periodStart: periodStartDate || undefined,
-        periodEnd: periodEndDate || undefined,
-        failureReason: null,
-      },
-    });
-
-    await tx.organization.update({
-      where: { id: payment.organizationId },
-      data: {
-        subscriptionStatus: "active",
-        subscriptionExpiry: periodEndDate || payment.periodEnd,
-        isApproved: true,
-      },
-    });
-
-    return payment;
-  });
-}
-
-async function handleStripeWebhook(rawBody, signature) {
-  const stripe = stripeClient();
-
-  if (!stripe) {
-    throw httpError(400, "STRIPE_SECRET_KEY тохируулагдаагүй байна.");
-  }
-
-  const event = process.env.STRIPE_WEBHOOK_SECRET
-    ? stripe.webhooks.constructEvent(rawBody, signature, process.env.STRIPE_WEBHOOK_SECRET)
-    : JSON.parse(rawBody.toString("utf8"));
-
-  if (event.type === "payment_intent.succeeded") {
-    const intent = event.data.object;
-    const paymentId = intent.metadata?.paymentId;
-    if (paymentId) {
-      await activatePayment(paymentId, {
-        paidAt: dateFromStripeSeconds(intent.created),
-        stripePaymentIntentId: intent.id,
-        stripeCustomerId: typeof intent.customer === "string" ? intent.customer : null,
-        currency: intent.currency,
-      });
-    }
-  }
-
-  if (event.type === "payment_intent.payment_failed") {
-    const intent = event.data.object;
-    const paymentId = intent.metadata?.paymentId;
-    if (paymentId) {
-      await failPayment(paymentId, intent.last_payment_error?.message || "Stripe төлбөр амжилтгүй боллоо.", {
-        stripePaymentIntentId: intent.id,
-        stripeCustomerId: typeof intent.customer === "string" ? intent.customer : null,
-      });
-    }
-  }
-
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
-    const paymentId = session.metadata?.paymentId;
-
-    if (session.mode === "subscription" && session.subscription) {
-      const subscription = await stripe.subscriptions.retrieve(session.subscription);
-      await activateStripeSubscriptionPayment(session, subscription);
-    } else if (paymentId && session.payment_status === "paid") {
-      await activatePayment(paymentId, {
-        stripeCheckoutSessionId: session.id,
-        stripePaymentIntentId: typeof session.payment_intent === "string" ? session.payment_intent : null,
-        stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
-        currency: session.currency,
-      });
-    }
-  }
-
-  if (event.type === "checkout.session.expired") {
-    const session = event.data.object;
-    const paymentId = session.metadata?.paymentId;
-    if (paymentId) {
-      await failPayment(paymentId, "Stripe төлбөрийн холбоосын хугацаа дууссан байна.", {
-        stripeCheckoutSessionId: session.id,
-        stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
-      });
-    }
-  }
-
-  if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
-    const subscription = event.data.object;
-    const active = isActiveStripeStatus(subscription.status);
-    const periodEndDate = dateFromStripeSeconds(subscription.current_period_end);
-
-    await prisma.$transaction(async (tx) => {
-      const payments = await tx.payment.findMany({
-        where: { stripeSubscriptionId: subscription.id },
-        orderBy: { createdAt: "desc" },
-        take: 1,
-      });
-      const payment = payments[0];
-      if (!payment) return;
-
-      await tx.payment.update({
-        where: { id: payment.id },
-        data: {
-          paymentStatus: active ? "success" : "failed",
-          periodEnd: periodEndDate || payment.periodEnd,
-          failureReason: active ? null : `Stripe subscription төлөв: ${subscription.status}`,
-        },
-      });
-
-      await tx.organization.update({
-        where: { id: payment.organizationId },
-        data: {
-          subscriptionStatus: active ? "active" : "expired",
-          subscriptionExpiry: periodEndDate || payment.periodEnd,
-          isApproved: active,
-        },
-      });
-    });
-  }
-
-  return { received: true };
 }
 
 function qpayCallbackUrl(paymentId) {
@@ -446,9 +213,6 @@ async function handleQpayWebhook(query = {}, payload = {}) {
 }
 
 module.exports = {
-  createStripeCheckoutSession,
-  createStripeCustomerPortalSession,
-  handleStripeWebhook,
   createQpayInvoice,
   checkQpayPayment,
   handleQpayWebhook,

@@ -192,31 +192,19 @@ export const api = {
   deleteStaff: (id) => request(`/owner/staff/${id}`, { method: 'DELETE' }),
   getStatistics: (range = '7d') => request(`/owner/statistics?range=${range}`),
   getSubscription: () => request('/owner/subscription'),
-  createStripeCheckout: (amount, planType, successUrl, cancelUrl, periodDays = 30) =>
-    request('/payments/stripe/create-checkout-session', {
-      method: 'POST',
-      body: JSON.stringify({ amount, planType, successUrl, cancelUrl, periodDays }),
-      timeoutMs: 90000,
-    }),
-  createStripeCheckoutWithToken: (token, amount, planType, successUrl, cancelUrl, periodDays = 30) =>
-    request('/payments/stripe/create-checkout-session', {
-      method: 'POST',
-      body: JSON.stringify({ amount, planType, successUrl, cancelUrl, periodDays }),
-      tokenKey: null,
-      timeoutMs: 90000,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }),
-  createStripePortal: (returnUrl) =>
-    request('/payments/stripe/customer-portal', {
-      method: 'POST',
-      body: JSON.stringify({ returnUrl }),
-    }),
   createQpayInvoice: (amount, planType, periodDays = 30) =>
     request('/payments/qpay/create-invoice', {
       method: 'POST',
       body: JSON.stringify({ amount, planType, periodDays }),
+    }),
+  createQpayInvoiceWithToken: (token, amount, planType, periodDays = 30) =>
+    request('/payments/qpay/create-invoice', {
+      method: 'POST',
+      body: JSON.stringify({ amount, planType, periodDays }),
+      tokenKey: null,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }),
   simulateQpayPayment: (paymentId, status) =>
     request('/payments/webhook/qpay', {
@@ -225,6 +213,13 @@ export const api = {
     }),
   checkQpayStatus: (paymentId) =>
     request(`/payments/qpay/status/${paymentId}`),
+  checkQpayStatusWithToken: (token, paymentId) =>
+    request(`/payments/qpay/status/${paymentId}`, {
+      tokenKey: null,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
 };
 
 export const adminApi = {

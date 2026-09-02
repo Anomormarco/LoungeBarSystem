@@ -106,6 +106,7 @@ export default function About() {
   const [portalSuccess, setPortalSuccess] = useState('');
   const [pendingOwner, setPendingOwner] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState(ownerPlans[0]);
+  const [invoice, setInvoice] = useState(null);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [registerForm, setRegisterForm] = useState(initialRegisterForm);
 
@@ -120,27 +121,48 @@ export default function About() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
-    if (params.get('owner_payment') === 'success') {
-      const email = sessionStorage.getItem('pending_owner_email') || '';
-      setLoginForm((current) => ({ ...current, email }));
-      setPortalView('paymentSuccess');
-      setPortalSuccess('');
-      sessionStorage.removeItem('pending_owner_token');
-      sessionStorage.removeItem('pending_owner_email');
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-
-    if (params.get('owner_payment') === 'cancelled') {
-      setPortalView('payment');
-      setPortalError('Stripe төлбөр цуцлагдлаа. Дахин багцаа сонгоод үргэлжлүүлнэ үү.');
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-
     if (params.get('owner_login') === 'true') {
       setPortalView('login');
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
+
+  // QPay is paid inline (no redirect away from this page), so confirmation
+  // is polling-based: while an invoice is showing, keep re-checking with
+  // QPay itself until it reports paid, then log the new owner straight in -
+  // same auto-renew trigger as SubscriptionInfo.jsx (paying sets the
+  // organization's subscriptionStatus/expiry from the payment's own
+  // periodEnd, see payment.service.js's activatePayment()).
+  useEffect(() => {
+    const token = pendingOwner?.token || sessionStorage.getItem('pending_owner_token');
+    if (!invoice || !token) return undefined;
+
+    let active = true;
+    const interval = window.setInterval(async () => {
+      try {
+        const res = await api.checkQpayStatusWithToken(token, invoice.payment.id);
+        if (!active) return;
+        if (res.data?.status === 'success') {
+          setInvoice(null);
+          const owner = pendingOwner || {
+            token,
+            email: sessionStorage.getItem('pending_owner_email') || loginForm.email,
+          };
+          sessionStorage.removeItem('pending_owner_token');
+          sessionStorage.removeItem('pending_owner_email');
+          saveOwnerSession({ token: owner.token, owner: owner.owner });
+        }
+      } catch (error) {
+        console.error('QPay төлбөрийн төлөв шалгахад алдаа гарлаа:', error.message);
+      }
+    }, 3000);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoice]);
 
   const saveOwnerSession = (data) => {
     localStorage.setItem('owner_token', data.token);
@@ -193,8 +215,9 @@ export default function About() {
       sessionStorage.setItem('pending_owner_email', pending.email);
       setLoginForm({ email: registerForm.email, password: '' });
       setRegisterForm(initialRegisterForm);
+      setInvoice(null);
       setPortalView('payment');
-      setPortalSuccess('Бүртгэл үүслээ. Дараагийн алхам: Stripe төлбөрөө хийж owner login эрхээ идэвхжүүлнэ.');
+      setPortalSuccess('Бүртгэл үүслээ. Дараагийн алхам: QPay-ээр төлбөрөө хийж owner login эрхээ идэвхжүүлнэ.');
     } catch (error) {
       setPortalError(error.message || 'Бүртгэл үүсгэхэд алдаа гарлаа.');
     } finally {
@@ -202,39 +225,29 @@ export default function About() {
     }
   };
 
-  const handleOwnerStripePayment = async () => {
+  const handleOwnerQpayPayment = async () => {
     const token = pendingOwner?.token || sessionStorage.getItem('pending_owner_token');
 
     if (!token) {
-      setPortalError('Эхлээд owner бүртгэл үүсгээд дараа нь Stripe төлбөрөө хийнэ үү.');
+      setPortalError('Эхлээд owner бүртгэл үүсгээд дараа нь QPay төлбөрөө хийнэ үү.');
       setPortalView('register');
       return;
     }
 
-    setPortalMode('stripe');
+    setPortalMode('qpay');
     setPortalError('');
     setPortalSuccess('');
 
     try {
-      const successUrl = `${window.location.origin}/about?owner_payment=success`;
-      const cancelUrl = `${window.location.origin}/about?owner_payment=cancelled`;
-      const response = await api.createStripeCheckoutWithToken(
+      const response = await api.createQpayInvoiceWithToken(
         token,
         selectedPlan.amount,
         selectedPlan.name,
-        successUrl,
-        cancelUrl,
         selectedPlan.periodDays,
       );
-
-      if (response.data.checkoutUrl) {
-        window.location.href = response.data.checkoutUrl;
-        return;
-      }
-
-      setPortalError(response.data.message || 'Stripe тохиргоо бүрэн идэвхжээгүй байна.');
+      setInvoice(response.data);
     } catch (error) {
-      setPortalError(error.message || 'Stripe төлбөр үүсгэхэд алдаа гарлаа.');
+      setPortalError(error.message || 'QPay төлбөр үүсгэхэд алдаа гарлаа.');
     } finally {
       setPortalMode(null);
     }
@@ -259,7 +272,7 @@ export default function About() {
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-[#f2ca50]">Owner onboarding</p>
             <h2 className="text-3xl font-extrabold text-[#e8e1db]">Owner access авах дараалал</h2>
             <p className="mt-3 text-sm leading-6 text-[#d0c5af]">
-              Эхлээд байгууллагын мэдээллээ бүртгүүлнэ. Дараа нь Stripe төлбөрөө хийж баталгаажсаны дараа owner login эрх нээгдэнэ.
+              Эхлээд байгууллагын мэдээллээ бүртгүүлнэ. Дараа нь QPay-ээр төлбөрөө хийж баталгаажсаны дараа owner login эрх нээгдэнэ.
             </p>
           </div>
 
@@ -278,12 +291,13 @@ export default function About() {
             {portalView === 'info' ? (
               <OwnerAccessIntro onRegister={() => showPortal('register')} onLogin={() => showPortal('login')} />
             ) : portalView === 'payment' ? (
-              <StripeAccessStep
+              <QpayAccessStep
                 plans={ownerPlans}
                 selectedPlan={selectedPlan}
                 setSelectedPlan={setSelectedPlan}
-                loading={portalMode === 'stripe'}
-                onPay={handleOwnerStripePayment}
+                loading={portalMode === 'qpay'}
+                invoice={invoice}
+                onPay={handleOwnerQpayPayment}
                 onRegister={() => showPortal('register')}
                 onLogin={() => showPortal('login')}
               />
@@ -294,11 +308,6 @@ export default function About() {
                 loading={portalMode === 'login'}
                 onSubmit={handleOwnerLogin}
                 onRegister={() => showPortal('info')}
-              />
-            ) : portalView === 'paymentSuccess' ? (
-              <PaymentSuccessPortal
-                email={loginForm.email}
-                onLogin={() => showPortal('login')}
               />
             ) : (
               <RegisterPortal
@@ -459,7 +468,7 @@ function OwnerAccessIntro({ onRegister, onLogin }) {
       <div className="space-y-5">
         {[
           { icon: Building2, title: '1. Байгууллагын мэдээлэл', text: 'Owner нэр, Gmail, lounge/bar нэр, байршил болон ажиллах цагийг бүртгэнэ.' },
-          { icon: CreditCard, title: '2. Stripe төлбөр', text: 'Stripe checkout-оор сонгосон багцаа төлж owner access идэвхжүүлнэ.' },
+          { icon: CreditCard, title: '2. QPay төлбөр', text: 'QPay QR уншуулж сонгосон багцаа төлж owner access идэвхжүүлнэ.' },
           { icon: ShieldCheck, title: '3. Owner login', text: 'Төлбөр амжилттай болсны дараа login хийж dashboard ашиглах эрх нээгдэнэ.' },
         ].map(({ icon: Icon, title, text }) => (
           <div key={title} className="flex gap-4 rounded-xl border border-[#3d372e] bg-[#15130f] p-4">
@@ -486,17 +495,62 @@ function OwnerAccessIntro({ onRegister, onLogin }) {
         onClick={onLogin}
         className="mt-3 inline-flex w-full items-center justify-center border border-[#f2ca50]/60 px-6 py-3 text-sm font-black text-[#f2ca50] transition hover:bg-[#f2ca50]/10"
       >
-        Stripe төлсөн owner login хийх
+        QPay төлсөн owner login хийх
       </button>
     </div>
   );
 }
 
-function StripeAccessStep({ plans, selectedPlan, setSelectedPlan, loading, onPay, onRegister, onLogin }) {
+function QpayAccessStep({ plans, selectedPlan, setSelectedPlan, loading, invoice, onPay, onRegister, onLogin }) {
+  if (invoice) {
+    return (
+      <div className="border border-[#3d372e] bg-[#1d1b17] p-6 shadow-2xl">
+        <div className="mb-6">
+          <h3 className="text-2xl font-extrabold text-[#e8e1db]">QPay QR</h3>
+          <p className="mt-2 text-sm leading-6 text-[#d0c5af]">
+            Доорх QR-г QPay апп-аар уншуулж {selectedPlan.amount.toLocaleString()}₮ төлнө үү. Төлбөр орсныг автоматаар шалгаж, owner login эрхийг шууд идэвхжүүлнэ.
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center gap-4">
+          <div className="bg-white p-3">
+            <img
+              src={
+                invoice.qrImage
+                  ? `data:image/png;base64,${invoice.qrImage}`
+                  : `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(invoice.qrText)}`
+              }
+              alt="QPay QR"
+              className="h-44 w-44"
+            />
+          </div>
+
+          {invoice.message && (
+            <p className="text-center text-xs leading-relaxed text-[#f2ca50]">{invoice.message}</p>
+          )}
+
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#d0c5af]">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            Төлбөр хүлээгдэж байна...
+          </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <button type="button" onClick={onRegister} className="border border-[#3d372e] px-4 py-2 text-xs font-bold text-[#d0c5af] hover:border-[#f2ca50]/60">
+            Бүртгэл засах
+          </button>
+          <button type="button" onClick={onLogin} className="border border-[#3d372e] px-4 py-2 text-xs font-bold text-[#f2ca50] hover:border-[#f2ca50]/60">
+            Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="border border-[#3d372e] bg-[#1d1b17] p-6 shadow-2xl">
       <div className="mb-6">
-        <h3 className="text-2xl font-extrabold text-[#e8e1db]">Stripe payment</h3>
+        <h3 className="text-2xl font-extrabold text-[#e8e1db]">QPay payment</h3>
         <p className="mt-2 text-sm leading-6 text-[#d0c5af]">
           Төлбөр баталгаажсаны дараа дараагийн алхам нь owner login эрхээ ашиглах болно.
         </p>
@@ -527,11 +581,6 @@ function StripeAccessStep({ plans, selectedPlan, setSelectedPlan, loading, onPay
         ))}
       </div>
 
-      <div className="mt-5 rounded-xl border border-[#3d372e] bg-[#15130f] p-4 text-xs leading-5 text-[#d0c5af]">
-        <p className="font-bold text-[#f2ca50]">Stripe test card</p>
-        <p className="mt-1">4242 4242 4242 4242, future date, any 3 digit CVC</p>
-      </div>
-
       <button
         type="button"
         onClick={onPay}
@@ -539,7 +588,7 @@ function StripeAccessStep({ plans, selectedPlan, setSelectedPlan, loading, onPay
         className="mt-6 inline-flex w-full items-center justify-center gap-2 bg-[#f2ca50] px-6 py-3 text-sm font-black text-[#211a04] transition hover:brightness-110 disabled:opacity-60"
       >
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
-        Stripe төлбөр хийх
+        QPay QR гаргах
       </button>
 
       <div className="mt-4 grid grid-cols-2 gap-3">
@@ -559,7 +608,7 @@ function LoginPortal({ form, setForm, loading, onSubmit, onRegister }) {
     <form onSubmit={onSubmit} className="border border-[#3d372e] bg-[#1d1b17] p-6 shadow-2xl">
       <div className="mb-6">
         <h3 className="text-2xl font-extrabold text-[#e8e1db]">Owner Login</h3>
-        <p className="mt-2 text-sm text-[#d0c5af]">Stripe төлбөр баталгаажсан owner dashboard руу нэвтэрнэ.</p>
+        <p className="mt-2 text-sm text-[#d0c5af]">QPay төлбөр баталгаажсан owner dashboard руу нэвтэрнэ.</p>
       </div>
 
       <div className="space-y-4">
@@ -601,44 +650,6 @@ function LoginPortal({ form, setForm, loading, onSubmit, onRegister }) {
   );
 }
 
-function PaymentSuccessPortal({ email, onLogin }) {
-  const loginUrl = `${window.location.origin}/about?owner_login=true`;
-
-  return (
-    <div className="border border-emerald-400/40 bg-emerald-500/10 p-6 shadow-2xl shadow-emerald-950/30">
-      <div className="mb-5 flex items-center gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-400 text-[#082216]">
-          <CheckCircle2 className="h-7 w-7" />
-        </div>
-        <div>
-          <h3 className="text-2xl font-extrabold text-emerald-100">Төлбөр амжилттай төлөгдлөө</h3>
-          <p className="mt-1 text-sm text-emerald-100/75">Owner login эрх идэвхжлээ.</p>
-        </div>
-      </div>
-
-      {email && (
-        <div className="mb-4 border border-emerald-400/25 bg-[#15130f]/70 px-4 py-3 text-sm text-emerald-100">
-          Login email: <span className="font-bold">{email}</span>
-        </div>
-      )}
-
-      <div className="rounded-xl border border-[#3d372e] bg-[#15130f] p-4 text-xs leading-5 text-[#d0c5af]">
-        <p className="font-bold text-[#f2ca50]">Owner login URL</p>
-        <p className="mt-1 break-all">{loginUrl}</p>
-      </div>
-
-      <button
-        type="button"
-        onClick={onLogin}
-        className="mt-5 inline-flex w-full items-center justify-center gap-2 bg-emerald-400 px-6 py-3 text-sm font-black text-[#082216] transition hover:bg-emerald-300"
-      >
-        <ArrowRight className="h-4 w-4" />
-        Owner login хийх
-      </button>
-    </div>
-  );
-}
-
 function RegisterPortal({ form, setForm, loading, onSubmit, onBack }) {
   const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
@@ -647,7 +658,7 @@ function RegisterPortal({ form, setForm, loading, onSubmit, onBack }) {
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h3 className="text-2xl font-extrabold text-[#e8e1db]">Owner Register</h3>
-          <p className="mt-2 text-sm text-[#d0c5af]">Бүртгэл үүсгээд дараагийн алхамд Stripe төлбөр хийнэ.</p>
+          <p className="mt-2 text-sm text-[#d0c5af]">Бүртгэл үүсгээд дараагийн алхамд QPay төлбөр хийнэ.</p>
         </div>
         <button type="button" onClick={onBack} className="text-sm font-bold text-[#f2ca50] hover:underline">
           Буцах
@@ -703,7 +714,7 @@ function RegisterPortal({ form, setForm, loading, onSubmit, onBack }) {
         className="mt-6 inline-flex w-full items-center justify-center gap-2 border border-[#f2ca50] px-6 py-3 text-sm font-black text-[#f2ca50] transition hover:bg-[#f2ca50]/10 disabled:opacity-60"
       >
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
-        Бүртгээд Stripe алхам руу орох
+        Бүртгээд QPay алхам руу орох
       </button>
     </form>
   );

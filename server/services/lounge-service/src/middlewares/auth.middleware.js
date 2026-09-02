@@ -45,7 +45,7 @@ async function subscriptionRequired(req, res, next) {
       new Date(organization.subscriptionExpiry).getTime() > Date.now();
 
     if (!isActive) {
-      return next(httpError(402, "Subscription дууссан байна. Төлбөр төлж 30 хоногийн эрхээ идэвхжүүлнэ үү."));
+      return next(httpError(402, "Байгууллагын эрх түр хаагдсан тул хандах эрхгүй байна. Та subscription-оо шинэчилнэ үү."));
     }
 
     next();

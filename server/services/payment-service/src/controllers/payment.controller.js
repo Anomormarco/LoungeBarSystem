@@ -11,23 +11,6 @@ function subscriptionPeriodDays(value) {
   return 30;
 }
 
-async function createStripeCheckout(req, res) {
-  const data = await paymentService.createStripeCheckoutSession({
-    ...req.body,
-    organizationId: req.user.organizationId,
-    periodDays: subscriptionPeriodDays(req.body.periodDays),
-  });
-  res.status(201).json({ data });
-}
-
-async function createStripePortal(req, res) {
-  const data = await paymentService.createStripeCustomerPortalSession({
-    ...req.body,
-    organizationId: req.user.organizationId,
-  });
-  res.status(201).json({ data });
-}
-
 async function createQpayInvoice(req, res) {
   const data = await paymentService.createQpayInvoice({
     ...req.body,
@@ -35,11 +18,6 @@ async function createQpayInvoice(req, res) {
     periodDays: subscriptionPeriodDays(req.body.periodDays),
   });
   res.status(201).json({ data });
-}
-
-async function stripeWebhook(req, res) {
-  const data = await paymentService.handleStripeWebhook(req.body, req.headers["stripe-signature"]);
-  res.json(data);
 }
 
 async function qpayWebhook(req, res) {
@@ -60,10 +38,7 @@ async function ownerSubscription(req, res) {
 }
 
 module.exports = {
-  createStripeCheckout: asyncHandler(createStripeCheckout),
-  createStripePortal: asyncHandler(createStripePortal),
   createQpayInvoice: asyncHandler(createQpayInvoice),
-  stripeWebhook: asyncHandler(stripeWebhook),
   qpayWebhook: asyncHandler(qpayWebhook),
   checkQpayStatus: asyncHandler(checkQpayStatus),
   ownerSubscription: asyncHandler(ownerSubscription),

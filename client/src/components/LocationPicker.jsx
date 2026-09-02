@@ -74,7 +74,7 @@ export default function LocationPicker({
     <div className="space-y-3">
       <div>
         <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">
-          Location
+          Байршил
         </label>
         <div className="relative">
           <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-amber-400" />
@@ -91,10 +91,21 @@ export default function LocationPicker({
 
       <div className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-950">
         <div className="h-72">
-          <MapContainer center={position} zoom={14} scrollWheelZoom className="h-full w-full">
+          <MapContainer
+            center={position}
+            zoom={14}
+            scrollWheelZoom
+            zoomControl={false}
+            attributionControl={false}
+            className="h-full w-full"
+          >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+              className="lounge-picker-dark-tiles"
+            />
+            <TileLayer
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+              className="lounge-picker-dark-tiles"
             />
             <MapSync position={position} />
             <ClickTarget onPick={pickLocation} />
@@ -122,10 +133,16 @@ export default function LocationPicker({
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 font-bold text-amber-300 transition hover:bg-amber-500/20 disabled:opacity-50"
           >
             <LocateFixed className="h-4 w-4" />
-            Current location
+            Одоогийн байршил
           </button>
         </div>
       </div>
+
+      <style>{`
+        .lounge-picker-dark-tiles {
+          filter: contrast(2.4) brightness(1.75);
+        }
+      `}</style>
     </div>
   );
 }

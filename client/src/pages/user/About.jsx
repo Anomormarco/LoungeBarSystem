@@ -342,7 +342,7 @@ function HeroSection({ heroIndex }) {
         <div className="absolute inset-0 bg-black/65" />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 py-20 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-[1440px] -translate-y-12 px-4 py-20 sm:-translate-y-16 sm:px-6 lg:px-8">
         <div className="max-w-xl space-y-5">
           <span className="inline-block border border-[#f2ca50]/40 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-[#f2ca50]">
             Premium Dining

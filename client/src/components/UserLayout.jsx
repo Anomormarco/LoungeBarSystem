@@ -118,9 +118,18 @@ export default function UserLayout({ children }) {
 
       <main className="relative z-10">{children}</main>
 
-      <footer className="relative z-10 mt-12 w-full border-t border-lounge-border">
-        <div className="mx-auto w-full max-w-[1440px] px-4 py-8 text-center text-xs text-lounge-muted sm:px-6 lg:px-8">
-          <p>&copy; {new Date().getFullYear()} Lounge Table Reservation Platform</p>
+      <footer className="relative z-10 mt-12 w-full border-t border-lounge-border/30">
+        <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center justify-between gap-4 px-4 py-6 text-xs text-lounge-muted/70 sm:flex-row sm:px-6 lg:px-8">
+          <p>&copy; {new Date().getFullYear()} UBTable System. Бүх эрх хуулиар хамгаалагдсан.</p>
+          <div className="flex items-center gap-6">
+            <Link to="/terms" className="transition-colors hover:text-lounge-accent">
+              Үйлчилгээний нөхцөл
+            </Link>
+            <span className="text-lounge-border">•</span>
+            <Link to="/privacy" className="transition-colors hover:text-lounge-accent">
+              Нууцлалын бодлого
+            </Link>
+          </div>
         </div>
       </footer>
     </div>

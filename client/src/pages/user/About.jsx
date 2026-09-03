@@ -22,6 +22,7 @@ import {
 import UserLayout from '../../components/UserLayout';
 import { api } from '../../utils/api';
 import LocationPicker from '../../components/LocationPicker';
+import { TERMS_OF_SERVICE } from '../../content/legalContent';
 
 const heroImages = [
   'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=1800&q=85',
@@ -109,6 +110,7 @@ export default function About() {
   const [invoice, setInvoice] = useState(null);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [registerForm, setRegisterForm] = useState(initialRegisterForm);
+  const [termsAgreed, setTermsAgreed] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -216,8 +218,9 @@ export default function About() {
       setLoginForm({ email: registerForm.email, password: '' });
       setRegisterForm(initialRegisterForm);
       setInvoice(null);
-      setPortalView('payment');
-      setPortalSuccess('Бүртгэл үүслээ. Дараагийн алхам: QPay-ээр төлбөрөө хийж owner login эрхээ идэвхжүүлнэ.');
+      setTermsAgreed(false);
+      setPortalView('terms');
+      setPortalSuccess('Бүртгэл үүслээ. Дараагийн алхам: Үйлчилгээний нөхцөлтэй танилцаад, QPay-ээр төлбөрөө хийж owner login эрхээ идэвхжүүлнэ.');
     } catch (error) {
       setPortalError(error.message || 'Бүртгэл үүсгэхэд алдаа гарлаа.');
     } finally {
@@ -290,6 +293,13 @@ export default function About() {
           <div className="mx-auto max-w-md">
             {portalView === 'info' ? (
               <OwnerAccessIntro onRegister={() => showPortal('register')} onLogin={() => showPortal('login')} />
+            ) : portalView === 'terms' ? (
+              <TermsAgreementStep
+                agreed={termsAgreed}
+                setAgreed={setTermsAgreed}
+                onContinue={() => showPortal('payment')}
+                onBack={() => showPortal('register')}
+              />
             ) : portalView === 'payment' ? (
               <QpayAccessStep
                 plans={ownerPlans}
@@ -713,10 +723,73 @@ function RegisterPortal({ form, setForm, loading, onSubmit, onBack }) {
         disabled={loading}
         className="mt-6 inline-flex w-full items-center justify-center gap-2 border border-[#f2ca50] px-6 py-3 text-sm font-black text-[#f2ca50] transition hover:bg-[#f2ca50]/10 disabled:opacity-60"
       >
-        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
-        Бүртгээд QPay алхам руу орох
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+        Бүртгээд үргэлжлүүлэх
       </button>
     </form>
+  );
+}
+
+function TermsAgreementStep({ agreed, setAgreed, onContinue, onBack }) {
+  return (
+    <div className="border border-[#3d372e] bg-[#1d1b17] p-6 shadow-2xl">
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-2xl font-extrabold text-[#e8e1db]">Үйлчилгээний нөхцөл</h3>
+          <p className="mt-2 text-sm text-[#d0c5af]">
+            QPay алхам руу орохоос өмнө доорх нөхцөлтэй танилцаж, зөвшөөрнө үү.
+          </p>
+        </div>
+        <button type="button" onClick={onBack} className="shrink-0 text-sm font-bold text-[#f2ca50] hover:underline">
+          Буцах
+        </button>
+      </div>
+
+      <div className="max-h-72 space-y-5 overflow-y-auto border border-[#3d372e] bg-[#15130f] p-4">
+        {TERMS_OF_SERVICE.sections.map((section) => (
+          <div key={section.heading}>
+            <h4 className="text-sm font-bold text-[#f2ca50]">{section.heading}</h4>
+            <div className="mt-1.5 space-y-1.5">
+              {section.body.map((paragraph, index) => (
+                <p key={index} className="text-xs leading-relaxed text-[#a99f8d]">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-3 text-xs text-[#6f675b]">
+        Бүрэн эхээр нь{' '}
+        <Link to="/terms" target="_blank" rel="noreferrer" className="text-[#f2ca50] hover:underline">
+          энд
+        </Link>{' '}
+        уншиж болно.
+      </p>
+
+      <label className="mt-4 flex cursor-pointer items-start gap-3">
+        <input
+          type="checkbox"
+          checked={agreed}
+          onChange={(event) => setAgreed(event.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-[#f2ca50]"
+        />
+        <span className="text-sm text-[#e8e1db]">
+          Би дээрх Үйлчилгээний нөхцөлийг бүрэн уншиж, ойлгож, зөвшөөрч байна.
+        </span>
+      </label>
+
+      <button
+        type="button"
+        onClick={onContinue}
+        disabled={!agreed}
+        className="mt-6 inline-flex w-full items-center justify-center gap-2 border border-[#f2ca50] px-6 py-3 text-sm font-black text-[#f2ca50] transition hover:bg-[#f2ca50]/10 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <CreditCard className="h-4 w-4" />
+        Зөвшөөрч, QPay алхам руу орох
+      </button>
+    </div>
   );
 }
 

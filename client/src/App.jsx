@@ -10,6 +10,8 @@ import About from './pages/user/About';
 import RestaurantsLounges from './pages/user/RestaurantsLounges';
 import Contact from './pages/user/Contact';
 import NeedsDiscovery from './pages/user/NeedsDiscovery';
+import TermsOfService from './pages/user/TermsOfService';
+import PrivacyPolicy from './pages/user/PrivacyPolicy';
 
 // Company Intro
 import CompanyIntro from './pages/CompanyIntro';
@@ -60,6 +62,8 @@ function App() {
         <Route path="/needs" element={<NeedsDiscovery />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/lounge/:id" element={<LoungeDetail />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
 
         {/* Company Introduction / Subscription */}
         <Route path="/for-owners" element={<CompanyIntro />} />

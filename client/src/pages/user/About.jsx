@@ -220,7 +220,7 @@ export default function About() {
       setInvoice(null);
       setTermsAgreed(false);
       setPortalView('terms');
-      setPortalSuccess('Бүртгэл үүслээ. Дараагийн алхам: Үйлчилгээний нөхцөлтэй танилцаад, QPay-ээр төлбөрөө хийж owner login эрхээ идэвхжүүлнэ.');
+      setPortalSuccess('Бүртгэл үүслээ. Дараагийн алхам: Үйлчилгээний нөхцөлтэй танилцаад, төлбөрөө хийж owner login эрхээ идэвхжүүлнэ.');
     } catch (error) {
       setPortalError(error.message || 'Бүртгэл үүсгэхэд алдаа гарлаа.');
     } finally {
@@ -275,7 +275,7 @@ export default function About() {
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-[#f2ca50]">Owner onboarding</p>
             <h2 className="text-3xl font-extrabold text-[#e8e1db]">Owner access авах дараалал</h2>
             <p className="mt-3 text-sm leading-6 text-[#d0c5af]">
-              Эхлээд байгууллагын мэдээллээ бүртгүүлнэ. Дараа нь QPay-ээр төлбөрөө хийж баталгаажсаны дараа owner login эрх нээгдэнэ.
+              Эхлээд байгууллагын мэдээллээ бүртгүүлнэ. Дараа нь төлбөрөө хийж баталгаажсаны дараа хандах эрх нээгдэнэ.
             </p>
           </div>
 

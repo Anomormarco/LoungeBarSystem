@@ -327,7 +327,7 @@ export default function About() {
 
 function HeroSection({ heroIndex }) {
   return (
-    <section className="relative flex min-h-[78vh] items-center overflow-hidden">
+    <section className="relative flex min-h-screen items-center overflow-hidden">
       <div className="absolute inset-0">
         {heroImages.map((image, index) => (
           <img
